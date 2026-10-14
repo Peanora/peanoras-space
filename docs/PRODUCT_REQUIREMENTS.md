@@ -137,7 +137,7 @@
 ## 11. GitHub 与部署
 
 - 本地：`E:/Peanora's Space`。
-- 仓库：`https://github.com/Citlali37/peanoras-space`；主分支 `main`。
+- 当前仓库：`https://github.com/Peanora/peanoras-space`；主分支 `main`。2026-10-15 推送时 GitHub 明确提示从原 Citlali37 地址迁移，旧链接仍可转发。
 - 用户已要求建仓库并推送，首次推送完成。2026-10-15 明确要求本次视觉/分屏修改和长期文档完成后再次推送。
 - 推送源码不代表网站发布；用户尚未要求 Pages 部署，不擅自启用部署。
 - 未来 GitHub Pages：静态构建、Vite base、资源路径、刷新兼容、GitHub Actions 自动部署。
