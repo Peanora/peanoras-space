@@ -1,0 +1,219 @@
+.site-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--background);
+  pointer-events: none;
+}
+.site-backdrop img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.3;
+}
+.site-backdrop .wallpaper-enter-active,
+.site-backdrop .wallpaper-leave-active {
+  transition: opacity 300ms linear;
+}
+.site-backdrop .wallpaper-enter-from,
+.site-backdrop .wallpaper-leave-to {
+  opacity: 0;
+}
+.site-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #fff9ef88;
+}
+.hero-identity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+}
+.hero-avatar-frame {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+  padding: 6px;
+  background: #fffaf5;
+  box-shadow: 0 7px 28px #77513016;
+}
+.hero-avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+.hero-entrances {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 4px;
+}
+.hero-entrances a {
+  min-height: 44px;
+  border: 1px solid #d9c4ac;
+  border-radius: 24px;
+  background: #fffaf5df;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 18px;
+  gap: 24px;
+  font-size: 13px;
+  transition:
+    background 180ms,
+    border-color 180ms;
+}
+.hero-entrances a:hover {
+  background: var(--apricot);
+  border-color: #bd9770;
+}
+.wallpaper-picker {
+  position: absolute;
+  left: 0;
+  bottom: 24px;
+  z-index: 3;
+}
+.wallpaper-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 9px 14px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--paper);
+  color: var(--text);
+  font-size: 12px;
+}
+.wallpaper-toggle-label {
+  color: var(--muted);
+  margin-left: 12px;
+}
+.wallpaper-swatch {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid #493b3220;
+}
+.wallpaper-options {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 0;
+  width: min(390px, calc(100vw - 2 * var(--gutter)));
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fffbf6;
+  padding: 20px;
+  box-shadow: 0 12px 40px #70523817;
+}
+.wallpaper-hint,
+.wallpaper-feedback {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+.wallpaper-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: 16px 0;
+}
+.wallpaper-choices button {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 44px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: transparent;
+  text-align: left;
+  font-size: 12px;
+}
+.wallpaper-choices button:hover {
+  background: #f8ede0;
+}
+.wallpaper-choices button[aria-pressed="true"] {
+  background: #f6e7d4;
+  border-color: #ddc09e;
+}
+.wallpaper-check {
+  margin-left: auto;
+  color: var(--accent);
+}
+.world-view .content-section,
+.music-view .content-section,
+.favorites-section {
+  background: #fffaf5b8;
+}
+.world-view .content-section,
+.music-view .content-section {
+  padding-inline: clamp(18px, 3vw, 42px);
+}
+.little-paper {
+  background: var(--paper);
+  padding-inline: clamp(20px, 4vw, 48px);
+  border-radius: 12px;
+}
+.favorites-section {
+  padding-inline: clamp(20px, 4vw, 48px);
+  border-radius: 12px;
+}
+.eyebrow {
+  font-size: 12px;
+}
+.site-navigation a.router-link-active {
+  color: var(--accent);
+}
+.site-navigation a::after {
+  background: var(--accent);
+}
+.page-heading h1 {
+  font-size: clamp(64px, 8vw, 112px);
+}
+@media (max-width: 720px) {
+  .hero-avatar-frame {
+    width: 104px;
+    height: 104px;
+  }
+  .hero-identity {
+    gap: 18px;
+  }
+  .hero-entrances {
+    gap: 10px;
+  }
+  .hero-entrances a {
+    padding-inline: 14px;
+    gap: 12px;
+    font-size: 12px;
+  }
+  .wallpaper-picker {
+    bottom: 22px;
+  }
+  .wallpaper-toggle {
+    padding-inline: 12px;
+    gap: 8px;
+  }
+  .wallpaper-toggle-label {
+    margin-left: 4px;
+  }
+  .wallpaper-options {
+    padding: 16px;
+  }
+  .world-view .content-section,
+  .music-view .content-section {
+    padding-inline: 18px;
+  }
+  .page-heading h1 {
+    font-size: clamp(60px, 15vw, 96px);
+  }
+}

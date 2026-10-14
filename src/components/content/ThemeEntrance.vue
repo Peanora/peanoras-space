@@ -19,9 +19,13 @@ defineProps({ theme: { type: Object, required: true } });
       ><img
         :src="theme.image"
         :alt="theme.alt"
+        :style="{ objectPosition: theme.imagePosition || 'center' }"
+        loading="lazy"
         width="1000"
         height="640"
-      /><span class="image-label">占位素材</span></RouterLink
+      /><span v-if="theme.imageLabel" class="image-label">{{
+        theme.imageLabel
+      }}</span></RouterLink
     >
     <RouterLink :to="theme.path" class="text-link theme-action"
       >{{ theme.action }} <span aria-hidden="true">↗</span></RouterLink

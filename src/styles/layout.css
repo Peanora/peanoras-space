@@ -1,5 +1,5 @@
 .site-header {
-  min-height: 104px;
+  min-height: 88px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -59,14 +59,15 @@
 }
 .home-hero {
   position: relative;
-  min-height: min(54vw, 455px);
+  min-height: 400px;
   display: flex;
   align-items: center;
+  justify-content: center;
   border-bottom: 1px solid var(--line);
-  padding-block: 30px 60px;
+  padding-block: 32px 78px;
 }
 .hero-name {
-  font-size: clamp(100px, 24vw, 350px);
+  font-size: clamp(80px, 9vw, 124px);
   animation: name-enter 420ms ease-out both;
 }
 @keyframes name-enter {
@@ -86,6 +87,8 @@
   width: 44px;
   height: 44px;
   border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--paper);
   display: grid;
   place-items: center;
   font-size: 21px;
@@ -97,14 +100,14 @@
 .home-chapters {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  column-gap: clamp(32px, 7vw, 106px);
-  padding-block: 44px var(--section-space);
+  column-gap: clamp(28px, 4vw, 64px);
+  padding-block: 30px var(--section-space);
 }
 .theme-meta {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 26px;
+  margin-bottom: 12px;
 }
 .entry-dot {
   width: 5px;
@@ -120,17 +123,17 @@
   align-items: end;
   justify-content: space-between;
   gap: 10px;
-  min-height: 132px;
+  min-height: 56px;
 }
 .theme-title {
-  font-size: clamp(56px, 6.1vw, 88px);
-  max-width: 440px;
+  font-size: clamp(40px, 4vw, 56px);
+  max-width: none;
 }
 .theme-music .theme-title {
-  max-width: 380px;
+  max-width: none;
 }
 .theme-arrow {
-  font-size: 30px;
+  font-size: 24px;
   line-height: 1;
   padding-bottom: 7px;
   color: var(--muted);
@@ -146,17 +149,19 @@
   color: var(--muted);
   font-size: 11px;
   letter-spacing: 0.09em;
-  margin: 21px 0 28px;
+  margin: 15px 0 22px;
 }
 .theme-image-link {
   display: block;
   position: relative;
   overflow: hidden;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px #664b3110;
 }
 .theme-image-link img {
   width: 100%;
   height: auto;
-  aspect-ratio: 1000 / 640;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
   transition: transform 380ms ease;
 }
@@ -167,7 +172,7 @@
 }
 .home-little {
   border-top: 1px solid var(--line);
-  padding-block: 38px 68px;
+  padding-block: 32px 48px;
   display: grid;
   grid-template-columns: 1fr 1.15fr;
   align-items: center;
@@ -198,6 +203,7 @@
   min-height: 110px;
   border-top: 1px solid var(--line);
   font-size: 12px;
+  background: #fffaf5a6;
 }
 .footer-name {
   min-height: 44px;
@@ -493,11 +499,11 @@
   border: 0;
   margin: 0;
   padding: 24px clamp(20px, 5vw, 80px);
-  background: #111214fa;
+  background: #faf6effa;
   color: var(--text);
 }
 .lightbox::backdrop {
-  background: #111214;
+  background: var(--background);
 }
 .lightbox-toolbar {
   display: flex;
@@ -575,7 +581,8 @@
 }
 .save-button[aria-pressed="true"] {
   border-color: var(--accent);
-  color: #c3bfde;
+  color: var(--accent);
+  background: var(--apricot);
 }
 .quote-enter-active,
 .quote-leave-active {
@@ -663,13 +670,13 @@
     column-gap: 38px;
   }
   .theme-title-link {
-    min-height: 124px;
+    min-height: 56px;
   }
   .theme-title {
-    font-size: 62px;
+    font-size: 44px;
   }
   .theme-music .theme-title {
-    max-width: 270px;
+    max-width: none;
   }
   .project-entry {
     gap: 32px;
@@ -734,33 +741,33 @@
     width: 30px;
   }
   .home-hero {
-    min-height: 240px;
-    padding-block: 24px 68px;
+    min-height: 386px;
+    padding-block: 28px 94px;
   }
   .hero-name {
-    font-size: clamp(91px, 25vw, 170px);
+    font-size: clamp(74px, 20vw, 104px);
   }
   .hero-scroll {
-    bottom: 18px;
-    width: 36px;
+    bottom: 22px;
+    width: 44px;
     height: 44px;
   }
   .home-chapters {
     grid-template-columns: 1fr;
-    gap: 52px;
+    gap: 36px;
     padding-top: 34px;
   }
   .theme-meta {
-    margin-bottom: 24px;
+    margin-bottom: 18px;
   }
   .theme-title-link {
     min-height: 0;
   }
   .theme-title {
-    font-size: clamp(54px, 12vw, 78px);
+    font-size: clamp(42px, 9vw, 54px);
   }
   .theme-music .theme-title {
-    max-width: 340px;
+    max-width: none;
   }
   .theme-index {
     margin-block: 18px 23px;

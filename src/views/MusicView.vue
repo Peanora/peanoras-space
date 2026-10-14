@@ -64,7 +64,7 @@ useScrollReveal();
       <p v-if="!gallery.length" class="empty-note">照片等待添加。</p>
     </section>
     <p class="music-disclaimer">
-      非官方个人音乐与回忆空间。当前封面与图片为原创占位素材；正式内容将使用原创、授权素材或官方平台链接。
+      非官方个人音乐与回忆空间。当前歌曲封面与回忆照片为占位素材；插画背景由本人提供，正式音乐内容将使用原创、授权素材或官方平台链接。
     </p>
     <nav class="next-chapter" aria-label="继续浏览">
       <span class="eyebrow">NEXT / 我的个人世界</span

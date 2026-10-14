@@ -1,10 +1,10 @@
-import projectImage from "../assets/images/project-placeholder.svg";
-import memoryImage from "../assets/images/memory-placeholder.svg";
+import projectImage from "../assets/artwork/spring-garden.jpg";
+import memoryImage from "../assets/artwork/flower-stage.jpg";
 
 export const site = {
   name: "Peanora's Space",
   nickname: "Peanora",
-  socials: [{ label: "GitHub", url: null }],
+  socials: [{ label: "GitHub", url: "https://github.com/Citlali37" }],
   navigation: [
     { label: "My World", path: "/world" },
     { label: "Music & Memories", path: "/music" },
@@ -19,7 +19,9 @@ export const site = {
       path: "/world",
       action: "进入个人世界",
       image: projectImage,
-      alt: "项目封面占位：原创几何空间线稿",
+      alt: "春日庭院插画：阳光、绿叶与猫咪",
+      imageLabel: "插画壁纸",
+      imagePosition: "50% 50%",
       kind: "world",
     },
     {
@@ -30,7 +32,9 @@ export const site = {
       path: "/music",
       action: "进入音乐与回忆",
       image: memoryImage,
-      alt: "回忆图片占位：原创唱片与纸面构图",
+      alt: "音乐主题插画：花海与手持麦克风的角色",
+      imageLabel: "插画壁纸",
+      imagePosition: "50% 48%",
       kind: "music",
     },
   ],
