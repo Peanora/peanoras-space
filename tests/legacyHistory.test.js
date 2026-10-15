@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { legacyHistoryPath } from "../src/router/legacyHistory.js";
+import { legacyHistoryPath, migrateLegacyHash } from "../src/router/legacyHistory.js";
 
 test("old home and all existing hash pages become clean paths", () => {
   for (const path of ["/", "/world", "/music", "/little-things"]) {
@@ -29,4 +29,31 @@ test("unknown routes keep the existing not-found behavior and external paths are
   assert.equal(legacyHistoryPath("https://peanora.cn/#/missing?x=1"), "/missing?x=1");
   assert.equal(legacyHistoryPath("https://peanora.cn/#//example.com/music"), null);
   assert.equal(legacyHistoryPath("https://peanora.cn/#/\\example.com/music"), null);
+});
+
+test("reloaded Hash entries retain their history position and migrate only once", () => {
+  const location = { href: "https://peanora.cn/?from=friend#/music?track=1" };
+  const state = { current: "/music?track=1", position: 3, back: "/world", forward: null, scroll: { top: 200 }, custom: "keep" };
+  let calls = 0;
+  const history = {
+    state,
+    replaceState(next, _title, path) {
+      calls += 1;
+      this.state = next;
+      location.href = new URL(path, location.href).href;
+    },
+  };
+  assert.equal(migrateLegacyHash(location, history), true);
+  assert.deepEqual(history.state, { ...state, current: "/music?from=friend&track=1" });
+  assert.equal(migrateLegacyHash(location, history), false);
+  assert.equal(calls, 1);
+  assert.equal(state.current, "/music?track=1");
+});
+
+test("fresh entries stay uninitialized for Vue Router to set up correctly", () => {
+  let savedState = "not called";
+  assert.equal(migrateLegacyHash({ href: "https://peanora.cn/#/world" }, {
+    state: null, replaceState(state) { savedState = state; },
+  }), true);
+  assert.equal(savedState, null);
 });

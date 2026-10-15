@@ -1,13 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { site } from "../data/site";
-import { legacyHistoryPath } from "./legacyHistory.js";
+import { migrateLegacyHash } from "./legacyHistory.js";
 
 // Replace the current entry before Vue Router reads it: no reload or extra
 // history entry, and ordinary section anchors remain untouched.
-const legacyPath = legacyHistoryPath(window.location.href);
-if (legacyPath !== null) {
-  window.history.replaceState(window.history.state, "", legacyPath);
-}
+migrateLegacyHash(window.location, window.history);
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

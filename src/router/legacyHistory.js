@@ -13,3 +13,13 @@ export function legacyHistoryPath(href) {
     .join("&");
   return `${target.pathname}${target.search}${target.hash}`;
 }
+
+export function migrateLegacyHash(location, history) {
+  const path = legacyHistoryPath(location.href);
+  if (path === null) return false;
+  const state = history.state;
+  // A refreshed Hash page may retain Vue Router's saved entry. Keep its
+  // position/scroll/back/forward data, but align current with the clean URL.
+  history.replaceState(state?.current ? { ...state, current: path } : state, "", path);
+  return true;
+}
