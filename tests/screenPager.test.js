@@ -8,13 +8,18 @@ test("touch handlers support image links, suppress accidental clicks, and preser
   const media = { matches: false, addEventListener() {}, removeEventListener() {} };
   const savedWindow = globalThis.window;
   const savedDocument = globalThis.document;
-  globalThis.window = { matchMedia: () => media, addEventListener() {}, removeEventListener() {} };
+  const windowListeners = new Map();
+  globalThis.window = { matchMedia: () => media,
+    addEventListener: (type, fn) => windowListeners.set(type, fn),
+    removeEventListener: (type) => windowListeners.delete(type),
+  };
   globalThis.document = { activeElement: null };
   const panel = { scrollTop: 0, clientHeight: 500, scrollHeight: 800 };
+  panel.scrollBy = ({ top }) => { panel.scrollTop = Math.max(0, Math.min(300, panel.scrollTop + top)); };
   const stage = {
     addEventListener: (type, fn) => listeners.set(type, fn),
     removeEventListener: (type) => listeners.delete(type),
-    querySelector: () => null,
+    querySelector: () => panel,
   };
   const renderer = createRenderer({
     createComment: () => ({}), createText: () => ({}), createElement: () => ({}),
@@ -61,10 +66,18 @@ test("touch handlers support image links, suppress accidental clicks, and preser
     panel.scrollTop = 0;
     start(300); end(450);
     assert.equal(pager.current.value, 0, "top boundary goes back");
+    await pager.finishMove();
+    const key = { key: "PageDown", target: target(), preventDefault() {} };
+    windowListeners.get("keydown")(key);
+    assert.equal(panel.scrollTop, 300, "keyboard reads the panel even from fixed controls");
+    assert.equal(pager.current.value, 0);
+    windowListeners.get("keydown")(key);
+    assert.equal(pager.current.value, 1, "next key at boundary changes theme");
   } finally {
     app.unmount();
     globalThis.window = savedWindow;
     globalThis.document = savedDocument;
   }
   assert.equal(listeners.size, 0, "listeners removed on unmount");
+  assert.equal(windowListeners.size, 0);
 });

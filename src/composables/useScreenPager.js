@@ -87,8 +87,14 @@ export function useScreenPager(stage, count) {
         ? -1
         : 0;
     if (!step && !["Home", "End"].includes(event.key)) return;
-    if (step && canReadMore(stage.value?.querySelector(".home-screen"), step))
+    const panel = stage.value?.querySelector(".home-screen");
+    if (step && canReadMore(panel, step)) {
+      // Focus may be on the fixed directory outside the scrollable panel.
+      // Scroll explicitly so a short screen never traps keyboard navigation.
+      event.preventDefault();
+      panel.scrollBy({ top: step * (event.key.startsWith("Page") ? panel.clientHeight * 0.8 : 60) });
       return;
+    }
     event.preventDefault();
     goTo(
       event.key === "Home"
