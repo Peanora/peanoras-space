@@ -22,3 +22,11 @@
 GitHub Pages 自定义 404 只是错误文档回退，不能提供真实的服务器 rewrite。已知子页直达即使显示正常也可能仍为 HTTP 404；搜索引擎、社交链接预览与未执行 JavaScript 的客户端可能视为失败。现有配置不依赖额外服务器、付费服务、重定向中转或隐藏 Hash。真实手机和其他浏览器未实测。
 
 官方说明：[GitHub Pages 自定义 404](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-custom-404-page-for-your-github-pages-site)、[Vue Router History 模式](https://router.vuejs.org/guide/essentials/history-mode.html)。
+
+## 最终线上确认
+
+- 应用提交 `dd92e27ddebeb13aee5402e048de9cbaedba1ffb` 已推送 main，[Actions 38721319612](https://github.com/Peanora/peanoras-space/actions/runs/38721319612) 的构建与发布成功。
+- `https://peanora.cn/` 返回 200；`/world`、`/music`、`/little-things` 返回 404，响应内容均为应用入口，引用最终脚本 `/assets/index-4gv6QhPK.js`；`/404.html` 返回 200。根路径和子页面返回的是同一发布版本。
+- 54 个线上构建资源 HEAD 均返回 200，包含 JS/CSS/图片/字体。Pages 自定义域名仍是 `peanora.cn`，build_type 和 https_enforced 与修改前一致；工作流、依赖和 public 目录没有本次改动。
+- 最终构建再次在本地 Pages 模拟环境验证旧查询链接变为 `/music?from=friend&track=1982799628`，截图为 `previews/history-routing-local.png`。
+- 线上音乐页的浏览器读取两次超时，没有完整重测线上交互；浏览器导航、刷新、前进/后退和旧链接的交互验证来自本地同一发布构建，线上确认来自实际 HTTP 响应、资源与成功部署。没有把这些标记为真实手机或全部线上浏览器测试通过。
