@@ -40,3 +40,10 @@ npm run preview
 关闭预览后移除该环境变量，再继续默认根路径开发：`Remove-Item Env:VITE_BASE_PATH`。
 
 当前没有实测国内多地区、不同运营商与真实手机网络的速度，成功部署不等于各地区访问速度一致。原始素材和真实触摸/屏幕阅读器的测试限制仍以各验证文档为准。
+
+## 手机体验更新 · 2026-10-15
+
+- 最新应用提交：`58fc7b0a326faf7625b5c75cc8d84c254b1909c8`，包含 `5ddbacc` 的资源优化与触摸修复。
+- [自动测试、构建与发布](https://github.com/Peanora/peanoras-space/actions/runs/38691327492) 已完成，结论 `success`。
+- 公开入口返回 HTTP 200，入口脚本 `index-D5-TiRME.js` 与本地最终构建一致；54 个构建资源的线上 HEAD 检查全部返回 HTTP 200。
+- 本地浏览器布局、导航、图片和键盘验证见 `MOBILE-PERFORMANCE-VERIFICATION.md`。本轮公开网站的浏览器读取仍超时，因此线上确认依据为成功部署、实际入口与资源 HTTP 检查，不能声称已完成线上手机实机验证。
