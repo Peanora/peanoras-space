@@ -83,6 +83,7 @@ npm run preview
 ## GitHub Pages 发布
 
 用户于 2026-10-15 授权首次公开发布。项目地址为 `https://peanora.github.io/peanoras-space/`，部署状态以仓库 Actions 与 Pages 设置为准。
+发布配置、验证和后续维护见 `docs/DEPLOYMENT.md`。
 
 采用 Hash 路由，静态托管刷新可直接载入入口文件。地址示例为 `/#/music`，子目录地址为 `/仓库名/#/music`。Hash 路由对搜索收录存在限制；首版没有服务端渲染或预渲染。
 
