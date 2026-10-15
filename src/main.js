@@ -8,5 +8,6 @@ import "./styles/layout.css";
 import "./styles/appearance.css";
 import "./styles/home.css";
 import "./styles/scrapbook.css";
+import "./styles/music-player.css";
 
 createApp(App).use(router).mount("#app");

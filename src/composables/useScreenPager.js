@@ -77,7 +77,7 @@ export function useScreenPager(stage, count) {
       event.ctrlKey ||
       event.metaKey ||
       event.target.closest(
-        "input, textarea, select, [contenteditable], .wallpaper-picker, .site-navigation",
+        "input, textarea, select, [contenteditable], .wallpaper-picker, .site-navigation, .music-widget",
       )
     )
       return;

@@ -2,10 +2,15 @@
 import { ref, watch, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
 import { site } from "../../data/site";
+import MusicPlayer from "../ui/MusicPlayer.vue";
+import { useMusicPlayer } from "../../composables/useMusicPlayer";
 
 const open = ref(false);
 const toggle = ref(null);
 const route = useRoute();
+const { expanded: musicExpanded } = useMusicPlayer();
+watch(musicExpanded, (value) => { if (value) open.value = false; });
+watch(open, (value) => { if (value) musicExpanded.value = false; });
 watch(
   () => route.fullPath,
   () => {
@@ -51,5 +56,6 @@ onUnmounted(() => window.removeEventListener("keydown", onEscape));
         >{{ item.label }}</RouterLink
       >
     </nav>
+    <MusicPlayer />
   </header>
 </template>

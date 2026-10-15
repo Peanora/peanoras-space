@@ -1,0 +1,31 @@
+.music-widget { position: relative; flex-shrink: 0; }
+.music-toggle { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 24px; background: #fffaf5b3; color: var(--text); font-size: 13px; }
+.music-toggle:hover, .music-toggle[aria-expanded="true"] { background: var(--apricot); }
+.music-panel { position: absolute; top: calc(100% + 12px); right: 0; width: 360px; max-height: calc(100dvh - 110px); overflow: auto; overscroll-behavior: contain; padding: 18px; border: 1px solid var(--line); border-radius: 5px 5px 18px 5px; background: #fffaf5; box-shadow: 0 12px 40px #493b3220; }
+.music-panel-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.music-panel-top .eyebrow { font-size: 10px; }
+.music-panel-close { width: 44px; min-height: 44px; border: 0; background: none; font-size: 24px; }
+.music-panel h2 { font-family: var(--font-chinese); font-size: 25px; font-weight: 400; margin-top: 6px; }
+.music-artist { font-size: 13px; margin-block: 3px 14px; }
+.music-artist span, .music-status, .music-footnote { color: var(--muted); }
+.music-load { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; min-height: 44px; width: 100%; border: 1px solid #d9c4ac; border-radius: 4px; background: var(--background); font-size: 14px; }
+.official-player { min-height: 90px; margin-inline: -10px; }
+.official-player iframe { display: block; width: 100%; border: 0; height: 90px; }
+.music-status { font-size: 12px; line-height: 1.6; min-height: 2em; margin-top: 10px; }
+.music-panel-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; }
+.music-panel-actions a, .music-panel-actions button { display: inline-flex; align-items: center; min-height: 44px; padding: 0; border: 0; background: none; font-size: 12px; color: var(--accent); }
+.music-footnote { font-size: 11px; line-height: 1.7; border-top: 1px solid var(--line); padding-top: 10px; margin-top: 7px; }
+.song-actions { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.song-actions button { background: none; padding: 0; border: 0; cursor: pointer; }
+@media (max-width: 720px) {
+  .music-widget { position: static; order: 2; margin-left: auto; }
+  .site-header > .menu-toggle { order: 3; gap: 10px; padding-left: 14px; }
+  .site-header > .site-navigation { order: 4; }
+  .music-toggle { padding-inline: 10px; font-size: 12px; }
+  .music-panel { top: 74px; left: 0; right: 0; width: auto; max-height: calc(100dvh - 100px); }
+}
+@media (max-width: 360px) {
+  .site-header .wordmark { gap: 6px; font-size: 10px; }
+  .site-header > .menu-toggle { gap: 5px; padding-left: 10px; }
+  .music-toggle { padding-inline: 8px; gap: 4px; }
+}

@@ -2,13 +2,15 @@ import cover from "../assets/images/record-placeholder.svg";
 
 export const songs = [
   {
-    id: "song-draft-01",
-    title: "一首喜欢的歌",
-    artist: "hanser",
-    thought: "歌名与我的感想，留待正式内容补充。",
+    id: "netease-1982799628",
+    title: "它像一颗",
+    artist: "Hanser",
+    thought: null,
     cover,
     alt: "原创唱片封面占位，非官方歌曲封面",
-    officialUrl: null,
-    isPlaceholder: true,
+    officialUrl: "https://music.163.com/song?id=1982799628",
+    neteaseId: "1982799628",
+    isPlaceholder: false,
+    coverIsPlaceholder: true,
   },
 ];

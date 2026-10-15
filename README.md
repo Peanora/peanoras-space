@@ -104,3 +104,9 @@ Remove-Item Env:VITE_BASE_PATH
 欢迎语、个性签名与中文字体的最新验证见 `docs/WELCOME-SIGNATURE-VERIFICATION.md`。
 
 手机翻页与资源加载优化见 `docs/MOBILE-PERFORMANCE-VERIFICATION.md`；最新要求移除页面“暂停动态”按钮，保留系统减少动态及后台暂停。
+
+## 官方音乐播放器
+
+顶部“听歌”打开面板，再点击“加载官方播放器”；音乐页的“打开播放器”也可直接加载同一个面板。使用网易云官方 iframe，默认不自动播放，播放/暂停/进度由平台控制。收起与站内导航保留 iframe，“停止播放”将其卸载；重新加载会重建播放器。初次访问不请求网易云。
+
+曲目在 `src/data/songs.js`，提供 `neteaseId` 与 `officialUrl` 即可接入官方外链；未提供封面继续用明确的占位封面，未提供个人感想可保持 `null`。平台可能限制站外播放，官方收听链接始终保留。实现不包含音频托管、NCM 转换、非官方代理或绕过会员限制。验证见 `docs/MUSIC-PLAYER-VERIFICATION.md`。
