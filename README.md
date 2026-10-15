@@ -58,6 +58,7 @@ npm run preview
 - `src/styles/layout.css`：页面布局和响应式规则。
 - `src/styles/appearance.css`：浅色壁纸遮罩、首页头像与壁纸选择器。
 - `src/styles/home.css`：四屏首页、侧边头像、逐字标题与翻屏回弹。
+- `src/styles/scrapbook.css`：手账封面、主题书签、笔记/唱片/便签构图和微幅循环；`useAmbientMotion.js` 管理暂停、系统减少动态偏好与后台暂停。
 - `src/components/`：导航、作品、歌曲、回忆、相册与原生 dialog 灯箱。
 - `src/composables/`：滚动出现与本地收藏。
 
@@ -92,4 +93,4 @@ GitHub Actions 部署时将同一变量放入构建环境，安装依赖使用 `
 
 ## 验收记录
 
-原始功能验证见 `docs/VERIFICATION.md`；本次暖色四屏首页见 `docs/PAGED-HOME-VERIFICATION.md`。浏览器尺寸模拟与实机测试区分记录，未验证的项目不视为通过。
+原始功能验证见 `docs/VERIFICATION.md`；暖色四屏首页见 `docs/PAGED-HOME-VERIFICATION.md`，最新手账构图与持续动效见 `docs/SCRAPBOOK-VERIFICATION.md`。浏览器尺寸模拟与实机测试区分记录，未验证的项目不视为通过。

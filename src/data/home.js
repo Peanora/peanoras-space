@@ -9,6 +9,8 @@ export const homeScreens = [
     shortTitle: "World",
     description: "个人介绍、游戏开发项目与学习经历。",
     artworkNote: "春日庭院",
+    bookmark: "个人世界",
+    tags: ["About", "Projects", "Experience"],
     kind: "world",
   },
   {
@@ -17,6 +19,7 @@ export const homeScreens = [
     shortTitle: "Music",
     description: "歌曲收藏、演唱会回忆与图片收藏。",
     artworkNote: "花海与歌",
+    bookmark: "音乐回忆",
     kind: "music",
   },
   {
@@ -33,6 +36,7 @@ export const homeScreens = [
     imagePosition: "50% 50%",
     alt: "午后小憩插画：阳光、抱枕与猫咪",
     artworkNote: "午后小憩",
+    bookmark: "小角落",
     kind: "little",
   },
 ];

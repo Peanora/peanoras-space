@@ -5,17 +5,29 @@ import { appearance } from "../data/appearance";
 import { homeScreens } from "../data/home";
 import WallpaperPicker from "../components/ui/WallpaperPicker.vue";
 import { useScreenPager } from "../composables/useScreenPager";
+import { useAmbientMotion } from "../composables/useAmbientMotion";
+import HomeScene from "../components/content/HomeScene.vue";
 const stage = ref(null);
 const { current, direction, goTo, finishMove, transitionDuration } =
   useScreenPager(stage, homeScreens.length);
 const screen = computed(() => homeScreens[current.value]);
 const brandWords = site.name.split(" ");
 const social = site.socials.find((item) => item.url);
+const chapters = homeScreens.slice(1);
+const portraitBouncing = ref(false);
+const {
+  still,
+  label: motionLabel,
+  reduced,
+  paused,
+  toggle: toggleMotion,
+} = useAmbientMotion();
 </script>
 <template>
   <div
     ref="stage"
     class="home-pager"
+    :class="{ 'is-still': still }"
     :style="{ '--direction': direction }"
     role="region"
     aria-label="首页主题翻页"
@@ -57,7 +69,9 @@ const social = site.socials.find((item) => item.url);
                       '--letter': index + wordIndex * 9,
                       '--lean': `${((index % 3) - 1) * 2}deg`,
                     }"
-                    >{{ letter }}</span
+                    ><span class="letter-float ambient-loop">{{
+                      letter
+                    }}</span></span
                   ></span
                 >
               </p>
@@ -67,7 +81,13 @@ const social = site.socials.find((item) => item.url);
               </button>
             </div>
             <div class="cover-portrait">
-              <div class="portrait-photo">
+              <button
+                class="portrait-photo"
+                :class="{ 'is-bouncing': portraitBouncing }"
+                aria-label="和 Peanora 打个招呼"
+                @click="portraitBouncing = !reduced"
+                @animationend.self="portraitBouncing = false"
+              >
                 <img
                   :src="appearance.avatar"
                   :style="{ objectPosition: appearance.avatarPosition }"
@@ -76,9 +96,10 @@ const social = site.socials.find((item) => item.url);
                   height="280"
                   fetchpriority="high"
                 />
-              </div>
+                <span class="portrait-note">Peanora</span>
+              </button>
               <svg
-                class="portrait-sun"
+                class="portrait-sun ambient-loop"
                 viewBox="0 0 64 64"
                 fill="none"
                 aria-hidden="true"
@@ -97,8 +118,35 @@ const social = site.socials.find((item) => item.url);
                   stroke-linecap="round"
                 />
               </svg>
-              <span class="portrait-note">Peanora</span>
+              <svg
+                class="portrait-thread"
+                viewBox="0 0 240 100"
+                fill="none"
+                aria-hidden="true"
+              >
+                <path
+                  d="M232 15C182 88 132 6 139 41S58 86 8 62m0 0 18-8M8 62l12 15"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-dasharray="4 5"
+                />
+              </svg>
             </div>
+            <nav class="cover-bookmarks" aria-label="翻到一个主题">
+              <button
+                v-for="(chapter, index) in chapters"
+                :key="chapter.id"
+                :class="`bookmark-${chapter.kind}`"
+                @click="goTo(index + 1)"
+              >
+                <img :src="chapter.image" alt="" width="80" height="64" />
+                <span
+                  ><small>{{ chapter.number }} / CHAPTER</small
+                  ><strong>{{ chapter.bookmark }}</strong></span
+                ><span class="bookmark-arrow" aria-hidden="true">↗</span>
+              </button>
+            </nav>
           </div>
           <div v-else class="theme-screen-layout screen-layout shell">
             <div class="screen-copy">
@@ -115,35 +163,27 @@ const social = site.socials.find((item) => item.url);
                 <span aria-hidden="true">↗</span></RouterLink
               >
             </div>
-            <figure class="screen-artwork">
-              <div class="artwork-tape" aria-hidden="true"></div>
-              <RouterLink
-                :to="screen.path"
-                :aria-label="screen.action"
-                class="screen-art-link"
-                ><img
-                  :src="screen.image"
-                  :alt="screen.alt"
-                  :style="{ objectPosition: screen.imagePosition }"
-                  width="1000"
-                  height="640"
-                  draggable="false"
-                /><span class="artwork-open" aria-hidden="true"
-                  >↗</span
-                ></RouterLink
-              >
-              <figcaption>
-                <span>{{ screen.artworkNote }}</span
-                ><span>插画壁纸</span>
-              </figcaption>
-            </figure>
+            <HomeScene :key="screen.id" :screen="screen" />
           </div>
         </section>
       </Transition>
     </div>
     <div class="pager-bottom shell">
       <div class="pager-tools">
-        <WallpaperPicker /><span class="pager-help"
+        <WallpaperPicker /><button
+          class="motion-toggle"
+          :disabled="reduced"
+          :title="
+            reduced
+              ? '遵循系统设置，已关闭持续动效'
+              : '控制标题、太阳和唱片的循环动效'
+          "
+          :aria-pressed="!paused && !reduced"
+          @click="toggleMotion"
+        >
+          <span aria-hidden="true">{{ paused || reduced ? "▷" : "Ⅱ" }}</span
+          >{{ motionLabel }}</button
+        ><span class="pager-help"
           ><span class="desktop-help">滚轮翻页</span
           ><span class="touch-help">上滑翻页</span> · 点击目录也可以</span
         ><a
