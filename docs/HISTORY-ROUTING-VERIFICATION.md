@@ -37,3 +37,4 @@ GitHub Pages 自定义 404 只是错误文档回退，不能提供真实的服�
 - 仅扩展 Vite 构建插件的输出列表，业务 JS、样式、路由、域名、Actions 和依赖不变。原根路径资源绝对引用可在这些目录下正常使用。
 - `npm test` 18 项通过，构建成功；三个目录入口和 404.html 的实际 SHA256 均与根 index.html 一致。
 - GitHub Pages 可将 `/music` 先重定向至 `/music/`；Vue Router 默认支持尾斜杠。最终目录入口应由静态文件服务返回 200。这不是完整的服务器 rewrite，也不是服务端预渲染。
+- 已发布提交 `c2f4785780c28fff04ee45605d73e015e38ef252`，[Actions 38726894824](https://github.com/Peanora/peanoras-space/actions/runs/38726894824) 成功。线上实际 GET：`/world?from=direct`、`/music?from=direct`、`/little-things?from=direct` 均先返回 301，Location 保留查询并补 `/`，跟随后最终为 200，HTML 包含当前应用入口。不存在的 `/route-not-found-check` 仍为 404。
