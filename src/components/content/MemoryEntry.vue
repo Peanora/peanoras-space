@@ -1,5 +1,6 @@
 <script setup>
-defineProps({ memory: { type: Object, required: true } });
+import ContentText from "./ContentText.vue";
+defineProps({ memory: { type: Object, required: true }, blockId: String, index: Number });
 const emit = defineEmits(["open-photo"]);
 </script>
 <template>
@@ -7,15 +8,15 @@ const emit = defineEmits(["open-photo"]);
     <div class="memory-index">
       <time v-if="memory.date" :datetime="memory.date">{{ memory.date }}</time
       ><span v-else class="eyebrow">日期待补充</span>
-      <p v-if="memory.location">{{ memory.location }}</p>
+      <ContentText v-if="memory.location" tag="p" :value="memory.location" :block-id="blockId" :field="`items.${index}.location`" />
       <span v-else class="muted small">地点待补充</span>
     </div>
     <div class="memory-story">
-      <h3>{{ memory.title }}</h3>
+      <ContentText tag="h3" :value="memory.title" :block-id="blockId" :field="`items.${index}.title`" />
       <p v-if="memory.isPlaceholder" class="draft-label">内容占位</p>
       <button
         v-for="(photo, index) in memory.photos"
-        :key="photo.src"
+        :key="index"
         class="photo-button image-frame memory-photo"
         :aria-label="`查看大图：${photo.alt}`"
         @click="emit('open-photo', memory.photos, index, $event)"
@@ -30,15 +31,13 @@ const emit = defineEmits(["open-photo"]);
           >占位素材 · 点击查看</span
         >
       </button>
-      <p
-        v-for="paragraph in memory.paragraphs"
-        :key="paragraph"
+      <ContentText
+        v-for="(paragraph, paragraphIndex) in memory.paragraphs"
+        :key="paragraphIndex"
         class="body-copy memory-paragraph"
-      >
-        {{ paragraph }}
-      </p>
+        :value="paragraph" :block-id="blockId" :field="`items.${index}.paragraphs.${paragraphIndex}`" />
       <ul v-if="memory.mementos.length" class="mementos">
-        <li v-for="item in memory.mementos" :key="item">{{ item }}</li>
+        <ContentText v-for="(item, itemIndex) in memory.mementos" :key="itemIndex" tag="li" :value="item" :block-id="blockId" :field="`items.${index}.mementos.${itemIndex}`" />
       </ul>
     </div>
   </article>

@@ -1,11 +1,12 @@
 <script setup>
 import { computed, nextTick, onUnmounted, ref, watch } from "vue";
-import { songs } from "../../data/songs";
+import { contentDocument } from "../../content/store";
+import { playableSongs } from "../../content/selectors";
 import { officialEmbedUrl, useMusicPlayer } from "../../composables/useMusicPlayer";
 
 const { expanded, activeSong, embedUrl, revision, loadSong, stop, retry } = useMusicPlayer();
-const firstSong = songs.find((song) => officialEmbedUrl(song));
-const selected = computed(() => activeSong.value || firstSong);
+const firstSong = computed(() => playableSongs(contentDocument.value).find((song) => officialEmbedUrl(song)));
+const selected = computed(() => activeSong.value || firstSong.value);
 const toggle = ref(null);
 const heading = ref(null);
 const status = ref("");

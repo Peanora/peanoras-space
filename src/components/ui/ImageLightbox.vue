@@ -1,5 +1,6 @@
 <script setup>
 import { ref, nextTick, onBeforeUnmount } from "vue";
+import ContentText from "../content/ContentText.vue";
 
 const dialog = ref(null);
 const photos = ref([]);
@@ -86,9 +87,7 @@ defineExpose({ open });
           :src="photos[index].src"
           :alt="photos[index].alt"
         />
-        <figcaption aria-live="polite">
-          {{ photos[index].caption || photos[index].alt }}
-        </figcaption>
+        <ContentText tag="figcaption" aria-live="polite" :value="photos[index].caption || photos[index].alt" />
       </figure>
       <div v-if="photos.length > 1" class="lightbox-controls">
         <button class="plain-button" @click="move(-1)">← 上一张</button

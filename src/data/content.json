@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "pages": {
     "world": {
       "title": "My World",
@@ -101,6 +101,317 @@
             "subtitle": "学习与经历",
             "items": [],
             "emptyText": "学习、竞赛与开发经历，等待正式内容补充。"
+          }
+        }
+      ]
+    },
+    "home": {
+      "title": "Peanora's Space",
+      "eyebrow": "",
+      "blocks": [
+        {
+          "id": "cover",
+          "type": "homeCover",
+          "label": "首页封面",
+          "navLabel": "",
+          "hidden": false,
+          "layout": {
+            "preset": "original",
+            "align": "left",
+            "width": 100
+          },
+          "data": {
+            "name": "Peanora's Space",
+            "welcome": "欢迎来到我的小空间",
+            "signatures": [
+              "好好睡觉，好好吃饭，好好上班，好好上学~"
+            ],
+            "entry": "翻开我的空间",
+            "portraitNote": "Peanora",
+            "avatar": "artwork:avatar",
+            "socials": [
+              {
+                "label": "GitHub",
+                "url": "https://github.com/Citlali37"
+              }
+            ]
+          }
+        },
+        {
+          "id": "world",
+          "type": "homeTheme",
+          "label": "个人世界",
+          "navLabel": "",
+          "hidden": false,
+          "layout": {
+            "preset": "original",
+            "align": "left",
+            "width": 100
+          },
+          "data": {
+            "kind": "world",
+            "number": "01",
+            "title": "My World",
+            "shortTitle": "World",
+            "subtitle": "我的个人世界",
+            "index": "About / Projects / Experience",
+            "description": "个人介绍、游戏开发项目与学习经历。",
+            "action": "进入个人世界",
+            "path": "/world",
+            "image": "artwork:spring-garden",
+            "alt": "春日庭院插画：阳光、绿叶与猫咪",
+            "imagePosition": "50% 50%",
+            "artworkNote": "春日庭院",
+            "bookmark": "个人世界",
+            "tags": [
+              "About",
+              "Projects",
+              "Experience"
+            ]
+          }
+        },
+        {
+          "id": "music",
+          "type": "homeTheme",
+          "label": "音乐回忆",
+          "navLabel": "",
+          "hidden": false,
+          "layout": {
+            "preset": "original",
+            "align": "left",
+            "width": 100
+          },
+          "data": {
+            "kind": "music",
+            "number": "02",
+            "title": "Music & Memories",
+            "shortTitle": "Music",
+            "subtitle": "音乐与回忆",
+            "index": "Songs / Live / Photographs",
+            "description": "歌曲收藏、演唱会回忆与图片收藏。",
+            "action": "进入音乐与回忆",
+            "path": "/music",
+            "image": "artwork:flower-stage",
+            "alt": "音乐主题插画：花海与手持麦克风的角色",
+            "imagePosition": "50% 48%",
+            "artworkNote": "花海与歌",
+            "bookmark": "音乐回忆",
+            "tags": []
+          }
+        },
+        {
+          "id": "little",
+          "type": "homeTheme",
+          "label": "小角落",
+          "navLabel": "",
+          "hidden": false,
+          "layout": {
+            "preset": "original",
+            "align": "left",
+            "width": 100
+          },
+          "data": {
+            "kind": "little",
+            "number": "03",
+            "title": "Little Things",
+            "shortTitle": "Little",
+            "subtitle": "个人小角落",
+            "index": "Notes / Favorites / Surprises",
+            "description": "换一句文字，留一份收藏，找一点小惊喜。",
+            "action": "去小角落看看",
+            "path": "/little-things",
+            "image": "artwork:afternoon-nap",
+            "alt": "午后小憩插画：阳光、抱枕与猫咪",
+            "imagePosition": "50% 50%",
+            "artworkNote": "午后小憩",
+            "bookmark": "小角落",
+            "tags": []
+          }
+        }
+      ]
+    },
+    "music": {
+      "title": "Music & Memories",
+      "eyebrow": "02 / 音乐与回忆",
+      "titleFirst": "Music &",
+      "titleLast": "Memories",
+      "disclaimer": "非官方个人音乐与回忆空间。当前歌曲封面与回忆照片为占位素材；插画背景由本人提供，正式音乐内容将使用原创、授权素材或官方平台链接。",
+      "blocks": [
+        {
+          "id": "songs",
+          "type": "songs",
+          "label": "歌曲收藏",
+          "navLabel": "Songs",
+          "hidden": false,
+          "layout": {
+            "preset": "original",
+            "align": "left",
+            "width": 100
+          },
+          "data": {
+            "heading": "On Repeat",
+            "subtitle": "喜欢的歌曲 / hanser",
+            "items": [
+              {
+                "id": "netease-1982799628",
+                "title": "它像一颗",
+                "artist": "Hanser",
+                "thought": "",
+                "cover": "builtin:record",
+                "alt": "原创唱片封面占位，非官方歌曲封面",
+                "officialUrl": "https://music.163.com/song?id=1982799628",
+                "neteaseId": "1982799628",
+                "isPlaceholder": false,
+                "coverIsPlaceholder": true
+              }
+            ],
+            "emptyText": "歌曲收藏正在整理。"
+          }
+        },
+        {
+          "id": "live",
+          "type": "memories",
+          "label": "现场回忆",
+          "navLabel": "Live",
+          "hidden": false,
+          "layout": {
+            "preset": "original",
+            "align": "left",
+            "width": 100
+          },
+          "data": {
+            "heading": "Live, Remembered",
+            "subtitle": "演唱会回忆",
+            "items": [
+              {
+                "id": "memory-draft-01",
+                "title": "一段现场回忆",
+                "date": "",
+                "location": "",
+                "paragraphs": [
+                  "这里将放入演唱会的日期、地点、照片，以及想留下的记忆。"
+                ],
+                "photos": [
+                  {
+                    "src": "builtin:photo",
+                    "alt": "演唱会照片占位，尚未添加真实摄影素材",
+                    "caption": "照片待添加",
+                    "shape": "landscape",
+                    "position": "50% 50%",
+                    "isPlaceholder": true
+                  }
+                ],
+                "mementos": [],
+                "isPlaceholder": true
+              }
+            ],
+            "emptyText": "现场回忆正在整理。"
+          }
+        },
+        {
+          "id": "photographs",
+          "type": "gallery",
+          "label": "照片与纪念",
+          "navLabel": "Photographs",
+          "hidden": false,
+          "layout": {
+            "preset": "original",
+            "align": "left",
+            "width": 100
+          },
+          "data": {
+            "heading": "Fragments",
+            "subtitle": "照片与纪念",
+            "items": [
+              {
+                "id": "photo-draft-01",
+                "src": "builtin:photo",
+                "alt": "横向照片占位，等待原创或授权素材",
+                "caption": "照片与回忆 · 待添加",
+                "shape": "landscape",
+                "position": "50% 50%",
+                "isPlaceholder": true
+              },
+              {
+                "id": "photo-draft-02",
+                "src": "builtin:portrait",
+                "alt": "竖向纪念物图片占位，等待原创或授权素材",
+                "caption": "小小纪念 · 待添加",
+                "shape": "portrait",
+                "position": "50% 50%",
+                "isPlaceholder": true
+              }
+            ],
+            "emptyText": "照片等待添加。"
+          }
+        }
+      ]
+    },
+    "little": {
+      "title": "Little Things",
+      "eyebrow": "03 / 个人小角落",
+      "blocks": [
+        {
+          "id": "notes",
+          "type": "notes",
+          "label": "纸条与收藏",
+          "navLabel": "",
+          "hidden": false,
+          "layout": {
+            "preset": "original",
+            "align": "left",
+            "width": 100
+          },
+          "data": {
+            "eyebrow": "A SMALL NOTE",
+            "items": [
+              {
+                "id": "little-01",
+                "text": "把喜欢的东西，慢慢收集起来。",
+                "source": "示例文字",
+                "rare": false
+              },
+              {
+                "id": "little-02",
+                "text": "有些片段，因为一首歌而被记住。",
+                "source": "示例文字",
+                "rare": false
+              },
+              {
+                "id": "little-03",
+                "text": "留一点空白，给还没发生的故事。",
+                "source": "示例文字",
+                "rare": false
+              },
+              {
+                "id": "little-04",
+                "text": "今天也可以只完成一件小事。",
+                "source": "示例文字",
+                "rare": false
+              },
+              {
+                "id": "little-05",
+                "text": "那些不起眼的小瞬间，也值得留下。",
+                "source": "示例文字",
+                "rare": false
+              },
+              {
+                "id": "little-secret",
+                "text": "你发现了夹在书页里的小纸条。",
+                "source": "隐藏纸条",
+                "rare": true
+              }
+            ],
+            "nextLabel": "换一句",
+            "saveLabel": "收藏这句",
+            "savedLabel": "已收藏",
+            "favoritesHeading": "Kept Here",
+            "favoritesLabel": "我的收藏",
+            "favoritesHint": "收藏保存在当前浏览器中，不会同步到其他设备。",
+            "emptyText": "小纸条正在整理。",
+            "emptyFavorites": "还没有收藏。遇到喜欢的句子，可以把它留在这里。",
+            "marginLabel": "页边小记",
+            "marginText": "你翻到了页边。这里留一小块空白，给以后的小惊喜。"
           }
         }
       ]

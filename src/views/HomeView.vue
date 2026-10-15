@@ -1,8 +1,13 @@
 <script setup>
-import { ref, computed } from "vue";
-import { site } from "../data/site";
+import { ref, computed, provide, onMounted, onUnmounted, watch } from "vue";
+import { contentDocument, editingContent, publishEditorEvent } from "../content/store";
+import { homeScreensFor } from "../content/selectors";
+import { contentImage } from "../content/assets";
+import ContentText from "../components/content/ContentText.vue";
 import { appearance } from "../data/appearance";
-import { homeScreens } from "../data/home";
+provide("content-page", "home");
+const homeScreens = computed(() => homeScreensFor(contentDocument.value));
+const cover = computed(() => contentDocument.value.pages.home.blocks[0].data);
 import WallpaperPicker from "../components/ui/WallpaperPicker.vue";
 import { useScreenPager } from "../composables/useScreenPager";
 import { useAmbientMotion } from "../composables/useAmbientMotion";
@@ -11,13 +16,21 @@ import SignatureTypewriter from "../components/ui/SignatureTypewriter.vue";
 import ArtworkImage from "../components/ui/ArtworkImage.vue";
 const stage = ref(null);
 const { current, direction, goTo, finishMove, transitionDuration } =
-  useScreenPager(stage, homeScreens.length);
-const screen = computed(() => homeScreens[current.value]);
-const brandWords = site.name.split(" ");
-const social = site.socials.find((item) => item.url);
-const chapters = homeScreens.slice(1);
+  useScreenPager(stage, 4);
+const screen = computed(() => homeScreens.value[current.value]);
+watch(current, () => publishEditorEvent({ type: 'select', pageId: 'home', blockId: screen.value.id }));
+const brandWords = computed(() => cover.value.name.split(" "));
+const social = computed(() => cover.value.socials.find((item) => item.url));
+const chapters = computed(() => homeScreens.value.slice(1));
 const portraitBouncing = ref(false);
 const { still, reduced } = useAmbientMotion();
+function editorSelect(event) {
+  const id = event.detail;
+  const index = homeScreens.value.findIndex((item) => item.id === id);
+  if (index >= 0) current.value = index;
+}
+onMounted(() => { if (import.meta.env.DEV) window.addEventListener('peanora:select-home', editorSelect); });
+onUnmounted(() => { if (import.meta.env.DEV) window.removeEventListener('peanora:select-home', editorSelect); });
 </script>
 <template>
   <div
@@ -28,7 +41,7 @@ const { still, reduced } = useAmbientMotion();
     role="region"
     aria-label="首页主题翻页"
   >
-    <h1 class="sr-only" tabindex="-1">{{ site.name }}</h1>
+    <h1 class="sr-only" tabindex="-1">{{ cover.name }}</h1>
     <div class="screen-stage">
       <Transition
         name="screen"
@@ -46,11 +59,11 @@ const { still, reduced } = useAmbientMotion();
             v-if="screen.kind === 'cover'"
             class="cover-layout screen-layout shell"
           >
-            <div class="cover-copy">
+            <div class="cover-copy" @pointerdown="publishEditorEvent({ type: 'select', pageId: 'home', blockId: 'cover' })">
               <p
                 class="home-title screen-heading"
                 tabindex="-1"
-                :aria-label="site.name"
+                :aria-label="cover.name"
               >
                 <span
                   v-for="(word, wordIndex) in brandWords"
@@ -73,15 +86,16 @@ const { still, reduced } = useAmbientMotion();
               </p>
               <div class="cover-rule" aria-hidden="true"></div>
               <div class="cover-message">
-                <p class="cover-welcome">{{ site.welcome }}</p>
-                <SignatureTypewriter
-                  :phrases="site.signatures"
+                <ContentText tag="p" class="cover-welcome" :value="cover.welcome" block-id="cover" field="welcome" />
+                <ContentText v-if="editingContent && cover.signatures.length" tag="p" plain class="cover-signature" :value="cover.signatures[0] || ''" block-id="cover" field="signatures.0" />
+                <SignatureTypewriter v-else
+                  :phrases="cover.signatures"
                   :paused="still"
                   :reduced="reduced"
                 />
               </div>
-              <button class="screen-entry cover-entry" @click="goTo(1)">
-                翻开我的空间 <span aria-hidden="true">↓</span>
+              <button class="screen-entry cover-entry" @click="!editingContent && goTo(1)">
+                <ContentText tag="span" plain :value="cover.entry" block-id="cover" field="entry" /> <span aria-hidden="true">↓</span>
               </button>
             </div>
             <div class="cover-portrait">
@@ -93,14 +107,15 @@ const { still, reduced } = useAmbientMotion();
                 @animationend.self="portraitBouncing = false"
               >
                 <img
-                  :src="appearance.avatar"
+                  v-if="cover.avatar"
+                  :src="contentImage(cover.avatar)"
                   :style="{ objectPosition: appearance.avatarPosition }"
                   alt="Peanora 使用的二次元头像"
                   width="280"
                   height="280"
                   fetchpriority="high"
                 />
-                <span class="portrait-note">Peanora</span>
+                <ContentText tag="span" plain class="portrait-note" :value="cover.portraitNote" block-id="cover" field="portraitNote" />
               </button>
               <svg
                 class="portrait-sun ambient-loop"
@@ -144,7 +159,7 @@ const { still, reduced } = useAmbientMotion();
                 :class="`bookmark-${chapter.kind}`"
                 @click="goTo(index + 1)"
               >
-                <ArtworkImage :src="chapter.image" thumbnail alt="" width="80" height="64" />
+                <ArtworkImage v-if="chapter.image" :src="chapter.image" thumbnail alt="" width="80" height="64" />
                 <span
                   ><small>{{ chapter.number }} / CHAPTER</small
                   ><strong>{{ chapter.bookmark }}</strong></span
@@ -153,17 +168,17 @@ const { still, reduced } = useAmbientMotion();
             </nav>
           </div>
           <div v-else class="theme-screen-layout screen-layout shell">
-            <div class="screen-copy">
+            <div class="screen-copy" @pointerdown="publishEditorEvent({ type: 'select', pageId: 'home', blockId: screen.id })">
               <p class="eyebrow screen-part">
-                {{ screen.number }} / {{ screen.subtitle }}
+                {{ screen.number }} / <ContentText tag="span" plain :value="screen.subtitle" :block-id="screen.id" field="subtitle" />
               </p>
               <h2 class="screen-heading screen-title" tabindex="-1">
-                {{ screen.title }}
+                <ContentText tag="span" plain :value="screen.title" :block-id="screen.id" field="title" />
               </h2>
-              <p class="screen-description">{{ screen.description }}</p>
-              <p class="screen-index">{{ screen.index }}</p>
+              <ContentText tag="p" class="screen-description" :value="screen.description" :block-id="screen.id" field="description" />
+              <ContentText tag="p" plain class="screen-index" :value="screen.index" :block-id="screen.id" field="index" />
               <RouterLink :to="screen.path" class="screen-entry"
-                >{{ screen.action }}
+                ><ContentText tag="span" plain :value="screen.action" :block-id="screen.id" field="action" />
                 <span aria-hidden="true">↗</span></RouterLink
               >
             </div>

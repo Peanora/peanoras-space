@@ -14,6 +14,21 @@
 .content-projects.layout-two .projects-collection { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
 .content-projects.layout-two .project-entry, .content-projects.layout-single .project-entry { display: block; }
 .project-entry.no-cover { display: block; }
+.song-entry.no-cover { grid-template-columns: 24px 1fr auto; }
+.content-block[data-image-ratio] .song-cover img,
+.content-block[data-image-ratio] .memory-photo img,
+.content-block[data-image-ratio] .photo-gallery img { width: 100%; height: auto; aspect-ratio: var(--content-image-ratio); object-fit: var(--content-image-fit); object-position: var(--content-image-position); }
+.gallery-square { grid-row: span 1; }
+.gallery-square img { aspect-ratio: 1; object-fit: cover; }
+.content-gallery.layout-single .photo-gallery { display: block; }
+.content-gallery .photo-gallery { width: var(--content-image-width, 100%); margin-inline: auto; }
+.content-gallery.layout-single .photo-gallery figure + figure { margin-top: 32px; }
+.content-gallery.layout-two .photo-gallery { grid-template-columns: 1fr 1fr; }
+.content-gallery.layout-two .photo-gallery figure { grid-column: auto; grid-row: auto; }
+.content-songs.layout-two .collection-songs { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.content-songs.layout-two .song-entry { display: flex; flex-direction: column; align-items: stretch; }
+.content-songs.layout-two .song-cover { width: 100%; }
+.content-block .song-cover, .content-block .memory-photo { max-width: var(--content-image-width, 100%); }
 .content-projects.layout-two .project-copy, .content-projects.layout-single .project-copy { margin-top: 24px; }
 .content-projects.layout-image-right .project-image { order: 2; }
 .content-projects.layout-image-right .project-copy, .content-projects.layout-image-left .project-image { order: 0; }
@@ -27,4 +42,6 @@
   .content-split.layout-image-right .content-media { order: 0; }
   .content-projects.layout-image-right .project-image { order: 0; }
   .content-text.layout-two .rich-body { columns: 1; }
+  .content-gallery.layout-two .photo-gallery, .content-songs.layout-two .collection-songs { grid-template-columns: 1fr; }
+  .song-entry.no-cover { grid-template-columns: 24px 1fr; }
 }

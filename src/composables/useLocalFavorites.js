@@ -1,14 +1,15 @@
-import { ref, watch } from "vue";
+import { ref, watch, toValue } from "vue";
 
 const STORAGE_KEY = "peanora:little-favorites:v1";
-export function useLocalFavorites(validIds) {
+export function useLocalFavorites(validIds, { persist = true } = {}) {
+  const allowed = () => toValue(validIds);
   const favorites = ref([]);
   const storageNotice = ref("");
   try {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+    const stored = persist ? JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") : [];
     if (!Array.isArray(stored)) throw new Error("Invalid favorites");
     favorites.value = [
-      ...new Set(stored.filter((id) => validIds.includes(id))),
+      ...new Set(stored.filter((id) => allowed().includes(id))),
     ];
   } catch {
     storageNotice.value = "收藏记录暂时无法读取，本次仍可以收藏。";
@@ -17,6 +18,7 @@ export function useLocalFavorites(validIds) {
     favorites,
     (items) => {
       try {
+        if (!persist) return;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
         storageNotice.value = "";
       } catch {
@@ -26,7 +28,7 @@ export function useLocalFavorites(validIds) {
     { deep: true, flush: "sync" },
   );
   function toggle(id) {
-    if (!validIds.includes(id)) return;
+    if (!allowed().includes(id)) return;
     favorites.value = favorites.value.includes(id)
       ? favorites.value.filter((item) => item !== id)
       : [...favorites.value, id];

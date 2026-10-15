@@ -1,12 +1,19 @@
 <script setup>
-import { computed } from "vue";
+import { computed, inject, ref } from "vue";
 import ContentText from "./ContentText.vue";
 import ProjectEntry from "./ProjectEntry.vue";
+import SongEntry from "./SongEntry.vue";
+import MemoryEntry from "./MemoryEntry.vue";
+import PhotoGallery from "./PhotoGallery.vue";
+import NotesCollection from "./NotesCollection.vue";
+import ImageLightbox from "../ui/ImageLightbox.vue";
 import { contentImage } from "../../content/assets";
 import { safeLink } from "../../content/model";
 import { editingContent, selectedContentBlock, publishEditorEvent } from "../../content/store";
 const props = defineProps({ block: { type: Object, required: true } });
 const isDev = import.meta.env.DEV;
+const pageId = inject('content-page', 'world');
+const lightbox = ref(null);
 const data = computed(() => props.block.data);
 const style = computed(() => {
   const layout = props.block.layout;
@@ -21,14 +28,37 @@ const style = computed(() => {
 });
 const media = computed(() => ['image', 'split'].includes(props.block.type));
 const projects = computed(() => props.block.type === 'projects' ? data.value.items.map((item) => ({ ...item, cover: item.cover ? contentImage(item.cover) : '', githubUrl: safeLink(item.githubUrl), demoUrl: safeLink(item.demoUrl), detailUrl: safeLink(item.detailUrl) })) : []);
-function select() { if (editingContent.value) publishEditorEvent({ type: 'select', blockId: props.block.id }); }
+const collection = computed(() => {
+  if (!['songs', 'memories', 'gallery'].includes(props.block.type)) return [];
+  return data.value.items.map((item, index) => {
+    if (props.block.type === 'songs') return { ...item, cover: item.cover ? contentImage(item.cover) : '', officialUrl: safeLink(item.officialUrl) };
+    if (props.block.type === 'memories') return { ...item, photos: item.photos.filter((photo) => photo.src).map((photo) => ({ ...photo, src: contentImage(photo.src) })) };
+    return { ...item, contentIndex: index, src: item.src ? contentImage(item.src) : '' };
+  }).filter((item) => props.block.type !== 'gallery' || item.src);
+});
+function openPhoto(items, index, event) { if (!editingContent.value) lightbox.value?.open(items, index, event); }
+function select() { if (editingContent.value) publishEditorEvent({ type: 'select', pageId, blockId: props.block.id }); }
 </script>
 <template>
-  <section v-if="!block.hidden || editingContent" :id="block.id" class="content-section content-block" data-reveal
-    :class="[`content-${block.type}`, `layout-${block.layout.preset}`, { 'about-section': block.type === 'profile', 'editor-block': editingContent, 'editor-block-selected': editingContent && selectedContentBlock === block.id, 'editor-block-hidden': block.hidden }]"
+  <section v-if="!block.hidden || editingContent" :id="block.id" class="content-block" data-reveal
+    :class="[`content-${block.type}`, `layout-${block.layout.preset}`, { 'content-section': block.type !== 'notes', 'about-section': block.type === 'profile', 'editor-block': editingContent, 'editor-block-selected': editingContent && selectedContentBlock === block.id, 'editor-block-hidden': block.hidden }]"
     :style="style" :data-block-id="block.id" :data-editor-label="isDev && editingContent ? `${block.label}${block.hidden ? ' · 已隐藏' : ''}` : undefined" :data-image-ratio="block.layout.ratio && block.layout.ratio !== 'original' ? block.layout.ratio : undefined"
     tabindex="-1" @pointerdown.capture="select">
-    <template v-if="block.type === 'profile'">
+    <NotesCollection v-if="block.type === 'notes'" :data="data" :block-id="block.id" />
+    <template v-else-if="['songs', 'memories', 'gallery'].includes(block.type)">
+      <div class="section-heading">
+        <ContentText tag="h2" class="display" :value="data.heading" :block-id="block.id" field="heading" />
+        <ContentText tag="span" class="muted small" :value="data.subtitle" :block-id="block.id" field="subtitle" />
+      </div>
+      <div :class="`collection-${block.type}`">
+        <template v-if="block.type === 'songs'"><SongEntry v-for="(song, index) in collection" :key="song.id" :song="song" :index="index" :block-id="block.id" /></template>
+        <template v-else-if="block.type === 'memories'"><MemoryEntry v-for="(memory, index) in collection" :key="memory.id" :memory="memory" :index="index" :block-id="block.id" @open-photo="openPhoto" /></template>
+        <PhotoGallery v-else :photos="collection" :block-id="block.id" :image-position="block.layout.imageX !== undefined || block.layout.imageY !== undefined ? style['--content-image-position'] : undefined" @open-photo="openPhoto" />
+      </div>
+      <ContentText v-if="!collection.length" tag="p" class="empty-note" :value="data.emptyText" :block-id="block.id" field="emptyText" />
+      <ImageLightbox ref="lightbox" />
+    </template>
+    <template v-else-if="block.type === 'profile'">
       <div class="section-side">
         <ContentText tag="span" class="eyebrow" :value="data.eyebrow" :block-id="block.id" field="eyebrow" />
         <ContentText tag="h2" class="display" :value="data.name" :block-id="block.id" field="name" />

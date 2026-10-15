@@ -1,10 +1,12 @@
 <script setup>
-import { ref } from "vue";
-import { littleThings } from "../../data/littleThings";
+import { ref, computed } from "vue";
+import { contentDocument } from "../../content/store";
+import { pageItems } from "../../content/selectors";
+import ContentText from "./ContentText.vue";
 import ArtworkImage from "../ui/ArtworkImage.vue";
 defineProps({ screen: { type: Object, required: true } });
 const noteOpen = ref(false);
-const note = littleThings[0];
+const note = computed(() => pageItems(contentDocument.value, "little", "notes")[0] || { text: "", source: "" });
 </script>
 
 <template>
@@ -23,6 +25,7 @@ const note = littleThings[0];
           class="scene-image-link"
         >
           <ArtworkImage
+            v-if="screen.image"
             :src="screen.image"
             :alt="screen.alt"
             :style="{ objectPosition: screen.imagePosition }"
@@ -37,14 +40,14 @@ const note = littleThings[0];
         </figcaption>
       </figure>
       <div class="notebook-tabs" aria-label="个人世界内容">
-        <span v-for="tag in screen.tags" :key="tag">{{ tag }}</span>
+        <span v-for="(tag, index) in screen.tags" :key="index">{{ tag }}</span>
       </div>
     </template>
     <template v-else-if="screen.kind === 'music'">
       <div class="record-sleeve" aria-hidden="true">
         <div class="vinyl-disc ambient-loop">
           <div class="vinyl-label">
-            <ArtworkImage :src="screen.image" thumbnail alt="" /><span></span>
+            <ArtworkImage v-if="screen.image" :src="screen.image" thumbnail alt="" /><span></span>
           </div>
         </div>
       </div>
@@ -56,6 +59,7 @@ const note = littleThings[0];
           class="scene-image-link"
         >
           <ArtworkImage
+            v-if="screen.image"
             :src="screen.image"
             :alt="screen.alt"
             :style="{ objectPosition: screen.imagePosition }"
@@ -74,7 +78,7 @@ const note = littleThings[0];
     </template>
     <template v-else>
       <figure class="little-photo scene-paper">
-        <ArtworkImage :src="screen.image" :alt="screen.alt" width="1000" height="640" />
+        <ArtworkImage v-if="screen.image" :src="screen.image" :alt="screen.alt" width="1000" height="640" />
         <figcaption>{{ screen.artworkNote }} · 插画壁纸</figcaption>
       </figure>
       <button
@@ -87,8 +91,8 @@ const note = littleThings[0];
         <span class="note-number">A LITTLE NOTE / 01</span>
         <Transition name="note" mode="out-in">
           <span v-if="noteOpen" key="open" class="note-content"
-            ><span class="note-quote">{{ note.text }}</span
-            ><span class="note-source">{{ note.source }}</span></span
+            ><ContentText tag="span" class="note-quote" :value="note.text" />
+            <ContentText tag="span" class="note-source" :value="note.source" /></span
           >
           <span v-else key="closed" class="note-content"
             ><span class="note-doodle" aria-hidden="true">✳</span

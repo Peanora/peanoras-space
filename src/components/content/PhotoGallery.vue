@@ -1,5 +1,6 @@
 <script setup>
-defineProps({ photos: { type: Array, required: true } });
+import ContentText from "./ContentText.vue";
+defineProps({ photos: { type: Array, required: true }, blockId: String, imagePosition: String });
 const emit = defineEmits(["open-photo"]);
 </script>
 <template>
@@ -18,14 +19,14 @@ const emit = defineEmits(["open-photo"]);
         <img
           :src="photo.src"
           :alt="photo.alt"
-          :style="{ objectPosition: photo.position || 'center' }"
+          :style="{ objectPosition: imagePosition || photo.position || 'center' }"
           loading="lazy"
           :width="photo.shape === 'portrait' ? 600 : 1000"
           :height="photo.shape === 'portrait' ? 800 : 680"
         /><span v-if="photo.isPlaceholder" class="image-label">占位素材</span
         ><span class="photo-expand" aria-hidden="true">↗</span>
       </button>
-      <figcaption>{{ photo.caption }}</figcaption>
+      <ContentText tag="figcaption" :value="photo.caption" :block-id="blockId" :field="`items.${photo.contentIndex ?? index}.caption`" />
     </figure>
   </div>
 </template>

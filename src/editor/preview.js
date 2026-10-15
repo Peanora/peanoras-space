@@ -1,10 +1,11 @@
 import { nextTick } from "vue";
-import { contentDocument, editingContent, isContentPreview, selectedContentBlock, publishEditorEvent } from "../content/store";
+import { contentDocument, editingContent, isContentPreview, previewPage, selectedContentBlock, publishEditorEvent } from "../content/store";
 import "./preview.css";
 
 export function installPreview() {
   isContentPreview.value = true;
   editingContent.value = true;
+  previewPage.value = location.pathname.startsWith('/music') ? 'music' : location.pathname.startsWith('/little-things') ? 'little' : location.pathname.startsWith('/world') ? 'world' : 'home';
   let savedRange = null;
   const selectionField = () => {
     const selection = window.getSelection();
@@ -35,12 +36,15 @@ export function installPreview() {
     if (event.origin !== location.origin || event.source !== window.parent || event.data?.source !== "peanora-editor") return;
     const message = event.data;
     if (message.type === "draft") {
+      if (message.pageId !== previewPage.value) return;
       if (message.resetFocus) document.activeElement?.blur();
       contentDocument.value = message.document;
       editingContent.value = message.editing;
       selectedContentBlock.value = message.selected;
     } else if (message.type === "select") {
+      if (message.pageId !== previewPage.value) return;
       selectedContentBlock.value = message.blockId;
+      if (previewPage.value === 'home') window.dispatchEvent(new CustomEvent('peanora:select-home', { detail: message.blockId }));
       await nextTick();
       document.getElementById(message.blockId)?.scrollIntoView({ behavior: "smooth", block: "center" });
     } else if (message.type === "format" && editingContent.value) {
@@ -48,6 +52,10 @@ export function installPreview() {
       const node = savedRange.startContainer;
       const field = (node.nodeType === 1 ? node : node.parentElement)?.closest('[contenteditable="true"]');
       if (!field) return;
+      if (field.dataset.editPlain === 'true') {
+        publishEditorEvent({ type: 'notice', text: '此字段使用纯文本，以保留标题动画或播放器信息。正文、感想与回忆支持富文本。' });
+        return;
+      }
       field.focus();
       const selection = window.getSelection();
       selection.removeAllRanges(); selection.addRange(savedRange);

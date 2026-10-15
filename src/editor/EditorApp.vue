@@ -1,13 +1,14 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { blockTypes, clone, createBlock, safeLink, setField, validateContent } from "../content/model";
+import { blockTypes, clone, createBlock, safeLink, setField, validateContent, restoreContent, neteaseSongId } from "../content/model";
 import { createHistory } from "./history";
-import { layouts, schemas } from "./schema";
+import { layouts, schemas, pageFields } from "./schema";
 import InspectorFields from "./InspectorFields.vue";
-import RichField from "./RichField.vue";
+import { contentPages, contentTarget } from "../content/pages";
 
 const draft = ref(null), selectedId = ref("__page"), frame = ref(null);
 const inspector = ref(null);
+const pageId = ref("world");
 const images = ref([]), error = ref(""), notice = ref(""), saving = ref(false), uploading = ref(false);
 const mobile = ref(false), editing = ref(true), addType = ref("text"), linkUrl = ref("");
 const history = createHistory(), historyVersion = ref(0);
@@ -16,11 +17,14 @@ const canRedo = computed(() => { historyVersion.value; return history.canRedo; }
 let token = "", revision = "", dragState = null, suppressClickUntil = 0;
 const dropIndex = ref(-1);
 const saved = ref("");
-const page = computed(() => draft.value?.pages.world);
+const page = computed(() => draft.value?.pages[pageId.value]);
+const pageConfig = computed(() => contentPages[pageId.value]);
+const availableTypes = computed(() => Object.fromEntries(pageConfig.value.types.filter((type) => type !== "notes" || !page.value?.blocks.some((block) => block.type === "notes")).map((type) => [type, blockTypes[type]])));
+const frameUrl = computed(() => `${pageConfig.value.path}?__editor_preview=1`);
 const selected = computed(() => page.value?.blocks.find((block) => block.id === selectedId.value));
 const isDirty = computed(() => !!draft.value && JSON.stringify(draft.value) !== saved.value);
 const layoutChoices = computed(() => layouts[selected.value?.type] || [["original", "默认布局"]]);
-const hasImage = computed(() => ["image", "split", "projects"].includes(selected.value?.type));
+const hasImage = computed(() => ["image", "split", "projects", "songs", "gallery", "memories"].includes(selected.value?.type));
 
 async function api(path, options = {}) {
   const response = await fetch(`/__editor/api/${path}`, {
@@ -32,7 +36,7 @@ async function api(path, options = {}) {
 }
 function post(message) { frame.value?.contentWindow?.postMessage({ source: "peanora-editor", ...message }, location.origin); }
 function sync(resetFocus = false) {
-  if (draft.value) post({ type: "draft", document: clone(draft.value), editing: editing.value, selected: selectedId.value, resetFocus });
+  if (draft.value) post({ type: "draft", document: clone(draft.value), pageId: pageId.value, editing: editing.value, selected: selectedId.value, resetFocus });
 }
 function mutate(change, key = "") {
   history.record(draft.value, key);
@@ -40,15 +44,22 @@ function mutate(change, key = "") {
 }
 function fieldChange(path, value) {
   if (!selected.value) return;
-  mutate(() => setField(selected.value.data, path, value), `${selectedId.value}:${path}`);
+  mutate(() => {
+    setField(selected.value.data, path, value);
+    if (selected.value.type === "songs" && path.endsWith(".officialUrl")) {
+      setField(selected.value.data, path.replace(/officialUrl$/, "neteaseId"), neteaseSongId(value));
+    }
+  }, `${pageId.value}:${selectedId.value}:${path}`);
 }
 function metadata(key, value) { mutate(() => { selected.value[key] = value; }); }
 function layout(key, value) { mutate(() => { selected.value.layout[key] = value; }, `layout:${selectedId.value}:${key}`); }
-function select(id) { selectedId.value = id; if (id !== "__page") post({ type: "select", blockId: id }); }
+function select(id) { selectedId.value = id; if (id !== "__page") post({ type: "select", pageId: pageId.value, blockId: id }); }
+function selectPage(id) { pageId.value = id; selectedId.value = "__page"; addType.value = Object.keys(availableTypes.value)[0] || "text"; }
+function pageChange(path, value) { mutate(() => setField(page.value, path, value), `${pageId.value}:page:${path}`); }
 function add() {
   const block = createBlock(addType.value, `block-${crypto.randomUUID()}`);
   mutate(() => { page.value.blocks.push(block); selectedId.value = block.id; });
-  nextTick(() => post({ type: "select", blockId: block.id }));
+  nextTick(() => post({ type: "select", pageId: pageId.value, blockId: block.id }));
 }
 function duplicate() {
   const index = page.value.blocks.indexOf(selected.value), copy = clone(selected.value);
@@ -65,7 +76,7 @@ function move(id, targetIndex) {
   mutate(() => { const [block] = page.value.blocks.splice(from, 1); page.value.blocks.splice(targetIndex, 0, block); });
 }
 function beginDrag(event, id) {
-  if (event.button !== 0) return;
+  if (pageConfig.value.fixed || event.button !== 0) return;
   dragState = { id, x: event.clientX, y: event.clientY, moved: false };
   event.currentTarget.setPointerCapture(event.pointerId);
 }
@@ -100,6 +111,7 @@ async function save() {
 async function upload(path, file) {
   if (!file || uploading.value) return;
   const blockId = selectedId.value;
+  const uploadPage = pageId.value;
   uploading.value = true; error.value = "";
   try {
     if (file.size > 12 * 1024 * 1024) throw new Error("图片超过 12 MB，请先缩小图片。");
@@ -116,7 +128,7 @@ async function upload(path, file) {
     }
     const result = await api("images", { method: "POST", body, headers: { "Content-Type": body.type || "application/octet-stream" } });
     images.value.push(result);
-    const target = page.value.blocks.find((block) => block.id === blockId);
+    const target = draft.value.pages[uploadPage].blocks.find((block) => block.id === blockId);
     if (target) mutate(() => setField(target.data, path, result.src));
     notice.value = "图片已存入项目资源目录；请保存以应用到页面。";
   } catch (problem) { error.value = problem.message; }
@@ -135,20 +147,23 @@ async function importDraft(event) {
   if (!file) return;
   try {
     if (file.size > 2 * 1024 * 1024) throw new Error("草稿超过 2 MB。");
-    const content = validateContent(JSON.parse(await file.text()));
+    const imported = JSON.parse(await file.text());
+    const content = restoreContent(imported, draft.value);
     mutate(() => { draft.value = content; selectedId.value = "__page"; });
-    notice.value = "已导入草稿，请预览确认后保存。";
+    notice.value = imported.version === 1 ? "已恢复旧版 My World 草稿；其他页面保留当前内容。请预览后保存。" : "已导入全站草稿，请预览确认后保存。";
   } catch (problem) { error.value = `导入失败：${problem.message}`; }
 }
 function message(event) {
   if (event.origin !== location.origin || event.source !== frame.value?.contentWindow || event.data?.source !== "peanora-preview") return;
   const data = event.data;
-  if (data.type === "ready") sync();
+  if (data.type === "ready") { sync(); if (selectedId.value !== "__page") select(selectedId.value); }
+  if (data.pageId && data.pageId !== pageId.value) return;
   if (data.type === "select") selectedId.value = data.blockId;
+  if (data.type === "notice") notice.value = data.text;
   if (data.type === "field") {
-    const target = data.blockId === "__page" ? page.value : page.value.blocks.find((block) => block.id === data.blockId)?.data;
+    const target = contentTarget(draft.value, pageId.value, data.blockId);
     if (!target || typeof data.value !== "string") return;
-    try { mutate(() => setField(target, data.field, data.value), `${data.blockId}:${data.field}`); }
+    try { mutate(() => setField(target, data.field, data.value), `${pageId.value}:${data.blockId}:${data.field}`); }
     catch { error.value = "此字段已被删除，草稿未受影响。"; }
   }
   if (data.type === "shortcut") ({ save, undo, redo })[data.action]?.();
@@ -160,7 +175,7 @@ function keydown(event) {
   if (key === "z" || key === "y") { event.preventDefault(); key === "y" || event.shiftKey ? redo() : undo(); }
 }
 function beforeUnload(event) { if (isDirty.value || uploading.value) { event.preventDefault(); event.returnValue = ""; } }
-watch([draft, selectedId, editing], () => sync(), { deep: true, flush: "post" });
+watch([draft, pageId, selectedId, editing], () => sync(), { deep: true, flush: "post" });
 watch(selectedId, () => nextTick(() => inspector.value?.scrollTo({ top: 0 })));
 onMounted(async () => {
   document.title = "内容工作台 · Peanora's Space";
@@ -190,35 +205,37 @@ onBeforeUnmount(() => { window.removeEventListener("message", message); window.r
     <div v-if="notice || uploading" class="ed-banner" role="status">{{ uploading ? '正在优化并保存图片…' : notice }}</div>
     <div v-if="draft" class="ed-workspace">
       <aside class="ed-structure" aria-label="页面与模块">
-        <p class="ed-kicker">PAGE / 页面</p><button class="ed-page" :class="{ active: selectedId === '__page' }" @click="select('__page')">My World <span>页面设置</span></button>
+        <p class="ed-kicker">PAGES / 页面</p>
+        <nav class="ed-pages" aria-label="选择编辑页面"><button v-for="(config, id) in contentPages" :key="id" class="ed-page" :class="{ active: pageId === id }" :aria-current="pageId === id ? 'page' : undefined" @click="selectPage(id)">{{ config.label }}</button></nav>
+        <button class="ed-page-settings" @click="select('__page')">当前页面设置</button>
         <p class="ed-kicker">BLOCKS / 模块顺序</p>
-        <p class="ed-help">拖动调整顺序，也可用上下按钮。隐藏的模块仅在编辑时可见。</p>
+        <p class="ed-help">{{ pageConfig.fixed ? '首页保持固定四屏；点击模块切换预览，编辑内容。' : '拖动调整顺序，也可用上下按钮。隐藏模块仅在编辑时可见。' }}</p>
         <ol class="ed-block-list">
           <li v-for="(block, index) in page.blocks" :key="block.id" :data-order-id="block.id" :class="{ active: selectedId === block.id, 'ed-is-hidden': block.hidden, 'ed-drop-target': dropIndex === index }">
             <button class="ed-block-name" @dragstart.prevent @pointerdown="beginDrag($event, block.id)" @pointermove="updateDrag" @pointerup="endDrag" @pointercancel="dragState = null; dropIndex = -1" @click="blockClick(block.id)"><span aria-hidden="true">⠿</span><span>{{ block.label }}<small>{{ block.hidden ? '已隐藏' : blockTypes[block.type] }}</small></span></button>
-            <div class="ed-order"><button :disabled="index === 0" :aria-label="`${block.label}上移`" @click="move(block.id, index - 1)">↑</button><button :disabled="index === page.blocks.length - 1" :aria-label="`${block.label}下移`" @click="move(block.id, index + 1)">↓</button></div>
+            <div v-if="!pageConfig.fixed" class="ed-order"><button :disabled="index === 0" :aria-label="`${block.label}上移`" @click="move(block.id, index - 1)">↑</button><button :disabled="index === page.blocks.length - 1" :aria-label="`${block.label}下移`" @click="move(block.id, index + 1)">↓</button></div>
           </li>
         </ol>
-        <div class="ed-new-block"><label for="block-type">添加模块</label><select id="block-type" v-model="addType"><option v-for="(label, type) in blockTypes" :key="type" :value="type">{{ label }}</option></select><button class="ed-add" @click="add">＋ 添加到页面</button></div>
-        <p class="ed-help ed-local-note">第一版开放 My World。首页、音乐与小角落保持原样。保存到本机后，按原有流程发布。</p>
+        <div v-if="!pageConfig.fixed" class="ed-new-block"><label for="block-type">添加模块</label><select id="block-type" v-model="addType"><option v-for="(label, type) in availableTypes" :key="type" :value="type">{{ label }}</option></select><button class="ed-add" @click="add">＋ 添加到页面</button></div>
+        <p class="ed-help ed-local-note">四个页面共用一份草稿，切换页面不会丢失修改。保存会写入整个项目内容文件。</p>
       </aside>
       <main class="ed-preview-pane">
-        <div class="ed-preview-tools"><div class="ed-segment"><button :aria-pressed="!mobile" @click="mobile = false">桌面</button><button :aria-pressed="mobile" @click="mobile = true">手机</button></div><label class="ed-checkbox"><input type="checkbox" v-model="editing" />显示编辑标记</label><a href="/world" target="_blank" rel="noopener">打开网页 ↗</a></div>
+        <div class="ed-preview-tools"><div class="ed-segment"><button :aria-pressed="!mobile" @click="mobile = false">桌面</button><button :aria-pressed="mobile" @click="mobile = true">手机</button></div><label class="ed-checkbox"><input type="checkbox" v-model="editing" />显示编辑标记</label><a :href="pageConfig.path" target="_blank" rel="noopener">打开网页 ↗</a></div>
         <div class="ed-format" aria-label="预览文字格式工具栏" @mousedown.prevent>
           <span>选中文字后：</span><button aria-label="加粗" title="加粗" @click="format('bold')"><strong>B</strong></button><button aria-label="斜体" title="斜体" @click="format('italic')"><em>I</em></button><button @click="format('insertUnorderedList')">列表</button><button @click="format('insertOrderedList')">编号</button><button @click="format('unlink')">移除链接</button>
           <input v-model="linkUrl" aria-label="选中文字的链接地址" placeholder="https://…" @mousedown.stop /><button @click="format('createLink')">加链接</button>
         </div>
         <p class="ed-preview-hint">{{ editing ? '直接点击网页文字即可编辑 · Enter 换行 · Ctrl / ⌘ S 保存' : '预览已隐藏编辑标记；切回编辑后继续修改。' }}</p>
-        <div class="ed-frame-stage"><iframe ref="frame" class="ed-preview-frame" :class="{ 'ed-mobile': mobile }" src="/world?__editor_preview=1" title="My World 实时网页预览" @load="sync()" /></div>
+        <div class="ed-frame-stage"><iframe ref="frame" class="ed-preview-frame" :class="{ 'ed-mobile': mobile }" :key="pageId" :src="frameUrl" :title="`${pageConfig.label} 实时网页预览`" @load="sync()" /></div>
       </main>
       <aside ref="inspector" class="ed-inspector" aria-label="模块属性">
         <template v-if="selected">
           <p class="ed-kicker">{{ blockTypes[selected.type] }} / 属性</p>
           <div class="ed-field"><label for="module-label">模块名称（仅编辑器）</label><input id="module-label" :value="selected.label" @input="metadata('label', $event.target.value)" /></div>
-          <div class="ed-field"><label for="nav-label">页内导航文字（留空隐藏）</label><input id="nav-label" :value="selected.navLabel" @input="metadata('navLabel', $event.target.value)" /></div>
-          <div class="ed-block-actions"><button @click="duplicate">复制模块</button><button @click="metadata('hidden', !selected.hidden)">{{ selected.hidden ? '显示模块' : '隐藏模块' }}</button><button class="ed-danger" @click="remove">删除模块</button></div>
+          <div v-if="!pageConfig.fixed" class="ed-field"><label for="nav-label">页内导航文字（留空隐藏）</label><input id="nav-label" :value="selected.navLabel" @input="metadata('navLabel', $event.target.value)" /></div>
+          <div v-if="!pageConfig.fixed" class="ed-block-actions"><button :disabled="selected.type === 'notes'" @click="duplicate">复制模块</button><button @click="metadata('hidden', !selected.hidden)">{{ selected.hidden ? '显示模块' : '隐藏模块' }}</button><button class="ed-danger" @click="remove">删除模块</button></div>
           <details class="ed-settings" open><summary>内容</summary><InspectorFields :key="selected.id" :value="selected.data" :fields="schemas[selected.type]" :images="images" @change="fieldChange" @upload="upload" /></details>
-          <details class="ed-settings" open><summary>布局与图片</summary>
+          <details v-if="!pageConfig.fixed" class="ed-settings" open><summary>布局与图片</summary>
             <div class="ed-field"><label for="layout-preset">布局</label><select id="layout-preset" :value="selected.layout.preset" @change="layout('preset', $event.target.value)"><option v-for="[value, label] in layoutChoices" :key="value" :value="value">{{ label }}</option></select></div>
             <div class="ed-field"><label for="text-align">文字对齐</label><select id="text-align" :value="selected.layout.align" @change="layout('align', $event.target.value)"><option value="left">左对齐</option><option value="center">居中</option><option value="right">右对齐</option></select></div>
             <div class="ed-field"><label for="block-width">模块宽度 {{ selected.layout.width }}%</label><input id="block-width" type="range" min="60" max="100" step="5" :value="selected.layout.width" @input="layout('width', +$event.target.value)" /></div>
@@ -233,8 +250,9 @@ onBeforeUnmount(() => { window.removeEventListener("message", message); window.r
         </template>
         <template v-else>
           <p class="ed-kicker">PAGE / 页面设置</p>
-          <div class="ed-field"><label>页面标题</label><RichField :value="page.title" label="页面标题" @change="mutate(() => { page.title = $event; }, 'page:title')" /></div>
-          <div class="ed-field"><label>页面小标题</label><RichField :value="page.eyebrow" label="页面小标题" @change="mutate(() => { page.eyebrow = $event; }, 'page:eyebrow')" /></div>
+          <InspectorFields :key="pageId" :value="page" :fields="pageFields[pageId]" :images="images" @change="pageChange" />
+          <p v-if="pageConfig.fixed" class="ed-help">首页大标题、欢迎语和轮播签名在“首页封面”模块；其他三屏分别编辑主题介绍与入口文字。</p>
+          <p v-if="pageId === 'little'" class="ed-help">纸条内容会发布到网站；访客收藏保存在各自浏览器，工作台中的收藏仅供预览。</p>
           <p class="ed-help">点击左侧模块或中间网页，选择要编辑的区域。标题、正文、列表均可直接改字。链接地址与图片在右侧设置。</p>
           <div class="ed-tip"><strong>内容真正保存在项目里</strong><p>保存位置：src/data/content.json</p><p>自动备份：.editor-backups/</p><p>这里的修改只留在本地，不会自动推送或发布。</p></div>
         </template>

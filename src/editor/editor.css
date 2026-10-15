@@ -26,6 +26,9 @@
 .ed-kicker { text-transform: uppercase; font-size: 11px; font-weight: 800; letter-spacing: .07em; color: #8b745d; margin: 0 0 14px; }
 .ed-page { width: 100%; text-align: left; margin-bottom: 28px; }
 .ed-page span { display: block; color: #8c8174; font-size: 11px; }
+.ed-pages { display: grid; gap: 6px; margin-bottom: 12px; }
+.ed-pages .ed-page { margin: 0; font-size: 12px; }
+.ed-page-settings { width: 100%; margin-bottom: 24px; font-size: 12px !important; }
 .ed-block-list { list-style: none; padding: 0; margin: 16px 0 24px; }
 .ed-block-list li { display: flex; border-radius: 8px; margin: 8px 0; border: 1px solid transparent; }
 .ed-block-list li.active, .ed-page.active { border-color: #b8946b; background: #f7ecdc; }
@@ -51,9 +54,9 @@
 .ed-format button { padding: 4px 8px; font-size: 12px; min-width: 28px; }
 .ed-format input { min-width: 60px; width: 120px; font-size: 12px !important; padding: 4px 6px !important; }
 .ed-preview-hint { font-size: 11px; color: #8c7d6c; text-align: center; padding: 8px 10px; margin: 0; }
-.ed-frame-stage { flex: 1; min-height: 0; padding: 0 16px 16px; display: flex; justify-content: center; }
+.ed-frame-stage { flex: 1; min-height: 0; padding: 0 16px 16px; display: flex; justify-content: flex-start; overflow-x: auto; }
 .ed-preview-frame { width: 100%; height: 100%; border: 1px solid #dcd3c7; background: #fffaf3; border-radius: 8px; box-shadow: 0 10px 25px #66513b0a; }
-.ed-preview-frame.ed-mobile { max-width: 390px; }
+.ed-preview-frame.ed-mobile { width: 390px; min-width: 390px; max-width: 390px; flex-shrink: 0; margin-inline: auto; }
 .ed-field { display: grid; gap: 7px; margin-bottom: 16px; min-width: 0; }
 .ed-field > label:first-child { font-size: 12px; font-weight: 700; color: #7e6d5a; }
 .ed-field > input, .ed-field select { width: 100%; min-width: 0; }
@@ -74,6 +77,8 @@
 .ed-item-actions { margin-block: 10px; }
 .ed-string-row { display: flex; gap: 5px; }
 .ed-string-row .ed-rich { flex: 1; min-width: 0; }
+.ed-string-row input { flex: 1; min-width: 0; }
+.ed-string-row > button { padding: 3px 5px; font-size: 11px; }
 .ed-app .ed-add { width: 100%; border-style: dashed; background: transparent; font-size: 12px; }
 .ed-image-thumb { width: 100%; height: 100px; object-fit: contain; background: #f1e8da; border-radius: 6px; }
 .ed-upload { display: block; text-align: center; border: 1px dashed #bda889; border-radius: 6px; padding: 8px; cursor: pointer; font-size: 12px; }

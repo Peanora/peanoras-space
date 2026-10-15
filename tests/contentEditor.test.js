@@ -5,11 +5,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createServer } from "vite";
 import { createContentStore, editorRequestAllowed, imageExtension, localContentEditor } from "../server/contentEditor.js";
-import { blockTypes, clone, createBlock, safeLink, setField, validateContent } from "../src/content/model.js";
+import { clone, createBlock, newPhoto, newSong, neteaseSongId, restoreContent, safeLink, setField, validateContent } from "../src/content/model.js";
+import { contentPages, contentTarget, pageItems } from "../src/content/pages.js";
 import { createHistory } from "../src/editor/history.js";
 const existing = JSON.parse(await readFile(new URL("../src/data/content.json", import.meta.url), "utf8"));
 // Test fixtures must stay independent of the owner's block order/content edits.
-const original = { version: 1, pages: { world: { title: "My World", eyebrow: "", blocks: [createBlock("profile", "about"), createBlock("projects", "projects")] } } };
+const original = clone(existing);
+original.pages.world = { title: "My World", eyebrow: "", blocks: [createBlock("profile", "about"), createBlock("projects", "projects")] };
 original.pages.world.blocks[0].data.socials = [{ label: "GitHub", url: "https://github.com/Peanora" }];
 const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Zl1sAAAAASUVORK5CYII=", "base64");
 async function workspace(t) {
@@ -21,11 +23,15 @@ async function workspace(t) {
 }
 
 test("content schema preserves existing content and validates each supported block", () => {
-  assert.equal(validateContent(clone(existing)).version, 1);
-  for (const type of Object.keys(blockTypes)) {
+  assert.equal(validateContent(clone(existing)).version, 2);
+  for (const [pageId, config] of Object.entries(contentPages)) {
+  if (config.fixed) continue;
+  for (const type of config.types) {
     const document = clone(original);
-    document.pages.world.blocks.push(createBlock(type, `new-${type}`));
+    document.pages[pageId].blocks = [];
+    document.pages[pageId].blocks.push(createBlock(type, `new-${type}`));
     assert.doesNotThrow(() => validateContent(document));
+  }
   }
   for (const change of [
     (d) => { d.pages.world.blocks[0].layout.width = 150; },
@@ -39,6 +45,49 @@ test("content schema preserves existing content and validates each supported blo
   assert.equal(safeLink("javascript:alert(1)"), "");
   assert.equal(safeLink("//evil.example"), "");
   assert.equal(safeLink("/world#about"), "/world#about");
+});
+
+test("page-scoped edits and old World drafts preserve all other page content", () => {
+  const document = clone(original);
+  const beforeWorld = clone(document.pages.world);
+  setField(contentTarget(document, 'home', 'cover'), 'welcome', '新版欢迎语');
+  assert.equal(document.pages.home.blocks[0].data.welcome, '新版欢迎语');
+  assert.deepEqual(document.pages.world, beforeWorld);
+  const legacy = { version: 1, pages: { world: { ...clone(beforeWorld), title: '旧草稿恢复' } } };
+  const restored = restoreContent(legacy, document);
+  assert.equal(restored.version, 2);
+  assert.equal(restored.pages.world.title, '旧草稿恢复');
+  assert.deepEqual(restored.pages.music, document.pages.music);
+  assert.deepEqual(restored.pages.home, document.pages.home);
+  assert.throws(() => validateContent(legacy), /版本 2/);
+});
+
+test("home invariants, nested photos, songs, notes and visible song selection are validated", () => {
+  const document = clone(original);
+  const songBlock = createBlock('songs', 'test-songs');
+  const song = newSong('song-1');
+  song.officialUrl = 'https://music.163.com/#/song?id=1982799628';
+  song.neteaseId = neteaseSongId(song.officialUrl);
+  assert.equal(song.neteaseId, '1982799628');
+  assert.equal(neteaseSongId('https://evil.example/song?id=123'), '');
+  songBlock.data.items.push(song);
+  document.pages.music.blocks = [songBlock];
+  assert.equal(pageItems(document, 'music', 'songs').length, 1);
+  songBlock.hidden = true;
+  assert.equal(pageItems(document, 'music', 'songs').length, 0);
+  assert.doesNotThrow(() => validateContent(document));
+  const memory = createBlock('memories', 'memories');
+  memory.data.items.push({ id: 'memory-1', title: '', date: '', location: '', paragraphs: [], photos: [newPhoto()], mementos: [], isPlaceholder: true });
+  document.pages.music.blocks.push(memory);
+  assert.doesNotThrow(() => validateContent(document));
+  for (const change of [
+    d => { d.pages.home.blocks.reverse(); },
+    d => { d.pages.home.blocks[1].data.path = 'https://evil.example'; },
+    d => { d.pages.music.blocks[0].data.items[0].neteaseId = '123&auto=1'; },
+    d => { d.pages.music.blocks[0].data.items[0].officialUrl = 'javascript:alert(1)'; },
+    d => { d.pages.music.blocks[1].data.items[0].photos[0].src = '/../../secret.png'; },
+    d => { d.pages.little.blocks = [createBlock('notes', 'a'), createBlock('notes', 'b')]; },
+  ]) { const d = clone(document); change(d); assert.throws(() => validateContent(d)); }
 });
 
 test("undo groups typing but keeps structural operations and redo recoverable", () => {

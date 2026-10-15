@@ -1,11 +1,12 @@
 <script setup>
-import { computed } from "vue";
+import { computed, provide } from "vue";
 import { contentDocument } from "../content/store";
 import ContentBlock from "../components/content/ContentBlock.vue";
 import ContentText from "../components/content/ContentText.vue";
 import SectionNavigation from "../components/ui/SectionNavigation.vue";
 import { useScrollReveal } from "../composables/useScrollReveal";
 useScrollReveal();
+provide("content-page", "world");
 const page = computed(() => contentDocument.value.pages.world);
 const sections = computed(() => page.value.blocks.filter((block) => !block.hidden && block.navLabel).map((block) => ({ label: block.navLabel, hash: `#${block.id}` })));
 </script>

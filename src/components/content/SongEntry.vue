@@ -1,17 +1,19 @@
 <script setup>
 import { officialEmbedUrl, useMusicPlayer } from "../../composables/useMusicPlayer";
+import ContentText from "./ContentText.vue";
 const { loadSong } = useMusicPlayer();
 defineProps({
   song: { type: Object, required: true },
   index: { type: Number, default: 0 },
+  blockId: String,
 });
 </script>
 <template>
-  <article class="song-entry" data-reveal>
+  <article class="song-entry" :class="{ 'no-cover': !song.cover }" data-reveal>
     <span class="song-number eyebrow">{{
       String(index + 1).padStart(2, "0")
     }}</span>
-    <div class="song-cover image-frame">
+    <div v-if="song.cover" class="song-cover image-frame">
       <img
         :src="song.cover"
         :alt="song.alt"
@@ -21,9 +23,9 @@ defineProps({
       /><span v-if="song.coverIsPlaceholder || song.isPlaceholder" class="image-label">占位封面</span>
     </div>
     <div class="song-copy">
-      <span class="eyebrow">{{ song.artist }}</span>
-      <h3>{{ song.title }}</h3>
-      <p v-if="song.thought" class="body-copy">{{ song.thought }}</p>
+      <ContentText tag="span" plain class="eyebrow" :value="song.artist" :block-id="blockId" :field="`items.${index}.artist`" />
+      <ContentText tag="h3" plain :value="song.title" :block-id="blockId" :field="`items.${index}.title`" />
+      <ContentText v-if="song.thought" class="body-copy" :value="song.thought" :block-id="blockId" :field="`items.${index}.thought`" />
       <span v-if="song.isPlaceholder" class="muted small">歌曲信息待补充</span>
     </div>
     <div class="song-play song-actions">
