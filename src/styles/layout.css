@@ -277,11 +277,42 @@
   line-height: 1.8;
   max-width: 36ch;
 }
+.about-introduction p + p {
+  margin-top: 0.8em;
+}
 .about-details {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 30px;
   margin: 40px 0 28px;
+}
+.about-interests,
+.about-learning {
+  padding: 0;
+  margin-top: 14px;
+  list-style: none;
+  color: var(--muted);
+  font-size: 14px;
+}
+.about-interests {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 20px;
+}
+.about-interests li::before {
+  content: "·";
+  margin-right: 8px;
+  color: var(--accent);
+}
+.about-learning li + li {
+  margin-top: 12px;
+}
+.about-learning strong {
+  color: var(--text);
+  font-weight: 600;
+}
+.about-find-heading + .entry-links {
+  margin-top: 10px;
 }
 .about-details p {
   margin-top: 14px;

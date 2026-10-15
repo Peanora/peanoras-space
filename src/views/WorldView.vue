@@ -34,30 +34,31 @@ const sections = [
         >
       </div>
       <div class="about-copy">
-        <p class="about-introduction">{{ profile.introduction }}</p>
+        <div class="about-introduction">
+          <p v-for="paragraph in profile.introduction.split(/\n\s*\n/)" :key="paragraph">{{ paragraph }}</p>
+        </div>
         <div class="about-details">
           <div>
-            <h3 class="eyebrow">兴趣 / INTERESTS</h3>
-            <p>
-              {{
-                profile.interests.length
-                  ? profile.interests.join("、")
-                  : "待补充"
-              }}
-            </p>
+            <h3 class="eyebrow">兴趣爱好 / INTERESTS</h3>
+            <ul v-if="profile.interests.length" class="about-interests">
+              <li v-for="interest in profile.interests" :key="interest">{{ interest }}</li>
+            </ul>
+            <p v-else>待补充</p>
           </div>
           <div>
-            <h3 class="eyebrow">正在学习 / LEARNING</h3>
-            <p>
-              {{
-                profile.learning.length ? profile.learning.join("、") : "待补充"
-              }}
-            </p>
+            <h3 class="eyebrow">正在学习 / CURRENTLY LEARNING</h3>
+            <ul v-if="profile.learning.length" class="about-learning">
+              <li v-for="item in profile.learning" :key="item.title">
+                <strong>{{ item.title }}</strong><span v-if="item.description">：{{ item.description }}</span>
+              </li>
+            </ul>
+            <p v-else>待补充</p>
           </div>
         </div>
         <p v-if="profile.direction" class="body-copy">
           {{ profile.direction }}
         </p>
+        <h3 class="eyebrow about-find-heading">找到我 / FIND ME</h3>
         <div class="entry-links">
           <template v-for="link in site.socials" :key="link.label"
             ><a
