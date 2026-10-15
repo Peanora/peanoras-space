@@ -2,7 +2,8 @@ import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import {
   createWheelGestureGate,
   normalizeWheelDelta,
-} from "../utils/wheelGesture";
+} from "../utils/wheelGesture.js";
+import { canReadMore, createTouchGesture } from "../utils/touchGesture.js";
 
 export function useScreenPager(stage, count) {
   const current = ref(0);
@@ -25,6 +26,8 @@ export function useScreenPager(stage, count) {
   let timer;
   let focusAfterMove = false;
   let touchStart = null;
+  let touchId = null;
+  let suppressClickUntil = 0;
   function goTo(index, keyboard = false) {
     const next = Math.max(0, Math.min(count - 1, index));
     if (moving.value || next === current.value) return;
@@ -51,13 +54,6 @@ export function useScreenPager(stage, count) {
         focusAfterMove = false;
       }
     }
-  }
-  function canReadMore(element, delta) {
-    if (!element || element.scrollHeight <= element.clientHeight + 3)
-      return false;
-    return delta > 0
-      ? element.scrollTop + element.clientHeight < element.scrollHeight - 3
-      : element.scrollTop > 3;
   }
   function onWheel(event) {
     if (
@@ -105,47 +101,71 @@ export function useScreenPager(stage, count) {
   }
   function onTouchStart(event) {
     if (
-      event.touches.length !== 1 ||
-      event.target.closest("button, a, .wallpaper-options")
+      event.touches.length !== 1 || moving.value ||
+      event.target.closest("input, textarea, select, [contenteditable], .wallpaper-picker, .pager-bottom")
     ) {
       touchStart = null;
       return;
     }
-    const panel = event.target.closest(".home-screen");
-    if (panel && panel.scrollHeight > panel.clientHeight + 3) {
-      touchStart = null;
-      return;
-    }
-    touchStart = { y: event.touches[0].clientY, x: event.touches[0].clientX };
+    const touch = event.touches[0];
+    touchId = touch.identifier;
+    touchStart = createTouchGesture({
+      y: touch.clientY, x: touch.clientX,
+      panel: event.target.closest(".home-screen"),
+      previous: current.value > 0, next: current.value < count - 1,
+    });
+  }
+  function onTouchMove(event) {
+    if (!touchStart) return;
+    if (event.touches.length !== 1) return onTouchCancel();
+    const touch = event.touches[0];
+    if (touch.identifier !== touchId) return onTouchCancel();
+    const result = touchStart.move({ x: touch.clientX, y: touch.clientY });
+    if (result.preventScroll && event.cancelable) event.preventDefault();
   }
   function onTouchEnd(event) {
     if (!touchStart || !event.changedTouches.length) return;
-    const deltaY = touchStart.y - event.changedTouches[0].clientY;
-    const deltaX = touchStart.x - event.changedTouches[0].clientX;
+    const touch = Array.from(event.changedTouches).find((item) => item.identifier === touchId);
+    if (!touch) return onTouchCancel();
+    const step = touchStart.end({ x: touch.clientX, y: touch.clientY });
     touchStart = null;
-    if (Math.abs(deltaY) >= 50 && Math.abs(deltaY) > Math.abs(deltaX))
-      goTo(current.value + Math.sign(deltaY));
+    if (step) {
+      suppressClickUntil = performance.now() + 600;
+      goTo(current.value + step);
+    }
+  }
+  function onClick(event) {
+    if (event.detail !== 0 && performance.now() < suppressClickUntil &&
+        event.target.closest(".home-screen")) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
   }
   function onTouchCancel() {
     touchStart = null;
+    touchId = null;
   }
   onMounted(() => {
     motionPreference.addEventListener("change", updateMotion);
     stage.value.addEventListener("wheel", onWheel, { passive: false });
     stage.value.addEventListener("touchstart", onTouchStart, { passive: true });
+    stage.value.addEventListener("touchmove", onTouchMove, { passive: false });
     stage.value.addEventListener("touchend", onTouchEnd, { passive: true });
     stage.value.addEventListener("touchcancel", onTouchCancel, {
       passive: true,
     });
     window.addEventListener("keydown", onKey);
+    stage.value.addEventListener("click", onClick, true);
   });
   onUnmounted(() => {
     motionPreference.removeEventListener("change", updateMotion);
     clearTimeout(timer);
     stage.value?.removeEventListener("wheel", onWheel);
     stage.value?.removeEventListener("touchstart", onTouchStart);
+    stage.value?.removeEventListener("touchmove", onTouchMove);
     stage.value?.removeEventListener("touchend", onTouchEnd);
     stage.value?.removeEventListener("touchcancel", onTouchCancel);
+    stage.value?.removeEventListener("click", onClick, true);
     window.removeEventListener("keydown", onKey);
   });
   return { current, direction, moving, goTo, finishMove, transitionDuration };

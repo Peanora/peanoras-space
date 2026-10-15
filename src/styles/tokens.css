@@ -1,20 +1,20 @@
 @font-face {
   font-family: "Instrument Serif";
-  src: url("../assets/fonts/InstrumentSerif-Regular.ttf") format("truetype");
+  src: url("../assets/fonts/InstrumentSerif-Regular-Latin.woff2") format("woff2");
   font-style: normal;
   font-weight: 400;
   font-display: swap;
 }
 @font-face {
   font-family: "Kalam";
-  src: url("../assets/fonts/Kalam-Bold.ttf") format("truetype");
+  src: url("../assets/fonts/Kalam-Bold-Latin.woff2") format("woff2");
   font-style: normal;
   font-weight: 700;
   font-display: swap;
 }
 @font-face {
   font-family: "Nunito";
-  src: url("../assets/fonts/Nunito-Variable.ttf") format("truetype");
+  src: url("../assets/fonts/Nunito-Variable-Latin.woff2") format("woff2");
   font-style: normal;
   font-weight: 200 900;
   font-display: swap;

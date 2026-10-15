@@ -4,12 +4,8 @@ import { computed, onMounted, onUnmounted, ref } from "vue";
 export function useAmbientMotion() {
   const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
   const reduced = ref(preference.matches);
-  const paused = ref(false);
   const hidden = ref(document.hidden);
-  const still = computed(() => paused.value || reduced.value || hidden.value);
-  const label = computed(() =>
-    reduced.value ? "减少动态" : paused.value ? "开启动效" : "暂停动态",
-  );
+  const still = computed(() => reduced.value || hidden.value);
   const updatePreference = () => {
     reduced.value = preference.matches;
   };
@@ -26,11 +22,6 @@ export function useAmbientMotion() {
   });
   return {
     still,
-    label,
     reduced,
-    paused,
-    toggle: () => {
-      paused.value = !paused.value;
-    },
   };
 }

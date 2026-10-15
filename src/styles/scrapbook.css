@@ -241,22 +241,6 @@ body:has(.home-pager) .site-backdrop::after {
   margin-left: auto;
   font-size: 16px;
 }
-.motion-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: transparent;
-  border: 1px solid #d9c4ac;
-  border-radius: 22px;
-  color: var(--muted);
-  padding: 8px 13px;
-  min-height: 44px;
-  font-size: 12px;
-  white-space: nowrap;
-}
-.motion-toggle:disabled {
-  cursor: default;
-}
 .screen-description {
   max-width: 23em;
 }
@@ -559,9 +543,6 @@ body:has(.home-pager) .site-backdrop::after {
   .scene-image-link:hover img {
     transform: scale(1.025);
   }
-  .motion-toggle:hover {
-    background: #fffaf3;
-  }
 }
 @media (max-width: 1000px) {
   .cover-layout {
@@ -689,12 +670,6 @@ body:has(.home-pager) .site-backdrop::after {
   }
   .pager-help {
     display: none;
-  }
-  .motion-toggle {
-    margin-left: auto;
-    font-size: 11px;
-    gap: 5px;
-    padding-inline: 10px;
   }
   .home-scene {
     max-width: 410px;

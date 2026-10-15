@@ -16,6 +16,12 @@ for original in sorted(source.glob("*.jpg")):
     image.thumbnail((edge, edge), Image.Resampling.LANCZOS)
     output = target / (original.stem + ".webp")
     image.save(output, "WEBP", quality=84, method=6)
+    # Dedicated thumbnails and responsive copies avoid full artwork on phones.
+    if original.stem != "avatar":
+        for width, quality in [(240, 70), (640, 76), (1080, 80)]:
+            variant = image.copy()
+            variant.thumbnail((width, width), Image.Resampling.LANCZOS)
+            variant.save(target / f"{original.stem}-{width}.webp", "WEBP", quality=quality, method=6)
     original_bytes += original.stat().st_size
     delivery_bytes += output.stat().st_size
     print(f"{output.name}: {image.width}x{image.height}, {output.stat().st_size:,} bytes", flush=True)

@@ -8,6 +8,7 @@ import { useScreenPager } from "../composables/useScreenPager";
 import { useAmbientMotion } from "../composables/useAmbientMotion";
 import HomeScene from "../components/content/HomeScene.vue";
 import SignatureTypewriter from "../components/ui/SignatureTypewriter.vue";
+import ArtworkImage from "../components/ui/ArtworkImage.vue";
 const stage = ref(null);
 const { current, direction, goTo, finishMove, transitionDuration } =
   useScreenPager(stage, homeScreens.length);
@@ -16,13 +17,7 @@ const brandWords = site.name.split(" ");
 const social = site.socials.find((item) => item.url);
 const chapters = homeScreens.slice(1);
 const portraitBouncing = ref(false);
-const {
-  still,
-  label: motionLabel,
-  reduced,
-  paused,
-  toggle: toggleMotion,
-} = useAmbientMotion();
+const { still, reduced } = useAmbientMotion();
 </script>
 <template>
   <div
@@ -149,7 +144,7 @@ const {
                 :class="`bookmark-${chapter.kind}`"
                 @click="goTo(index + 1)"
               >
-                <img :src="chapter.image" alt="" width="80" height="64" />
+                <ArtworkImage :src="chapter.image" thumbnail alt="" width="80" height="64" />
                 <span
                   ><small>{{ chapter.number }} / CHAPTER</small
                   ><strong>{{ chapter.bookmark }}</strong></span
@@ -179,20 +174,7 @@ const {
     </div>
     <div class="pager-bottom shell">
       <div class="pager-tools">
-        <WallpaperPicker /><button
-          class="motion-toggle"
-          :disabled="reduced"
-          :title="
-            reduced
-              ? '遵循系统设置，已关闭持续动效'
-              : '控制标题、签名、太阳和唱片的循环动效'
-          "
-          :aria-pressed="!paused && !reduced"
-          @click="toggleMotion"
-        >
-          <span aria-hidden="true">{{ paused || reduced ? "▷" : "Ⅱ" }}</span
-          >{{ motionLabel }}</button
-        ><span class="pager-help"
+        <WallpaperPicker /><span class="pager-help"
           ><span class="desktop-help">滚轮翻页</span
           ><span class="touch-help">上滑翻页</span> · 点击目录也可以</span
         ><a

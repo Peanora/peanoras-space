@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import { littleThings } from "../../data/littleThings";
+import ArtworkImage from "../ui/ArtworkImage.vue";
 defineProps({ screen: { type: Object, required: true } });
 const noteOpen = ref(false);
 const note = littleThings[0];
@@ -21,7 +22,7 @@ const note = littleThings[0];
           :aria-label="screen.action"
           class="scene-image-link"
         >
-          <img
+          <ArtworkImage
             :src="screen.image"
             :alt="screen.alt"
             :style="{ objectPosition: screen.imagePosition }"
@@ -43,7 +44,7 @@ const note = littleThings[0];
       <div class="record-sleeve" aria-hidden="true">
         <div class="vinyl-disc ambient-loop">
           <div class="vinyl-label">
-            <img :src="screen.image" alt="" /><span></span>
+            <ArtworkImage :src="screen.image" thumbnail alt="" /><span></span>
           </div>
         </div>
       </div>
@@ -54,7 +55,7 @@ const note = littleThings[0];
           :aria-label="screen.action"
           class="scene-image-link"
         >
-          <img
+          <ArtworkImage
             :src="screen.image"
             :alt="screen.alt"
             :style="{ objectPosition: screen.imagePosition }"
@@ -73,7 +74,7 @@ const note = littleThings[0];
     </template>
     <template v-else>
       <figure class="little-photo scene-paper">
-        <img :src="screen.image" :alt="screen.alt" width="1000" height="640" />
+        <ArtworkImage :src="screen.image" :alt="screen.alt" width="1000" height="640" />
         <figcaption>{{ screen.artworkNote }} · 插画壁纸</figcaption>
       </figure>
       <button
