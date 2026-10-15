@@ -15,9 +15,17 @@ export default defineConfig({
           if (!entry || entry.type !== "asset") {
             this.error("Cannot generate the Pages fallback without index.html");
           }
-          // Pages serves this document at the requested URL with HTTP 404.
-          // Root-relative Vite assets let Vue render that URL without a redirect.
-          this.emitFile({ type: "asset", fileName: "404.html", source: entry.source });
+          // Real directory entries make the existing fixed pages return 200.
+          // Keep this list aligned with the static routes in src/router/index.js.
+          const entries = [
+            "world/index.html",
+            "music/index.html",
+            "little-things/index.html",
+            "404.html",
+          ];
+          for (const fileName of entries) {
+            this.emitFile({ type: "asset", fileName, source: entry.source });
+          }
         },
       },
     },

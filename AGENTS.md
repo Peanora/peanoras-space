@@ -23,7 +23,7 @@
 - 每次改交互应运行 `npm test`、`npm run build`，并验证相关浏览器行为。仅修改文字等低影响内容可按实际需要缩减检查。
 - 实际验证与推测分开；真实手机、跨浏览器或屏幕阅读器没测就明确说明。
 - 使用已有素材，保留字体许可。原始 JPG 保存在 `src/assets/artwork/`，网页使用 `web/` 下 WebP 的 240px 书签、640/1080/1920px 响应式副本；浅背景最高 1080px。插画通过 `ArtworkImage.vue` 使用，不能给小书签加载整张图；`scripts/prepare-artwork.py` 可重新生成。英文使用 WOFF2 字体子集，原字体与许可保留。不要用 AI 重绘替代用户原图的常规资源准备。
-- 2026-10-15 最新路由要求：自定义域名 `https://peanora.cn`，生产 Vite base 必须为 `/`。使用 `createWebHistory`，Vite 自动生成与入口一致的 `dist/404.html` 供 Pages 回退（子页直达可能仍为 HTTP 404）。旧 `#/` 链接启动前用 replaceState 转换，保留查询与章节锚点。不要恢复仓库子目录 base 或更改域名绑定。
+- 2026-10-15 最新路由要求：自定义域名 `https://peanora.cn`，生产 Vite base 必须为 `/`。使用 `createWebHistory`；Vite 为 world、music、little-things 自动生成目录 index.html，使已知子页直达最终返回 200（Pages 可补尾斜杠），未知路径继续使用 404.html。添加静态路由时同步更新 vite.config.js 的入口列表。旧 `#/` 链接启动前用 replaceState 转换，保留查询与章节锚点。不要恢复仓库子目录 base 或更改域名绑定。
 - 2026-10-15 用户要求网站播放音乐，并提供 Hanser《它像一颗》官方链接（网易云 ID `1982799628`）。使用官方外链 iframe，点击加载、`auto=0`；页面初次打开不加载第三方播放器。头部听歌面板跨站内路由保留，收起不停止，停止按钮卸载 iframe。保持官方链接与重试；不能将 iframe 的 load 事件当作实际音频成功，不能破解/转换并公开上传用户的 NCM 或使用非官方代理绕过平台限制。歌曲数据在 `src/data/songs.js`，封面与感想未提供时不编造。
 
 ## 远程操作与长期记录

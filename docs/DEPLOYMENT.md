@@ -6,7 +6,7 @@
 - 当前地址：<https://peanora.cn/>；详情示例：`https://peanora.cn/music`。旧仓库地址属于历史发布记录。
 - GitHub Pages 来源为 GitHub Actions，自定义域名沿用用户已绑定的 `peanora.cn`；本次不修改任何域名、证书或 HTTPS 强制设置。
 - 工作流：`.github/workflows/deploy-pages.yml`。main 的应用代码更新会自动测试、构建、发布；只有文档更新时不重复部署。若以后将 Markdown 用作站点内容，需同步调整触发规则。
-- 工作流 `VITE_BASE_PATH: /` 沿用用户远程提交 `d8e66fd`，本地同步后保持不变。本次改为 History 路由，构建自动生成 `404.html`，详见 `HISTORY-ROUTING-VERIFICATION.md`。
+- 工作流 `VITE_BASE_PATH: /` 沿用用户远程提交 `d8e66fd`，本地同步后保持不变。History 构建为三个已知子页生成目录 `index.html`，解决最终响应为 404 的问题；未知地址保留 `404.html`，详见 `HISTORY-ROUTING-VERIFICATION.md`。
 - 发布目录为 `dist/`；不要把源码当作静态构建产物上传。
 
 ## 首次发布的历史检查（子目录 Hash 方案，已被上述当前配置替代）

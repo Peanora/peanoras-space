@@ -85,7 +85,7 @@ npm run preview
 当前自定义域名为 `https://peanora.cn`，生产基础路径为 `/`，部署状态以仓库 Actions 与 Pages 设置为准。原 GitHub 项目地址保留为历史发布记录。
 发布配置、验证和后续维护见 `docs/DEPLOYMENT.md`。
 
-采用 History 路由，页面为 `/`、`/world`、`/music`、`/little-things`，未知路径仍由原有 NotFound 页面处理。Vite 构建自动生成 `dist/404.html`（与构建入口相同），GitHub Pages 用它为子页直达和刷新提供客户端回退；这类请求仍可能返回 HTTP 404，影响搜索引擎/链接预览，不是真正的服务器路由重写。旧 `/#/music` 等地址会在初始化前替换成对应 History 地址，同时保留查询参数和章节锚点。
+采用 History 路由，页面为 `/`、`/world`、`/music`、`/little-things`。Vite 构建为三个固定子页面自动生成各自目录的 `index.html`，让 GitHub Pages 为子页直达和刷新返回 200；无尾斜杠的地址可能先被 Pages 重定向至带 `/` 的目录地址。未知路径继续使用 `404.html` 并显示原有 NotFound 页面。所有入口内容与根入口相同，共用根路径资源；这是静态文件入口，不是服务器 rewrite。新增静态路由时同步更新 `vite.config.js` 的入口列表。旧 `/#/music` 等地址仍自动转换，保留查询参数和章节锚点。
 
 生产 Vite `base` 保持 `/`，构建方式：
 
