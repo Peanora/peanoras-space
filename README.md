@@ -73,13 +73,16 @@ npm run preview
 
 - 当前 SVG 全部是本项目原创占位插画，不是实际游戏截图、歌曲封面或演唱会照片。
 - `src/assets/artwork/` 中的 JPG 是本人提供的头像与壁纸，保留原图内容。背景浅化由 CSS 透明度与暖白遮罩实现；它们不被视为项目截图或实际演唱会照片，作品权利仍归原作者。
+- 网页使用 `src/assets/artwork/web/` 下的 WebP 副本：头像最长边 640px，其余插画最长边 1920px，画面内容与比例保留。可用 `scripts/prepare-artwork.py`（Pillow）重新生成；普通构建不依赖 Python。
 - Instrument Serif 自托管，源自 Google Fonts 中的官方字体文件；SIL OFL 1.1 许可保存在 `src/assets/fonts/OFL.txt`，并通过 `public/licenses/Instrument-Serif-OFL.txt` 一并复制到构建产物。
 - 中文使用自托管霞鹜文楷轻便版（LXGW WenKai Lite），来源 `https://github.com/lxgw/LxgwWenKai-Lite`；OFL 1.1 及网页转换附加许可保存于 `src/assets/fonts/LXGW-WenKai-Lite-OFL.txt`、`public/licenses/`。只转换为网页 WOFF2，不分发可安装桌面字体。
 - `src/styles/wenkai.css` 为生成的字体声明：现有文字优先使用小字体包，新文字自动使用完整包。可选脚本 `scripts/prepare-wenkai.py` 接收上游 TTF 路径生成两份 WOFF2（需 Python `fonttools[woff]`）；正常运行、构建、增加签名均不依赖 Python。
 - 当前标题使用 Kalam，栏目与英文 UI 使用 Nunito，两者均来自 Google Fonts，SIL OFL 1.1 许可保留在 `src/assets/fonts/` 和 `public/licenses/`。旧 Instrument Serif 保留于源码，不再作为默认标题字体。
 - 音乐空间为非官方个人空间，只使用本人原创、授权素材或官方平台链接；没有抓取歌曲或摄影作品。
 
-## GitHub Pages 路径准备
+## GitHub Pages 发布
+
+用户于 2026-10-15 授权首次公开发布。项目地址为 `https://peanora.github.io/peanoras-space/`，部署状态以仓库 Actions 与 Pages 设置为准。
 
 采用 Hash 路由，静态托管刷新可直接载入入口文件。地址示例为 `/#/music`，子目录地址为 `/仓库名/#/music`。Hash 路由对搜索收录存在限制；首版没有服务端渲染或预渲染。
 
@@ -91,7 +94,7 @@ npm run build
 Remove-Item Env:VITE_BASE_PATH
 ```
 
-GitHub Actions 部署时将同一变量放入构建环境，安装依赖使用 `npm ci`，发布目录为 `dist/`。当前没有部署工作流；推送源码与发布网站是两个独立步骤，部署将在明确提出要求后进行。
+`.github/workflows/deploy-pages.yml` 在推送到 `main` 时自动安装锁定依赖、运行测试、以仓库子目录为 base 构建并发布 `dist/`，也可从 Actions 手动运行。仓库 Pages 来源设置为 GitHub Actions；没有绑定自定义域名。以后若绑定自定义域名或改变仓库名称，需要同步检查构建 base。
 
 ## 验收记录
 

@@ -1,5 +1,5 @@
 import { site } from "./site";
-import nap from "../assets/artwork/afternoon-nap.jpg";
+import nap from "../assets/artwork/web/afternoon-nap.webp";
 
 export const homeScreens = [
   { id: "cover", title: site.name, shortTitle: "首页", kind: "cover" },

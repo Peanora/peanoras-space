@@ -1,5 +1,5 @@
-import projectImage from "../assets/artwork/spring-garden.jpg";
-import memoryImage from "../assets/artwork/flower-stage.jpg";
+import projectImage from "../assets/artwork/web/spring-garden.webp";
+import memoryImage from "../assets/artwork/web/flower-stage.webp";
 
 export const site = {
   name: "Peanora's Space",

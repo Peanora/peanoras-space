@@ -122,7 +122,7 @@
 - 目录职责：`views` 页面；`components` 可复用组件；`assets` 素材；`styles` 样式；`data` 内容；`router` 路由；`composables` 共享交互逻辑。
 - 昵称、社交、介绍、项目、歌曲、经历、图片、随机文字集中数据管理，增加条目不应改多个组件。
 - 当前关键配置：`site.js` 网站与社交；`home.js` 首页屏幕；`appearance.js` 头像和壁纸；其余文件按项目/歌曲/经历/相册命名。
-- 当前主要字体：Kalam 手写标题、Nunito 圆润英文与 UI、中文系统字体。字体许可保存于源码与 `public/licenses/`，随构建分发。
+- 当前主要字体：Kalam 手写标题、Nunito 圆润英文与 UI、中文自托管霞鹜文楷轻便版。字体许可保存于源码与 `public/licenses/`，随构建分发。
 
 ## 9. 范围与工作方式
 
@@ -143,8 +143,8 @@
 - 本地：`E:/Peanora's Space`。
 - 当前仓库：`https://github.com/Peanora/peanoras-space`；主分支 `main`。2026-10-15 推送时 GitHub 明确提示从原 Citlali37 地址迁移，旧链接仍可转发。
 - 用户已要求建仓库并推送，首次推送完成。2026-10-15 明确要求本次视觉/分屏修改和长期文档完成后再次推送。
-- 推送源码不代表网站发布；用户尚未要求 Pages 部署，不擅自启用部署。
-- 未来 GitHub Pages：静态构建、Vite base、资源路径、刷新兼容、GitHub Actions 自动部署。
+- 2026-10-15 用户明确要求“你先给我搞一个github的网址吧”，授权通过 GitHub Pages 公开发布网站，并配置 main 后续推送自动更新。此次不购买、绑定自定义域名，也不创建其他托管服务。
+- GitHub Pages：静态构建、项目 base `/peanoras-space/`、Hash 路由、GitHub Actions 自动部署。网页插画使用 WebP 压缩副本，原始 JPG 保留；正常构建不依赖图像处理工具。
 - 当前 Hash 路由兼容刷新；根域 base 为 `/`，仓库子目录 base 为 `/<仓库名>/`，通过 `VITE_BASE_PATH` 设置。
 
 ## 12. 决策记录

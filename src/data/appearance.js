@@ -1,14 +1,14 @@
-import avatar from "../assets/artwork/avatar.jpg";
-import autumn from "../assets/artwork/autumn-forest.jpg";
-import spring from "../assets/artwork/spring-garden.jpg";
-import flowers from "../assets/artwork/flower-stage.jpg";
-import sea from "../assets/artwork/summer-sea.jpg";
-import winter from "../assets/artwork/winter-window.jpg";
-import nap from "../assets/artwork/afternoon-nap.jpg";
-import city from "../assets/artwork/city-evening.jpg";
-import laundry from "../assets/artwork/laundry-day.jpg";
-import dream from "../assets/artwork/golden-dream.jpg";
-import sunflower from "../assets/artwork/sunflower-sky.jpg";
+import avatar from "../assets/artwork/web/avatar.webp";
+import autumn from "../assets/artwork/web/autumn-forest.webp";
+import spring from "../assets/artwork/web/spring-garden.webp";
+import flowers from "../assets/artwork/web/flower-stage.webp";
+import sea from "../assets/artwork/web/summer-sea.webp";
+import winter from "../assets/artwork/web/winter-window.webp";
+import nap from "../assets/artwork/web/afternoon-nap.webp";
+import city from "../assets/artwork/web/city-evening.webp";
+import laundry from "../assets/artwork/web/laundry-day.webp";
+import dream from "../assets/artwork/web/golden-dream.webp";
+import sunflower from "../assets/artwork/web/sunflower-sky.webp";
 
 export const appearance = {
   avatar,
