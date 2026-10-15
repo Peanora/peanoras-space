@@ -23,7 +23,7 @@
             "interestsHeading": "兴趣爱好 / INTERESTS",
             "interests": [
               "hanser",
-              "编程与算法",
+              "编程",
               "游戏",
               "音乐",
               "生活"
@@ -36,11 +36,11 @@
               },
               {
                 "title": "游戏开发",
-                "description": "正在接触 Unity、C#，尝试独立实现游戏玩法。"
+                "description": ""
               },
               {
                 "title": "更多探索",
-                "description": "对游戏服务端、软件工程和各种新技术保持好奇。"
+                "description": ""
               }
             ],
             "direction": "",
@@ -48,7 +48,7 @@
             "socials": [
               {
                 "label": "GitHub",
-                "url": "https://github.com/Citlali37"
+                "url": "https://github.com/Peanora"
               }
             ]
           }
