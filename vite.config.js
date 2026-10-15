@@ -1,9 +1,11 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import { localContentEditor } from "./server/contentEditor.js";
 
 export default defineConfig({
   plugins: [
     vue(),
+    localContentEditor(),
     {
       name: "github-pages-history-fallback",
       apply: "build",

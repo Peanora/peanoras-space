@@ -1,12 +1,14 @@
 <script setup>
+import ContentText from "./ContentText.vue";
 defineProps({
   project: { type: Object, required: true },
   index: { type: Number, default: 0 },
+  blockId: String,
 });
 </script>
 <template>
-  <article class="project-entry" :class="{ reverse: index % 2 }" data-reveal>
-    <div class="project-image image-frame">
+  <article class="project-entry" :class="{ reverse: index % 2, 'no-cover': !project.cover }" data-reveal>
+    <div v-if="project.cover" class="project-image image-frame">
       <img
         :src="project.cover"
         :alt="project.alt"
@@ -19,12 +21,12 @@ defineProps({
       <div class="entry-meta">
         <span class="eyebrow"
           >PROJECT {{ String(index + 1).padStart(2, "0") }}</span
-        ><span class="status">{{ project.status }}</span>
+        ><ContentText tag="span" class="status" :value="project.status" :block-id="blockId" :field="`items.${index}.status`" />
       </div>
-      <h3>{{ project.title }}</h3>
-      <p class="body-copy">{{ project.description }}</p>
+      <ContentText tag="h3" :value="project.title" :block-id="blockId" :field="`items.${index}.title`" />
+      <ContentText class="body-copy" :value="project.description" :block-id="blockId" :field="`items.${index}.description`" />
       <ul v-if="project.technologies.length" class="tags" aria-label="开发技术">
-        <li v-for="tech in project.technologies" :key="tech">{{ tech }}</li>
+        <ContentText v-for="(tech, techIndex) in project.technologies" :key="techIndex" tag="li" :value="tech" :block-id="blockId" :field="`items.${index}.technologies.${techIndex}`" />
       </ul>
       <div class="entry-links">
         <a

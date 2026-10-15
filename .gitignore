@@ -4,3 +4,5 @@ dist/
 .env.*
 !.env.example
 *.log
+.editor-backups/
+src/data/content.json.*.tmp

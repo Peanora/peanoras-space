@@ -1,0 +1,8 @@
+.editor-block { outline: 1px dashed #b98e58; outline-offset: -2px; }
+.editor-block-selected { outline: 2px solid #a16b38; }
+.editor-block-hidden { opacity: .45; }
+.editor-block::before { content: attr(data-editor-label); position: absolute; left: 8px; top: 5px; font: 11px/1.5 sans-serif; background: #fff7e9; color: #684521; padding: 2px 7px; border-radius: 3px; z-index: 2; pointer-events: none; }
+[contenteditable="true"] { outline: none; min-height: 1em; cursor: text; }
+[contenteditable="true"]:focus { box-shadow: 0 1px 0 #a16b38; }
+[contenteditable="true"]:empty::before { content: "点击输入…"; opacity: .45; }
+.reveal-pending { opacity: 1 !important; transform: none !important; }

@@ -1,0 +1,30 @@
+.content-block { position: relative; margin-inline: auto; }
+.custom-block-heading { font-size: clamp(32px, 4.7vw, 60px); margin-bottom: 24px; }
+.content-media { width: var(--content-image-width, 100%); margin-inline: auto; min-width: 0; }
+.content-media img { width: 100%; height: auto; aspect-ratio: var(--content-image-ratio, auto); object-fit: var(--content-image-fit, cover); object-position: var(--content-image-position, center); }
+.content-media figcaption { font-size: 13px; color: var(--muted); margin-top: 12px; }
+.content-block[data-image-ratio] .project-image { aspect-ratio: var(--content-image-ratio); }
+.content-block[data-image-ratio] .project-image img { aspect-ratio: var(--content-image-ratio); height: 100%; }
+.content-block .project-image img { object-fit: var(--content-image-fit, cover); object-position: var(--content-image-position, center); }
+.content-block .project-image { width: var(--content-image-width, 100%); margin-inline: auto; }
+.content-split .custom-block-body { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: clamp(24px, 5vw, 60px); }
+.content-block.layout-single.about-section, .content-split.layout-single .custom-block-body { grid-template-columns: 1fr; }
+.content-split.layout-image-right .content-media { order: 2; }
+.content-text.layout-two .rich-body { columns: 2; column-gap: 40px; }
+.content-projects.layout-two .projects-collection { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+.content-projects.layout-two .project-entry, .content-projects.layout-single .project-entry { display: block; }
+.project-entry.no-cover { display: block; }
+.content-projects.layout-two .project-copy, .content-projects.layout-single .project-copy { margin-top: 24px; }
+.content-projects.layout-image-right .project-image { order: 2; }
+.content-projects.layout-image-right .project-copy, .content-projects.layout-image-left .project-image { order: 0; }
+.content-projects.layout-image-left .project-copy { order: 1; }
+.rich-body p + p, .rich-body ul, .rich-body ol { margin-top: 1em; }
+.rich-body ul, .rich-body ol { padding-left: 1.4em; }
+.rich-body a { text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 720px) {
+  .content-block { width: 100% !important; }
+  .content-split .custom-block-body, .content-projects.layout-two .projects-collection { grid-template-columns: 1fr; }
+  .content-split.layout-image-right .content-media { order: 0; }
+  .content-projects.layout-image-right .project-image { order: 0; }
+  .content-text.layout-two .rich-body { columns: 1; }
+}

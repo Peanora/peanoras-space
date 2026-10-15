@@ -23,7 +23,7 @@ font = TTFont(args.source)
 supported = set(font.getBestCmap())
 characters = set(range(32, 127))
 for source in (root / "src").rglob("*"):
-    if source.suffix in (".vue", ".js"):
+    if source.suffix in (".vue", ".js", ".json"):
         characters.update(map(ord, source.read_text(encoding="utf-8")))
 characters &= supported
 font.flavor = "woff2"

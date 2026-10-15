@@ -27,26 +27,25 @@ npm run preview
 ## 更新内容
 
 页面与数据分开，主要内容集中在 `src/data/`。
+个人介绍、兴趣、学习、项目与经历现在可以使用**本地可视化编辑器**：运行 `npm run dev` 后，打开终端本地地址下的 `/__editor`（通常是 `http://127.0.0.1:5173/__editor`）。点击预览文字直接修改；左侧管理模块，右侧调整内容、图片与布局，最后点击“保存到项目”。完整说明见 [本地内容编辑器](docs/CONTENT_EDITOR.md)。当前只开放 My World，其他页面保持原有数据管理方式。
 首页四屏与主题说明集中在 `src/data/home.js`。
 欢迎语在 `src/data/site.js` 的 `welcome`，个性签名在 `signatures` 数组。每个字符串是一条签名，首页按顺序打字、停留、删除并循环；修改内容无需改组件。暂停动态也会暂停打字机，系统减少动态时静态显示第一条。
 
 | 内容                                         | 数据文件          |
 | -------------------------------------------- | ----------------- |
 | 昵称、网站名称、导航、社交地址、首页主题入口 | `site.js`         |
-| 个人介绍、兴趣、正在学习、未来方向           | `profile.js`      |
-| 项目名称、封面、技术、状态、GitHub、演示     | `projects.js`     |
-| 学习与竞赛经历                               | `experience.js`   |
+| 个人介绍、兴趣、学习、项目、经历与新增模块   | `content.json`（通过本地编辑器保存） |
 | 歌曲名称、艺术家、感想、官方地址             | `songs.js`        |
 | 演唱会日期、地点、文字、照片、纪念物         | `memories.js`     |
 | 相册图片、说明与裁切位置                     | `gallery.js`      |
 | 随机文字与稀有纸条                           | `littleThings.js` |
 | 头像、壁纸、默认背景、裁切位置               | `appearance.js`   |
 
-新图片放入 `src/assets/images/`，在对应数据文件中 `import` 后引用。不要使用根路径 `/图片名`，这样更容易适配仓库子目录。图片应压缩为适当尺寸，并为缩略图考虑独立的大图策略；当前灯箱沿用同一图片源。
+My World 图片可直接在编辑器中上传，自动存入 `public/content/uploads/`，使用 `/content/uploads/...` 根路径，匹配当前自定义域名的 `/` base。其他页面图片仍放入 `src/assets/images/` 并在对应数据文件中导入。图片应压缩为适当尺寸，并为缩略图考虑独立的大图策略；当前灯箱沿用同一图片源。
 
 每个条目使用唯一且稳定的 `id`；随机文字尤其不要在调整顺序时改变 ID，因为本地收藏依靠它识别条目。
 
-`isPlaceholder: true` 会显示占位标记，正式素材确认后改为 `false`。未知链接设为 `null`，页面会省略操作。社交地址填入 `site.socials` 后自动出现在页脚与个人介绍。
+`isPlaceholder: true` 会显示占位标记，正式素材确认后改为 `false`（编辑器中有对应开关）。JSON 中未知链接留空字符串，页面会省略操作；旧 JS 数据可继续使用 `null`。页脚社交地址在 `site.socials`，My World 的社交链接独立在编辑器管理。
 
 演唱会日期填写 ISO 格式，如 `YYYY-MM-DD`。图片字段包括 `src`、`alt`、`caption` 和 `isPlaceholder`；相册还支持 `shape: 'landscape' | 'portrait'` 以及 CSS `object-position` 格式的 `position`。
 

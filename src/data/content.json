@@ -1,0 +1,109 @@
+{
+  "version": 1,
+  "pages": {
+    "world": {
+      "title": "My World",
+      "eyebrow": "01 / 我的个人世界",
+      "blocks": [
+        {
+          "id": "about",
+          "type": "profile",
+          "label": "个人介绍",
+          "navLabel": "About",
+          "hidden": false,
+          "layout": {
+            "preset": "original",
+            "align": "left",
+            "width": 100
+          },
+          "data": {
+            "eyebrow": "ABOUT ME",
+            "name": "Peanora",
+            "introduction": "<p>你好，你发现这里啦~</p><p>这里是Peanora的小小空间，希望你能在这里得到一些对心灵的小小的慰藉。</p>",
+            "interestsHeading": "兴趣爱好 / INTERESTS",
+            "interests": [
+              "hanser",
+              "编程与算法",
+              "游戏",
+              "音乐",
+              "生活"
+            ],
+            "learningHeading": "正在学习 / CURRENTLY LEARNING",
+            "learning": [
+              {
+                "title": "算法",
+                "description": ""
+              },
+              {
+                "title": "游戏开发",
+                "description": "正在接触 Unity、C#，尝试独立实现游戏玩法。"
+              },
+              {
+                "title": "更多探索",
+                "description": "对游戏服务端、软件工程和各种新技术保持好奇。"
+              }
+            ],
+            "direction": "",
+            "socialHeading": "找到我 / FIND ME",
+            "socials": [
+              {
+                "label": "GitHub",
+                "url": "https://github.com/Citlali37"
+              }
+            ]
+          }
+        },
+        {
+          "id": "projects",
+          "type": "projects",
+          "label": "项目与作品",
+          "navLabel": "Projects",
+          "hidden": false,
+          "layout": {
+            "preset": "original",
+            "align": "left",
+            "width": 100
+          },
+          "data": {
+            "heading": "Projects",
+            "subtitle": "项目与作品",
+            "items": [
+              {
+                "id": "project-draft-01",
+                "title": "游戏项目 · 待补充",
+                "description": "这里将记录项目的想法、实现过程与最终成果。项目名称、介绍和技术信息等待正式内容。",
+                "technologies": [],
+                "status": "内容待补充",
+                "cover": "builtin:project",
+                "alt": "原创项目封面占位，尚非实际游戏截图",
+                "githubUrl": "",
+                "demoUrl": "",
+                "detailUrl": "",
+                "isPlaceholder": true,
+                "featured": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "experience",
+          "type": "experience",
+          "label": "学习与经历",
+          "navLabel": "Experience",
+          "hidden": false,
+          "layout": {
+            "preset": "original",
+            "align": "left",
+            "width": 100
+          },
+          "data": {
+            "heading": "Experience",
+            "subtitle": "学习与经历",
+            "items": [],
+            "emptyText": "学习、竞赛与开发经历，等待正式内容补充。"
+          }
+        }
+      ]
+    }
+  }
+}
