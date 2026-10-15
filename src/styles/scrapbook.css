@@ -50,8 +50,85 @@ body:has(.home-pager) .site-backdrop::after {
   width: 108px;
 }
 .cover-portrait {
+  justify-self: end;
+  margin-right: 36px;
   transform: rotate(6deg);
   margin-top: 12px;
+}
+.cover-message {
+  margin: 0 0 18px;
+}
+.cover-welcome {
+  font-family: var(--font-chinese);
+  font-size: clamp(22px, 2vw, 30px);
+  color: var(--text);
+  line-height: 1.6;
+}
+.cover-signature {
+  display: grid;
+  align-items: start;
+  font-family: var(--font-chinese);
+  color: var(--accent);
+  font-size: clamp(17px, 1.5vw, 21px);
+  line-height: 1.8;
+  min-height: 3.6em;
+  max-width: 27em;
+  margin-top: 6px;
+}
+.signature-reserve,
+.signature-visual {
+  grid-area: 1 / 1;
+}
+.signature-reserve {
+  display: grid;
+  visibility: hidden;
+  pointer-events: none;
+}
+.signature-reserve > span {
+  grid-area: 1 / 1;
+  overflow-wrap: anywhere;
+}
+.signature-character {
+  display: inline-block;
+  white-space: pre;
+  animation: signature-pop 180ms ease-out;
+}
+.signature-visual {
+  overflow-wrap: anywhere;
+}
+.signature-cursor {
+  display: inline-block;
+  width: 1px;
+  height: 1em;
+  margin-left: 4px;
+  vertical-align: -0.12em;
+  background: #ad835a;
+  animation: cursor-breathe 1.4s ease-in-out infinite;
+}
+.signature-static .signature-cursor {
+  display: none;
+}
+.signature-paused .signature-character {
+  animation-play-state: paused;
+}
+@keyframes signature-pop {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes cursor-breathe {
+  0%,
+  100% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 0.25;
+  }
 }
 .portrait-photo {
   display: block;
@@ -522,6 +599,35 @@ body:has(.home-pager) .site-backdrop::after {
     row-gap: 32px;
     padding-block: 30px;
   }
+  .cover-copy {
+    display: contents;
+  }
+  .home-title {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .cover-portrait {
+    grid-column: 2;
+    grid-row: 1;
+    margin-right: 6px;
+  }
+  .cover-rule {
+    display: none;
+  }
+  .cover-message {
+    grid-column: 1 / -1;
+    margin: 0;
+  }
+  .cover-entry {
+    justify-self: start;
+  }
+  .cover-welcome {
+    font-size: 23px;
+  }
+  .cover-signature {
+    font-size: 16px;
+    min-height: 3.6em;
+  }
   .home-title {
     font-size: clamp(34px, 10vw, 66px);
   }
@@ -670,7 +776,28 @@ body:has(.home-pager) .site-backdrop::after {
     margin-top: 45px;
   }
 }
-@media (max-height: 780px) and (min-width: 721px) {
+@media (max-height: 860px) and (min-width: 721px) {
+  .home-title {
+    font-size: clamp(66px, 6.5vw, 92px);
+  }
+  .cover-layout {
+    padding-block: 14px;
+    row-gap: 18px;
+  }
+  .cover-rule {
+    margin-block: 9px 14px;
+    height: 3px;
+  }
+  .cover-message {
+    margin-bottom: 12px;
+  }
+  .cover-welcome {
+    font-size: 23px;
+  }
+  .cover-signature {
+    font-size: 18px;
+    min-height: 3.6em;
+  }
   .scene-music {
     padding-top: 6px;
     padding-bottom: 12px;
@@ -703,8 +830,21 @@ body:has(.home-pager) .site-backdrop::after {
 }
 @media (max-height: 680px) and (max-width: 720px) {
   .cover-layout {
-    padding-block: 16px;
-    row-gap: 20px;
+    padding-block: 10px;
+    row-gap: 10px;
+  }
+  .cover-entry {
+    display: none;
+  }
+  .cover-welcome {
+    font-size: 20px;
+  }
+  .cover-signature {
+    font-size: 15px;
+    margin-top: 3px;
+  }
+  .cover-portrait .portrait-photo {
+    width: 92px;
   }
   .cover-bookmarks img {
     height: 40px;

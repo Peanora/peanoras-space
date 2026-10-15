@@ -4,6 +4,9 @@ import memoryImage from "../assets/artwork/flower-stage.jpg";
 export const site = {
   name: "Peanora's Space",
   nickname: "Peanora",
+  welcome: "欢迎来到我的小空间",
+  // 继续往数组里添加签名，首页会依次打字、停留、删除并循环。
+  signatures: ["好好睡觉，好好吃饭，好好上班，好好上学~"],
   socials: [{ label: "GitHub", url: "https://github.com/Citlali37" }],
   navigation: [
     { label: "My World", path: "/world" },

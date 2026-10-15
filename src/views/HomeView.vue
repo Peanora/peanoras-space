@@ -7,6 +7,7 @@ import WallpaperPicker from "../components/ui/WallpaperPicker.vue";
 import { useScreenPager } from "../composables/useScreenPager";
 import { useAmbientMotion } from "../composables/useAmbientMotion";
 import HomeScene from "../components/content/HomeScene.vue";
+import SignatureTypewriter from "../components/ui/SignatureTypewriter.vue";
 const stage = ref(null);
 const { current, direction, goTo, finishMove, transitionDuration } =
   useScreenPager(stage, homeScreens.length);
@@ -76,7 +77,15 @@ const {
                 >
               </p>
               <div class="cover-rule" aria-hidden="true"></div>
-              <button class="screen-entry" @click="goTo(1)">
+              <div class="cover-message">
+                <p class="cover-welcome">{{ site.welcome }}</p>
+                <SignatureTypewriter
+                  :phrases="site.signatures"
+                  :paused="still"
+                  :reduced="reduced"
+                />
+              </div>
+              <button class="screen-entry cover-entry" @click="goTo(1)">
                 翻开我的空间 <span aria-hidden="true">↓</span>
               </button>
             </div>
@@ -176,7 +185,7 @@ const {
           :title="
             reduced
               ? '遵循系统设置，已关闭持续动效'
-              : '控制标题、太阳和唱片的循环动效'
+              : '控制标题、签名、太阳和唱片的循环动效'
           "
           :aria-pressed="!paused && !reduced"
           @click="toggleMotion"

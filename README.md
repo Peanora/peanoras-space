@@ -28,6 +28,7 @@ npm run preview
 
 页面与数据分开，主要内容集中在 `src/data/`。
 首页四屏与主题说明集中在 `src/data/home.js`。
+欢迎语在 `src/data/site.js` 的 `welcome`，个性签名在 `signatures` 数组。每个字符串是一条签名，首页按顺序打字、停留、删除并循环；修改内容无需改组件。暂停动态也会暂停打字机，系统减少动态时静态显示第一条。
 
 | 内容                                         | 数据文件          |
 | -------------------------------------------- | ----------------- |
@@ -73,7 +74,8 @@ npm run preview
 - 当前 SVG 全部是本项目原创占位插画，不是实际游戏截图、歌曲封面或演唱会照片。
 - `src/assets/artwork/` 中的 JPG 是本人提供的头像与壁纸，保留原图内容。背景浅化由 CSS 透明度与暖白遮罩实现；它们不被视为项目截图或实际演唱会照片，作品权利仍归原作者。
 - Instrument Serif 自托管，源自 Google Fonts 中的官方字体文件；SIL OFL 1.1 许可保存在 `src/assets/fonts/OFL.txt`，并通过 `public/licenses/Instrument-Serif-OFL.txt` 一并复制到构建产物。
-- 中文使用设备系统字体，不分发系统字体文件。
+- 中文使用自托管霞鹜文楷轻便版（LXGW WenKai Lite），来源 `https://github.com/lxgw/LxgwWenKai-Lite`；OFL 1.1 及网页转换附加许可保存于 `src/assets/fonts/LXGW-WenKai-Lite-OFL.txt`、`public/licenses/`。只转换为网页 WOFF2，不分发可安装桌面字体。
+- `src/styles/wenkai.css` 为生成的字体声明：现有文字优先使用小字体包，新文字自动使用完整包。可选脚本 `scripts/prepare-wenkai.py` 接收上游 TTF 路径生成两份 WOFF2（需 Python `fonttools[woff]`）；正常运行、构建、增加签名均不依赖 Python。
 - 当前标题使用 Kalam，栏目与英文 UI 使用 Nunito，两者均来自 Google Fonts，SIL OFL 1.1 许可保留在 `src/assets/fonts/` 和 `public/licenses/`。旧 Instrument Serif 保留于源码，不再作为默认标题字体。
 - 音乐空间为非官方个人空间，只使用本人原创、授权素材或官方平台链接；没有抓取歌曲或摄影作品。
 
@@ -94,3 +96,5 @@ GitHub Actions 部署时将同一变量放入构建环境，安装依赖使用 `
 ## 验收记录
 
 原始功能验证见 `docs/VERIFICATION.md`；暖色四屏首页见 `docs/PAGED-HOME-VERIFICATION.md`，最新手账构图与持续动效见 `docs/SCRAPBOOK-VERIFICATION.md`。浏览器尺寸模拟与实机测试区分记录，未验证的项目不视为通过。
+
+欢迎语、个性签名与中文字体的最新验证见 `docs/WELCOME-SIGNATURE-VERIFICATION.md`。
