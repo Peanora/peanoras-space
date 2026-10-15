@@ -82,20 +82,20 @@ npm run preview
 
 ## GitHub Pages 发布
 
-用户于 2026-10-15 授权首次公开发布。项目地址为 `https://peanora.github.io/peanoras-space/`，部署状态以仓库 Actions 与 Pages 设置为准。
+当前自定义域名为 `https://peanora.cn`，生产基础路径为 `/`，部署状态以仓库 Actions 与 Pages 设置为准。原 GitHub 项目地址保留为历史发布记录。
 发布配置、验证和后续维护见 `docs/DEPLOYMENT.md`。
 
-采用 Hash 路由，静态托管刷新可直接载入入口文件。地址示例为 `/#/music`，子目录地址为 `/仓库名/#/music`。Hash 路由对搜索收录存在限制；首版没有服务端渲染或预渲染。
+采用 History 路由，页面为 `/`、`/world`、`/music`、`/little-things`，未知路径仍由原有 NotFound 页面处理。Vite 构建自动生成 `dist/404.html`（与构建入口相同），GitHub Pages 用它为子页直达和刷新提供客户端回退；这类请求仍可能返回 HTTP 404，影响搜索引擎/链接预览，不是真正的服务器路由重写。旧 `/#/music` 等地址会在初始化前替换成对应 History 地址，同时保留查询参数和章节锚点。
 
-默认 Vite `base` 为 `/`。未来若使用仓库子目录，可在 PowerShell 中设置构建路径：
+生产 Vite `base` 保持 `/`，构建方式：
 
 ```powershell
-$env:VITE_BASE_PATH = '/你的仓库名/'
+$env:VITE_BASE_PATH = '/'
 npm run build
 Remove-Item Env:VITE_BASE_PATH
 ```
 
-`.github/workflows/deploy-pages.yml` 在推送到 `main` 时自动安装锁定依赖、运行测试、以仓库子目录为 base 构建并发布 `dist/`，也可从 Actions 手动运行。仓库 Pages 来源设置为 GitHub Actions；没有绑定自定义域名。以后若绑定自定义域名或改变仓库名称，需要同步检查构建 base。
+`.github/workflows/deploy-pages.yml` 在推送到 `main` 时自动安装锁定依赖、运行测试、以 `/` 为 base 构建并发布 `dist/`，也可从 Actions 手动运行。保留已绑定的 `peanora.cn` 和现有 Pages 设置，不要恢复 `/peanoras-space/`。
 
 ## 验收记录
 

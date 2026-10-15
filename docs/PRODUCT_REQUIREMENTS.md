@@ -146,8 +146,8 @@
 - 当前仓库：`https://github.com/Peanora/peanoras-space`；主分支 `main`。2026-10-15 推送时 GitHub 明确提示从原 Citlali37 地址迁移，旧链接仍可转发。
 - 用户已要求建仓库并推送，首次推送完成。2026-10-15 明确要求本次视觉/分屏修改和长期文档完成后再次推送。
 - 2026-10-15 用户明确要求“你先给我搞一个github的网址吧”，授权通过 GitHub Pages 公开发布网站，并配置 main 后续推送自动更新。此次不购买、绑定自定义域名，也不创建其他托管服务。
-- GitHub Pages：静态构建、项目 base `/peanoras-space/`、Hash 路由、GitHub Actions 自动部署。网页插画使用 WebP 压缩副本，原始 JPG 保留；正常构建不依赖图像处理工具。
-- 当前 Hash 路由兼容刷新；根域 base 为 `/`，仓库子目录 base 为 `/<仓库名>/`，通过 `VITE_BASE_PATH` 设置。
+- 当前 GitHub Pages 已绑定 `https://peanora.cn`，生产 base 为 `/`，保留 GitHub Actions 自动部署。此前仓库子目录与 Hash 方案被本次明确的 History 迁移要求替代；域名配置不变。网页插画使用 WebP 压缩副本，原始 JPG 保留；正常构建不依赖图像处理工具。
+- 使用 History 路由，保留全部页面及组件。Vite 构建自动生成与入口相同的 `404.html`，Pages 回退时保持请求路径并加载根路径资源；响应可能仍为 HTTP 404，并非服务器 rewrite。旧 Hash 路径在初始化前转换，用 replaceState 保留两侧查询参数与章节锚点，不刷新、不新增历史记录。不得为本次路由迁移修改视觉、内容、业务逻辑或无关依赖。
 
 ## 12. 决策记录
 

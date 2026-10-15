@@ -3,14 +3,13 @@
 ## 地址与维护
 
 - 发布授权：2026-10-15，用户要求“你先给我搞一个github的网址吧”。
-- 项目地址：<https://peanora.github.io/peanoras-space/>。
-- 首页可使用项目根地址；详情示例：`https://peanora.github.io/peanoras-space/#/music`。
-- GitHub Pages 来源为 GitHub Actions；HTTPS 已启用，不使用自定义域名。
+- 当前地址：<https://peanora.cn/>；详情示例：`https://peanora.cn/music`。旧仓库地址属于历史发布记录。
+- GitHub Pages 来源为 GitHub Actions，自定义域名沿用用户已绑定的 `peanora.cn`；本次不修改任何域名、证书或 HTTPS 强制设置。
 - 工作流：`.github/workflows/deploy-pages.yml`。main 的应用代码更新会自动测试、构建、发布；只有文档更新时不重复部署。若以后将 Markdown 用作站点内容，需同步调整触发规则。
-- Vite base 在工作流中为 `/${{ github.event.repository.name }}/`。本地开发仍默认 `/`；未来绑定根域名时需将发布 base 改为 `/`。
+- 工作流 `VITE_BASE_PATH: /` 沿用用户远程提交 `d8e66fd`，本地同步后保持不变。本次改为 History 路由，构建自动生成 `404.html`，详见 `HISTORY-ROUTING-VERIFICATION.md`。
 - 发布目录为 `dist/`；不要把源码当作静态构建产物上传。
 
-## 上线前检查
+## 首次发布的历史检查（子目录 Hash 方案，已被上述当前配置替代）
 
 - `npm test`：5 项通过。
 - `VITE_BASE_PATH=/peanoras-space/` 下 `npm run build` 成功。
