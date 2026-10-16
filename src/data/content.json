@@ -58,7 +58,7 @@
           "type": "projects",
           "label": "项目与作品",
           "navLabel": "Projects",
-          "hidden": false,
+          "hidden": true,
           "layout": {
             "preset": "original",
             "align": "left",
@@ -90,7 +90,7 @@
           "type": "experience",
           "label": "学习与经历",
           "navLabel": "Experience",
-          "hidden": false,
+          "hidden": true,
           "layout": {
             "preset": "original",
             "align": "left",
@@ -132,7 +132,7 @@
             "socials": [
               {
                 "label": "GitHub",
-                "url": "https://github.com/Citlali37"
+                "url": "https://github.com/Peanora"
               }
             ]
           }
@@ -154,8 +154,8 @@
             "title": "My World",
             "shortTitle": "World",
             "subtitle": "我的个人世界",
-            "index": "About / Projects / Experience",
-            "description": "个人介绍、游戏开发项目与学习经历。",
+            "index": "About / Interests / Learning",
+            "description": "个人介绍、兴趣爱好与正在学习的方向。",
             "action": "进入个人世界",
             "path": "/world",
             "image": "artwork:spring-garden",
@@ -165,8 +165,8 @@
             "bookmark": "个人世界",
             "tags": [
               "About",
-              "Projects",
-              "Experience"
+              "Interests",
+              "Learning"
             ]
           }
         },
@@ -187,8 +187,8 @@
             "title": "Music & Memories",
             "shortTitle": "Music",
             "subtitle": "音乐与回忆",
-            "index": "Songs / Live / Photographs",
-            "description": "歌曲收藏、演唱会回忆与图片收藏。",
+            "index": "Songs / Memories",
+            "description": "喜欢的歌曲，以及慢慢整理的音乐回忆。",
             "action": "进入音乐与回忆",
             "path": "/music",
             "image": "artwork:flower-stage",
@@ -235,7 +235,7 @@
       "eyebrow": "02 / 音乐与回忆",
       "titleFirst": "Music &",
       "titleLast": "Memories",
-      "disclaimer": "非官方个人音乐与回忆空间。当前歌曲封面与回忆照片为占位素材；插画背景由本人提供，正式音乐内容将使用原创、授权素材或官方平台链接。",
+      "disclaimer": "非官方个人音乐空间。歌曲通过官方平台收听；唱片封面为占位插画，背景为个人提供的插画素材。",
       "blocks": [
         {
           "id": "songs",
@@ -273,7 +273,7 @@
           "type": "memories",
           "label": "现场回忆",
           "navLabel": "Live",
-          "hidden": false,
+          "hidden": true,
           "layout": {
             "preset": "original",
             "align": "left",
@@ -313,7 +313,7 @@
           "type": "gallery",
           "label": "照片与纪念",
           "navLabel": "Photographs",
-          "hidden": false,
+          "hidden": true,
           "layout": {
             "preset": "original",
             "align": "left",

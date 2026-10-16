@@ -227,7 +227,7 @@ body:has(.home-pager) .site-backdrop::after {
 .cover-bookmarks small {
   display: block;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.08em;
   white-space: nowrap;
   margin-bottom: 6px;
@@ -658,7 +658,7 @@ body:has(.home-pager) .site-backdrop::after {
     font-size: 11px;
   }
   .cover-bookmarks small {
-    font-size: 7px;
+    font-size: 9px;
     margin-bottom: 3px;
     letter-spacing: 0.01em;
   }

@@ -152,18 +152,19 @@ onUnmounted(() => { if (import.meta.env.DEV) window.removeEventListener('peanora
                 />
               </svg>
             </div>
-            <nav class="cover-bookmarks" aria-label="翻到一个主题">
+            <nav class="cover-bookmarks" aria-label="翻到主题介绍">
               <button
                 v-for="(chapter, index) in chapters"
                 :key="chapter.id"
                 :class="`bookmark-${chapter.kind}`"
+                :aria-label="`翻到${chapter.bookmark}主题介绍`"
                 @click="goTo(index + 1)"
               >
                 <ArtworkImage v-if="chapter.image" :src="chapter.image" thumbnail alt="" width="80" height="64" />
                 <span
-                  ><small>{{ chapter.number }} / CHAPTER</small
+                  ><small>翻到主题 {{ chapter.number }}</small
                   ><strong>{{ chapter.bookmark }}</strong></span
-                ><span class="bookmark-arrow" aria-hidden="true">↗</span>
+                ><span class="bookmark-arrow" aria-hidden="true">↓</span>
               </button>
             </nav>
           </div>
@@ -191,7 +192,7 @@ onUnmounted(() => { if (import.meta.env.DEV) window.removeEventListener('peanora
       <div class="pager-tools">
         <WallpaperPicker /><span class="pager-help"
           ><span class="desktop-help">滚轮翻页</span
-          ><span class="touch-help">上滑翻页</span> · 点击目录也可以</span
+          ><span class="touch-help">上滑翻页</span> · 顶部导航直达详情</span
         ><a
           v-if="social"
           :href="social.url"
@@ -210,12 +211,12 @@ onUnmounted(() => { if (import.meta.env.DEV) window.removeEventListener('peanora
         >
           ↑
         </button>
-        <nav class="screen-navigation" aria-label="首页屏幕目录">
+        <nav class="screen-navigation" aria-label="首页翻页目录">
           <button
             v-for="(item, index) in homeScreens"
             :key="item.id"
             :aria-current="current === index ? 'step' : undefined"
-            :aria-label="`切换到${item.title}`"
+            :aria-label="`翻到${index === 0 ? '首页' : item.title + '主题介绍'}`"
             @click="goTo(index)"
           >
             <span class="screen-dot" aria-hidden="true"></span

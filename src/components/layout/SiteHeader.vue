@@ -47,7 +47,7 @@ onUnmounted(() => window.removeEventListener("keydown", onEscape));
       id="site-navigation"
       class="site-navigation"
       :class="{ 'is-open': open }"
-      aria-label="主要导航"
+      aria-label="主要导航，直接进入详情页"
     >
       <RouterLink
         v-for="item in site.navigation"

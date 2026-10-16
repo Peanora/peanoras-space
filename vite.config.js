@@ -1,6 +1,12 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { localContentEditor } from "./server/contentEditor.js";
+import { pageMetadata, renderMetadata } from "./src/data/metadata.js";
+
+const withMetadata = (html, path) => html.replace(
+  /<!-- page-metadata:start -->[\s\S]*?<!-- page-metadata:end -->/,
+  `<!-- page-metadata:start -->\n    ${renderMetadata(path)}\n    <!-- page-metadata:end -->`,
+);
 
 export default defineConfig({
   plugins: [
@@ -8,6 +14,10 @@ export default defineConfig({
     localContentEditor(),
     {
       name: "github-pages-history-fallback",
+      transformIndexHtml(html) { return withMetadata(html, "/"); },
+    },
+    {
+      name: "github-pages-route-entries",
       apply: "build",
       enforce: "post",
       generateBundle: {
@@ -18,16 +28,11 @@ export default defineConfig({
             this.error("Cannot generate the Pages fallback without index.html");
           }
           // Real directory entries make the existing fixed pages return 200.
-          // Keep this list aligned with the static routes in src/router/index.js.
-          const entries = [
-            "world/index.html",
-            "music/index.html",
-            "little-things/index.html",
-            "404.html",
-          ];
-          for (const fileName of entries) {
-            this.emitFile({ type: "asset", fileName, source: entry.source });
+          // Keep pageMetadata aligned with static routes in src/router/index.js.
+          for (const path of Object.keys(pageMetadata).filter((path) => path !== "/")) {
+            this.emitFile({ type: "asset", fileName: `${path.slice(1)}/index.html`, source: withMetadata(entry.source, path) });
           }
+          this.emitFile({ type: "asset", fileName: "404.html", source: withMetadata(entry.source, "/404") });
         },
       },
     },

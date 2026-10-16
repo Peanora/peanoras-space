@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import { site } from "../data/site";
+import { updateMetadata } from "../data/metadata.js";
 import { migrateLegacyHash } from "./legacyHistory.js";
 
 // Replace the current entry before Vue Router reads it: no reload or extra
@@ -12,27 +12,22 @@ const router = createRouter({
     {
       path: "/",
       component: () => import("../views/HomeView.vue"),
-      meta: { title: "" },
     },
     {
       path: "/world",
       component: () => import("../views/WorldView.vue"),
-      meta: { title: "My World" },
     },
     {
       path: "/music",
       component: () => import("../views/MusicView.vue"),
-      meta: { title: "Music & Memories" },
     },
     {
       path: "/little-things",
       component: () => import("../views/LittleThingsView.vue"),
-      meta: { title: "Little Things" },
     },
     {
       path: "/:pathMatch(.*)*",
       component: () => import("../views/NotFoundView.vue"),
-      meta: { title: "页面未找到" },
     },
   ],
   scrollBehavior(to, from, savedPosition) {
@@ -48,9 +43,7 @@ const router = createRouter({
 });
 
 router.afterEach((to) => {
-  document.title = to.meta.title
-    ? `${to.meta.title} — ${site.name}`
-    : site.name;
+  updateMetadata(to.path);
 });
 
 export default router;
