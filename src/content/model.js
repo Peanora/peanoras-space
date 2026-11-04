@@ -1,6 +1,6 @@
 import { contentPages, homeOrder, homePaths } from "./pages.js";
 export const blockTypes = {
-  profile: "个人介绍", projects: "项目展示", experience: "经历列表",
+  profile: "个人介绍", unityNotes: "Unity 学习笔记", projects: "项目展示", experience: "经历列表",
   text: "标题与正文", image: "图片与说明", split: "图文混排", links: "链接列表", divider: "分隔区域",
   homeCover: "首页封面", homeTheme: "首页主题", songs: "歌曲收藏", memories: "现场回忆", gallery: "照片与纪念", notes: "纸条与收藏",
 };
@@ -21,6 +21,7 @@ export function setField(object, path, value) {
 }
 export function createBlock(type, id) {
   const data = {
+    unityNotes: { heading: 'Unity Notes', subtitle: 'Unity 学习笔记', description: '把学习中的思路、代码与小小发现，整理成可以回看的书页。', items: [] },
     profile: { eyebrow: "ABOUT ME", name: "介绍标题", introduction: "<p>点击这里写下你的介绍。</p>", interestsHeading: "兴趣爱好", interests: [], learningHeading: "正在学习", learning: [], direction: "", socialHeading: "找到我", socials: [] },
     projects: { heading: "Projects", subtitle: "项目与作品", items: [] },
     experience: { heading: "Experience", subtitle: "学习与经历", items: [], emptyText: "这里还没有添加经历。" },
@@ -81,6 +82,7 @@ export function validateContent(document) {
   if (pageId === "home" && (page.blocks.length !== 4 || page.blocks.some((block, index) => block.id !== homeOrder[index] || block.hidden || block.type !== (index === 0 ? "homeCover" : "homeTheme") || (index > 0 && (block.data.kind !== block.id || block.data.path !== homePaths[block.id]))))) fail("首页必须保留封面、个人世界、音乐、小角落四屏及固定入口");
   if (pageId === "little" && page.blocks.filter((block) => block.type === "notes").length > 1) fail("小角落保留一个纸条与收藏模块，请在其中添加条目");
   const ids = new Set();
+  const noteIds = new Set();
   for (const block of page.blocks) {
     if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/.test(block.id) || ids.has(block.id)) fail("模块 ID 无效或重复");
     ids.add(block.id);
@@ -97,6 +99,14 @@ export function validateContent(document) {
       if (Array.isArray(value) ? !Array.isArray(block.data[key]) : typeof block.data[key] !== typeof value) fail(`模块缺少字段：${key}`);
     }
     const data = block.data;
+    if (block.type === 'unityNotes') {
+      if (!objects(data.items, ['id','title','summary','category','date']) || !unique(data.items)) fail('笔记字段或 ID 无效');
+      for (const note of data.items) {
+        if (noteIds.has(note.id) || !note.title.trim() || typeof note.draft !== 'boolean' || (note.date && !/^\d{4}-\d{2}-\d{2}$/.test(note.date))) fail('笔记标题、日期或 ID 无效（ID 不可跨模块重复）');
+        noteIds.add(note.id);
+        if (!objects(note.sections, ['id','heading','body','callout','code','language','image','alt','caption']) || !unique(note.sections) || note.sections.some(s => !image(s.image) || !['csharp','javascript','json','text'].includes(s.language))) fail('笔记章节、图片或代码语言无效');
+      }
+    }
     const textArray = (items) => Array.isArray(items) && items.length <= 200 && items.every((item) => typeof item === "string");
     const links = (items) => Array.isArray(items) && items.length <= 100 && items.every((item) => typeof item.label === "string" && typeof item.url === "string" && (!item.url || safeLink(item.url)));
     if (block.type === "profile" && (!textArray(data.interests) || !Array.isArray(data.learning) || data.learning.length > 100 || !data.learning.every((item) => typeof item.title === "string" && typeof item.description === "string") || !links(data.socials))) fail("介绍列表格式不正确");

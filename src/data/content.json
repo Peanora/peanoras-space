@@ -54,6 +54,24 @@
           }
         },
         {
+          "data": {
+            "heading": "Unity Notes",
+            "subtitle": "Unity 学习笔记",
+            "items": [],
+            "description": "把学习中的思路、代码与小小发现，整理成可以回看的书页。"
+          },
+          "type": "unityNotes",
+          "id": "unity-notes",
+          "label": "Unity 学习笔记",
+          "hidden": false,
+          "layout": {
+            "align": "left",
+            "width": 100,
+            "preset": "original"
+          },
+          "navLabel": "Unity Notes"
+        },
+        {
           "id": "projects",
           "type": "projects",
           "label": "项目与作品",

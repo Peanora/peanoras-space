@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import initialContent from "../data/content.json";
+import initialContent from "../data/content.json" with { type: 'json' };
 export const contentDocument = ref(initialContent);
 export const editingContent = ref(false);
 export const selectedContentBlock = ref(null);

@@ -15,7 +15,7 @@ test("each static entry has its own share metadata before JavaScript runs", () =
     assert.ok(html.includes('name="twitter:card" content="summary_large_image"'));
     assert.ok(!html.includes("Peanora's"), "HTML attributes and titles escape apostrophes");
   }
-  assert.equal(descriptions.size, 4);
+  assert.equal(descriptions.size, Object.keys(pageMetadata).length);
 });
 
 test("trailing slash URLs canonicalize and unknown pages are not indexed", () => {

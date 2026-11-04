@@ -1,6 +1,6 @@
 export const contentPages = {
   home: { label: "首页", path: "/", fixed: true, types: ["homeCover", "homeTheme"] },
-  world: { label: "My World", path: "/world", types: ["profile", "projects", "experience", "text", "image", "split", "links", "divider"] },
+  world: { label: "My World", path: "/world", types: ["profile", "unityNotes", "projects", "experience", "text", "image", "split", "links", "divider"] },
   music: { label: "Music & Memories", path: "/music", types: ["songs", "memories", "gallery", "text", "image", "split", "links", "divider"] },
   little: { label: "Little Things", path: "/little-things", types: ["notes", "text", "image", "split", "links", "divider"] },
 };

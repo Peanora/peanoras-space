@@ -10,6 +10,7 @@ import "./styles/home.css";
 import "./styles/scrapbook.css";
 import "./styles/music-player.css";
 import "./styles/content-blocks.css";
+import './styles/unity-notes.css';
 
 if (import.meta.env.DEV && /^\/__editor\/?$/.test(location.pathname)) {
   import("./editor/main.js");

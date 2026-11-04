@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { updateMetadata } from "../data/metadata.js";
+import { contentDocument } from '../content/store.js';
 import { migrateLegacyHash } from "./legacyHistory.js";
 
 // Replace the current entry before Vue Router reads it: no reload or extra
@@ -17,6 +18,7 @@ const router = createRouter({
       path: "/world",
       component: () => import("../views/WorldView.vue"),
     },
+    { path: '/unity-notes/:id?', component: () => import('../views/UnityNotesView.vue') },
     {
       path: "/music",
       component: () => import("../views/MusicView.vue"),
@@ -43,7 +45,7 @@ const router = createRouter({
 });
 
 router.afterEach((to) => {
-  updateMetadata(to.path);
+  updateMetadata(to.path, contentDocument.value);
 });
 
 export default router;

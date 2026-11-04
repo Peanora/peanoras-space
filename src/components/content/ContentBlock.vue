@@ -6,6 +6,7 @@ import SongEntry from "./SongEntry.vue";
 import MemoryEntry from "./MemoryEntry.vue";
 import PhotoGallery from "./PhotoGallery.vue";
 import NotesCollection from "./NotesCollection.vue";
+import UnityNotebook from './UnityNotebook.vue';
 import ImageLightbox from "../ui/ImageLightbox.vue";
 import { contentImage } from "../../content/assets";
 import { safeLink } from "../../content/model";
@@ -44,7 +45,8 @@ function select() { if (editingContent.value) publishEditorEvent({ type: 'select
     :class="[`content-${block.type}`, `layout-${block.layout.preset}`, { 'content-section': block.type !== 'notes', 'about-section': block.type === 'profile', 'editor-block': editingContent, 'editor-block-selected': editingContent && selectedContentBlock === block.id, 'editor-block-hidden': block.hidden }]"
     :style="style" :data-block-id="block.id" :data-editor-label="isDev && editingContent ? `${block.label}${block.hidden ? ' · 已隐藏' : ''}` : undefined" :data-image-ratio="block.layout.ratio && block.layout.ratio !== 'original' ? block.layout.ratio : undefined"
     tabindex="-1" @pointerdown.capture="select">
-    <NotesCollection v-if="block.type === 'notes'" :data="data" :block-id="block.id" />
+    <UnityNotebook v-if="block.type === 'unityNotes'" :data="data" :block-id="block.id" />
+    <NotesCollection v-else-if="block.type === 'notes'" :data="data" :block-id="block.id" />
     <template v-else-if="['songs', 'memories', 'gallery'].includes(block.type)">
       <div class="section-heading">
         <ContentText tag="h2" class="display" :value="data.heading" :block-id="block.id" field="heading" />

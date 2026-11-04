@@ -5,7 +5,7 @@ import "./preview.css";
 export function installPreview() {
   isContentPreview.value = true;
   editingContent.value = true;
-  previewPage.value = location.pathname.startsWith('/music') ? 'music' : location.pathname.startsWith('/little-things') ? 'little' : location.pathname.startsWith('/world') ? 'world' : 'home';
+  previewPage.value = location.pathname.startsWith('/music') ? 'music' : location.pathname.startsWith('/little-things') ? 'little' : /^\/(world|unity-notes)/.test(location.pathname) ? 'world' : 'home';
   let savedRange = null;
   const selectionField = () => {
     const selection = window.getSelection();

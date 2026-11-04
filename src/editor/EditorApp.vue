@@ -19,8 +19,8 @@ const dropIndex = ref(-1);
 const saved = ref("");
 const page = computed(() => draft.value?.pages[pageId.value]);
 const pageConfig = computed(() => contentPages[pageId.value]);
-const availableTypes = computed(() => Object.fromEntries(pageConfig.value.types.filter((type) => type !== "notes" || !page.value?.blocks.some((block) => block.type === "notes")).map((type) => [type, blockTypes[type]])));
-const frameUrl = computed(() => `${pageConfig.value.path}?__editor_preview=1`);
+const availableTypes = computed(() => Object.fromEntries(pageConfig.value.types.filter((type) => !['notes','unityNotes'].includes(type) || !page.value?.blocks.some((block) => block.type === type)).map((type) => [type, blockTypes[type]])));
+const frameUrl = computed(() => `${selected.value?.type === 'unityNotes' ? '/unity-notes' : pageConfig.value.path}?__editor_preview=1`);
 const selected = computed(() => page.value?.blocks.find((block) => block.id === selectedId.value));
 const isDirty = computed(() => !!draft.value && JSON.stringify(draft.value) !== saved.value);
 const layoutChoices = computed(() => layouts[selected.value?.type] || [["original", "默认布局"]]);
@@ -220,7 +220,7 @@ onBeforeUnmount(() => { window.removeEventListener("message", message); window.r
         <p class="ed-help ed-local-note">四个页面共用一份草稿，切换页面不会丢失修改。保存会写入整个项目内容文件。</p>
       </aside>
       <main class="ed-preview-pane">
-        <div class="ed-preview-tools"><div class="ed-segment"><button :aria-pressed="!mobile" @click="mobile = false">桌面</button><button :aria-pressed="mobile" @click="mobile = true">手机</button></div><label class="ed-checkbox"><input type="checkbox" v-model="editing" />显示编辑标记</label><a :href="pageConfig.path" target="_blank" rel="noopener">打开网页 ↗</a></div>
+        <div class="ed-preview-tools"><div class="ed-segment"><button :aria-pressed="!mobile" @click="mobile = false">桌面</button><button :aria-pressed="mobile" @click="mobile = true">手机</button></div><label class="ed-checkbox"><input type="checkbox" v-model="editing" />显示编辑标记</label><a :href="selected?.type === 'unityNotes' ? '/unity-notes' : pageConfig.path" target="_blank" rel="noopener">打开网页 ↗</a></div>
         <div class="ed-format" aria-label="预览文字格式工具栏" @mousedown.prevent>
           <span>选中文字后：</span><button aria-label="加粗" title="加粗" @click="format('bold')"><strong>B</strong></button><button aria-label="斜体" title="斜体" @click="format('italic')"><em>I</em></button><button @click="format('insertUnorderedList')">列表</button><button @click="format('insertOrderedList')">编号</button><button @click="format('unlink')">移除链接</button>
           <input v-model="linkUrl" aria-label="选中文字的链接地址" placeholder="https://…" @mousedown.stop /><button @click="format('createLink')">加链接</button>
@@ -233,7 +233,7 @@ onBeforeUnmount(() => { window.removeEventListener("message", message); window.r
           <p class="ed-kicker">{{ blockTypes[selected.type] }} / 属性</p>
           <div class="ed-field"><label for="module-label">模块名称（仅编辑器）</label><input id="module-label" :value="selected.label" @input="metadata('label', $event.target.value)" /></div>
           <div v-if="!pageConfig.fixed" class="ed-field"><label for="nav-label">页内导航文字（留空隐藏）</label><input id="nav-label" :value="selected.navLabel" @input="metadata('navLabel', $event.target.value)" /></div>
-          <div v-if="!pageConfig.fixed" class="ed-block-actions"><button :disabled="selected.type === 'notes'" @click="duplicate">复制模块</button><button @click="metadata('hidden', !selected.hidden)">{{ selected.hidden ? '显示模块' : '隐藏模块' }}</button><button class="ed-danger" @click="remove">删除模块</button></div>
+          <div v-if="!pageConfig.fixed" class="ed-block-actions"><button :disabled="['notes','unityNotes'].includes(selected.type)" @click="duplicate">复制模块</button><button @click="metadata('hidden', !selected.hidden)">{{ selected.hidden ? '显示模块' : '隐藏模块' }}</button><button class="ed-danger" @click="remove">删除模块</button></div>
           <details class="ed-settings" open><summary>内容</summary><InspectorFields :key="selected.id" :value="selected.data" :fields="schemas[selected.type]" :images="images" @change="fieldChange" @upload="upload" /></details>
           <details v-if="!pageConfig.fixed" class="ed-settings" open><summary>布局与图片</summary>
             <div class="ed-field"><label for="layout-preset">布局</label><select id="layout-preset" :value="selected.layout.preset" @change="layout('preset', $event.target.value)"><option v-for="[value, label] in layoutChoices" :key="value" :value="value">{{ label }}</option></select></div>

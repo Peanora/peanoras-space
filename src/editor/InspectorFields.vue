@@ -8,7 +8,7 @@ const path = (key) => props.prefix ? `${props.prefix}.${key}` : key;
 function set(key, value) { emit("change", path(key), value); }
 function append(field) {
   const item = field.template ? clone(field.template) : newProject(crypto.randomUUID());
-  if (field.key === "items" && !item.id) item.id = crypto.randomUUID();
+  if (Object.hasOwn(item, 'id') && !item.id) item.id = crypto.randomUUID();
   set(field.key, [...props.value[field.key], item]);
 }
 function remove(field, index) { set(field.key, props.value[field.key].filter((_, i) => i !== index)); }
@@ -22,6 +22,7 @@ function move(field, index, offset) {
   <div v-for="field in fields" :key="field.key" class="ed-field">
     <label v-if="field.type !== 'check'" :for="`field-${path(field.key)}`">{{ field.label }}</label>
     <RichField v-if="field.type === 'rich'" :value="value[field.key]" :label="field.label" :multiline="field.multiline" @change="set(field.key, $event)" />
+    <textarea v-else-if="field.type === 'textarea'" :id="`field-${path(field.key)}`" :value="value[field.key]" rows="10" spellcheck="false" @input="set(field.key, $event.target.value)" />
     <input v-else-if="field.type === 'text'" :type="field.inputType || 'text'" :id="`field-${path(field.key)}`" :value="value[field.key]" @input="set(field.key, $event.target.value)" />
     <select v-else-if="field.type === 'select'" :id="`field-${path(field.key)}`" :value="value[field.key]" @change="set(field.key, $event.target.value)"><option v-for="[key, label] in field.options" :key="key" :value="key">{{ label }}</option></select>
     <label v-else-if="field.type === 'check'" class="ed-checkbox"><input type="checkbox" :checked="value[field.key]" @change="set(field.key, $event.target.checked)" />{{ field.label }}</label>

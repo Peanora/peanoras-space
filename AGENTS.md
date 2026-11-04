@@ -1,6 +1,6 @@
 # Peanora's Space — 长期开发约定
 
-开始修改前，阅读 [产品需求与决策](docs/PRODUCT_REQUIREMENTS.md)；它记录原始 v1.0 需求及用户后续确认，更新日期为 2026-10-15。用户的新指令优先，较新的确认优先于历史方案。
+开始修改前，阅读 [产品需求与决策](docs/PRODUCT_REQUIREMENTS.md)；它记录原始 v1.0 需求及用户后续确认，更新日期为 2026-11-04。用户的新指令优先，较新的确认优先于历史方案。
 
 ## 当前不能丢失的方向
 
@@ -14,6 +14,8 @@
 - 2026-10-15 用户已提供 About Me、兴趣与正在学习的首批正式内容，现迁移到 `src/data/content.json`，保留原文和分段，不再恢复个人介绍占位。学习项为 `{ title, description }` 数组。找到我沿用已有 GitHub；未来方向、项目、经历等尚未提供时继续留空或明确占位。
 
 ## 实现与维护
+
+- 2026-11-04 Unity Notes：首页仍为四屏，入口放在 My World 介绍后。目录 `/unity-notes`，正文 `/unity-notes/:id`；笔记放在 `pages.world.blocks` 的 `unityNotes` 模块，保持 version 2 与四页内容源。编辑器选 My World → Unity 学习笔记管理条目与章节，草稿仅预览，生产构建从 JSON 剔除草稿正文；已发布笔记自动生成静态 HTML 入口和分享信息。固定 ID 用于网址，改标题与排序不改 ID；正文富文本继续净化，代码用文本节点呈现。正式笔记未提供，保持空状态，不把验收示例作为本人学习记录。草稿在源码仓库可读，图片资源仍在 public 上传目录。未要求自动推送。
 
 - 2026-10-16 五项优化：歌曲封面保持响应式正方形；中文字体用当前文字 Core 小包与 `src/assets/fonts/wenkai/` 下互不重叠的 Unicode 分包，新增文字按需加载，完整 WOFF2 仅保留作生成源、不在生产 CSS 引用。`scripts/prepare-wenkai.py` 可重新生成，不依赖每次更新内容运行。Projects、Experience、现场回忆和相册初始隐藏，内容仍在编辑器，补齐后开启。三个首页书签翻到主题、顶部导航直达详情、底部目录翻页。GitHub 统一为 Peanora；路由及静态入口的分享/描述配置集中在 `src/data/metadata.js`，新增静态路由同步这里与 Vue Router。图标/分享封面来自代码与现有头像，`scripts/prepare-brand.py` 可再生成。
 
