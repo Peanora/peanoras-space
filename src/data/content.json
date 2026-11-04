@@ -57,7 +57,117 @@
           "data": {
             "heading": "Unity Notes",
             "subtitle": "Unity 学习笔记",
-            "items": [],
+            "items": [
+              {
+                "id": "unity-lifecycle",
+                "title": "生命周期函数",
+                "summary": "",
+                "category": "Unity 基础",
+                "date": "",
+                "draft": false,
+                "sections": [
+                  {
+                    "id": "notes",
+                    "heading": "注意",
+                    "body": "<ul><li>生命周期函数的访问修饰符一般为private和protected</li><li>因为不需要再外部自己调用生命周期函数 都是Unity自己帮助我们调用的</li><li><strong>生命周期函数支持继承多态</strong></li><li>不打算写逻辑，就不要写出生命周期函数</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "awake",
+                    "heading": "Awake",
+                    "body": "<ul><li>当对象（自己这个类对象）被创建时 才会调用该生命周期函数</li><li>类似构造函数的存在 我们可以在一个类对象刚创建时进行一些初始化操作</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "onenable",
+                    "heading": "OnEnable",
+                    "body": "<ul><li>想要当一些对象被激活时 进行一些逻辑处理 就可以写在这个函数</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "start",
+                    "heading": "Start",
+                    "body": "<ul><li>主要作用还是用于初始化信息 但相遇Awake较晚</li><li>在对象进行第一次帧更新之前才会执行</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "fixedupdate",
+                    "heading": "FixedUpdate",
+                    "body": "<ul><li>物理更新</li><li>每一帧都执行（不同于游戏帧）</li><li>时间间隔可在project setting中的Time设置</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "update",
+                    "heading": "Update",
+                    "body": "<ul><li>主要用于处理游戏核心逻辑更新</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "lateupdate",
+                    "heading": "LateUpdate",
+                    "body": "<ul><li>一般处理摄像机位置更新相关内容</li><li>Update和LateUpdate之间 Unity进行了一些处理 处理动画相关的更新</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "ondisable",
+                    "heading": "OnDisable",
+                    "body": "<ul><li>对一个对象失活时进行一些处理</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "ondestroy",
+                    "heading": "OnDestroy",
+                    "body": "<ul><li>对象销毁时调用</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  }
+                ]
+              }
+            ],
             "description": "把学习中的思路、代码与小小发现，整理成可以回看的书页。"
           },
           "type": "unityNotes",
