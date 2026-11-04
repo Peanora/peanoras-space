@@ -42,6 +42,7 @@
 .unity-article-section { scroll-margin-top:28px;margin-top:40px; }
 .unity-article-section h2 { font-size:26px;margin-bottom:20px;font-weight:600; }
 .unity-article .body-copy { line-height:1.95;font-size:17px; }
+.unity-article .rich-body code { padding:2px 5px;border-radius:3px;background:#edf0e4;color:#536c57;font-family:Consolas,'Courier New',monospace;overflow-wrap:anywhere; }
 .unity-callout { border-left:3px solid #c9a26d;background:#f5ead7;padding:18px 22px;margin-block:24px;line-height:1.85; }
 .unity-screenshot { margin-top:24px; }
 .unity-screenshot button { display:block;width:100%;padding:0;border:0;background:none;cursor:zoom-in; }

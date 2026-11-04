@@ -166,6 +166,323 @@
                     "caption": ""
                   }
                 ]
+              },
+              {
+                "id": "unity-monobehaviour",
+                "title": "MonoBehaviour中的重要内容",
+                "summary": "",
+                "category": "Unity 基础",
+                "date": "",
+                "draft": false,
+                "sections": [
+                  {
+                    "id": "section-1",
+                    "heading": "1.重要成员",
+                    "body": "<ul><li><code>gameObject</code>：获取依附的GameObject</li><li><code>transform</code>：获取依附对象的变换信息，等同于<code>gameObject.transform</code></li><li><code>enabled</code>：脚本是否启用，<code>false</code>禁用</li></ul>",
+                    "callout": "",
+                    "code": "print(this.gameObject.name);\nprint(this.transform.position);    //位置\nprint(this.transform.eulerAngles); //角度\nprint(this.transform.lossyScale);  //缩放大小\nthis.enabled = false;",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-2",
+                    "heading": "2.重要方法",
+                    "body": "",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-3",
+                    "heading": "1.得到自己挂载的单个脚本",
+                    "body": "",
+                    "callout": "",
+                    "code": "Lesson3_Test t = GetComponent(\"Lesson3_Test\") as Lesson3_Test;\nt = GetComponent(typeof(Lesson3_Test)) as Lesson3_Test;\nt = GetComponent<Lesson3_Test>();",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-4",
+                    "heading": "",
+                    "body": "<ul><li>获取失败返回<code>null</code></li><li><strong>建议使用泛型，不用二次转换</strong></li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-5",
+                    "heading": "2.得到自己挂载的多个脚本",
+                    "body": "",
+                    "callout": "",
+                    "code": "Lesson3[] array = GetComponents<Lesson3>();\nList<Lesson3> list = new List<Lesson3>();\nGetComponents<Lesson3>(list);",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-6",
+                    "heading": "3.得到子对象挂载的脚本",
+                    "body": "",
+                    "callout": "",
+                    "code": "GetComponentInChildren<Lesson3_Test>(true);\nGetComponentsInChildren<Lesson3_Test>(true);",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-7",
+                    "heading": "",
+                    "body": "<ul><li><strong>默认也会查找自己</strong></li><li>参数默认<code>false</code>，不查找失活的子对象；传<code>true</code>也会查找</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-8",
+                    "heading": "4.得到父对象挂载的脚本",
+                    "body": "",
+                    "callout": "",
+                    "code": "GetComponentInParent<Lesson3_Test>();\nGetComponentsInParent<Lesson3_Test>();",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-9",
+                    "heading": "",
+                    "body": "<ul><li><strong>默认也会查找自己</strong></li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-10",
+                    "heading": "5.尝试获取脚本",
+                    "body": "",
+                    "callout": "",
+                    "code": "if (TryGetComponent<Lesson3_Test>(out Lesson3_Test t))\n{\n    //获取成功，进行逻辑处理\n}",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-11",
+                    "heading": "",
+                    "body": "<ul><li>获取成功返回<code>true</code>，脚本对象通过<code>out</code>得到</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  }
+                ]
+              },
+              {
+                "id": "unity-inspector-variables",
+                "title": "Inspector窗口可编辑的变量",
+                "summary": "",
+                "category": "Unity 基础",
+                "date": "",
+                "draft": false,
+                "sections": [
+                  {
+                    "id": "section-1",
+                    "heading": "1.私有和保护无法编辑显示",
+                    "body": "",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-2",
+                    "heading": "2.让私有的和保护的也可以被显示",
+                    "body": "<ul><li>加上强制序列化字段的特性 </li><li><strong>用法</strong>：[SerializeField] </li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-3",
+                    "heading": "3.公共的可以显示编辑",
+                    "body": "",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-4",
+                    "heading": "4.公共的也不让其显示编辑",
+                    "body": "<ul><li>变量前加上特性 </li><li><strong>用法</strong>：[HideInInspector]</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-5",
+                    "heading": "5.大部分的类型都能显示编辑",
+                    "body": "<ul><li>数组，List，枚举，unity自带的类等</li><li>字典，自定义类型变量<strong>不能</strong>显示编辑</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-6",
+                    "heading": "6.让自定义类型可以被访问",
+                    "body": "<ul><li>加上序列化特性</li><li><strong>用法</strong>： [System.Serializable]</li><li><strong>字典怎样都不行！！</strong></li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-7",
+                    "heading": "7.一些辅助特性",
+                    "body": "",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-8",
+                    "heading": "1.分组说明特性Header",
+                    "body": "<ul><li>为成员分组。</li><li><strong>用法</strong>：[Header(“分组说明”)]</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-9",
+                    "heading": "2.悬停注释Tooltip",
+                    "body": "<ul><li>为变量添加说明</li><li><strong>用法</strong>：[Tooltip(\"说明内容\")]</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-10",
+                    "heading": "3.间隔特性Space",
+                    "body": "<ul><li>让两个字段间出现间隔</li><li><strong>用法</strong>：[Space()]</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-11",
+                    "heading": "4.修饰数值的滑条范围Range",
+                    "body": "<ul><li><strong>用法</strong>：[Range(最小值，最大值)]</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-12",
+                    "heading": "5.多行显示字符串Multiline",
+                    "body": "<ul><li>默认不写参数显示3行</li><li>写参数就是对应行</li><li><strong>用法</strong>：[Multiline(4)]</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-13",
+                    "heading": "6.滚动条显示字符串TextArea",
+                    "body": "<ul><li>默认不写参数就是超过3行显示滚动条</li><li><strong>用法</strong>：[TextArea(3, 4)]</li><li>最少显示3行，最多4行，超过4行就显示滚动条</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-14",
+                    "heading": "7.为变量添加快捷方法ContextMenuItem",
+                    "body": "<ul><li>参数1 显示按钮名</li><li>参数2 方法名 不能有参数</li><li><strong>用法</strong>：[ContextMenuItem(\"显示按钮名\", \"方法名\")]</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-15",
+                    "heading": "8.为方法添加特性能够在Inspector中执行",
+                    "body": "<ul><li><strong>用法</strong>：[ContextMenu(\"测试函数\")]</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  },
+                  {
+                    "id": "section-16",
+                    "heading": "8.注意",
+                    "body": "<ul><li>1.Inspector窗口中的变量关联的就是对象的成员变量，运行时改变他们就是在改变成员变量</li><li>2.拖曳到GameObject对象后 再改变脚本中变量默认值 界面上不会改变</li><li>3.运行中修改的信息不会保存</li></ul>",
+                    "callout": "",
+                    "code": "",
+                    "language": "csharp",
+                    "image": "",
+                    "alt": "",
+                    "caption": ""
+                  }
+                ]
               }
             ],
             "description": "把学习中的思路、代码与小小发现，整理成可以回看的书页。"
