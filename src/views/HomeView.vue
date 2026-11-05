@@ -5,6 +5,9 @@ import { homeScreensFor } from "../content/selectors";
 import { contentImage } from "../content/assets";
 import ContentText from "../components/content/ContentText.vue";
 import { appearance } from "../data/appearance";
+import { useAppearance } from "../composables/useAppearance";
+import "../styles/home-preview.css";
+const { wallpaper } = useAppearance();
 provide("content-page", "home");
 const homeScreens = computed(() => homeScreensFor(contentDocument.value));
 const cover = computed(() => contentDocument.value.pages.home.blocks[0].data);
@@ -14,6 +17,20 @@ import { useAmbientMotion } from "../composables/useAmbientMotion";
 import HomeScene from "../components/content/HomeScene.vue";
 import SignatureTypewriter from "../components/ui/SignatureTypewriter.vue";
 import ArtworkImage from "../components/ui/ArtworkImage.vue";
+import ChapterTicket from "../components/content/ChapterTicket.vue";
+import { unityEntries } from "../content/unityNotes";
+import { pageItems } from "../content/pages";
+const samples = computed(() => {
+  const doc = contentDocument.value;
+  const note = unityEntries(doc).at(-1);
+  const song = pageItems(doc, 'music', 'songs').find(item => !item.isPlaceholder);
+  const slip = pageItems(doc, 'little', 'notes').find(item => !item.rare);
+  return {
+    world: note && { label:'Unity 学习笔记', text:note.title, path:'/unity-notes/' + note.id },
+    music: song && { label:song.artist, text:song.title, path:'/music#songs' },
+    little: slip && { label:slip.source, text:slip.text, path:'/little-things' }
+  };
+});
 const stage = ref(null);
 const { current, direction, goTo, finishMove, transitionDuration } =
   useScreenPager(stage, 4);
@@ -99,6 +116,10 @@ onUnmounted(() => { if (import.meta.env.DEV) window.removeEventListener('peanora
               </button>
             </div>
             <div class="cover-portrait">
+              <figure class="cover-print">
+                <ArtworkImage :src="wallpaper.src" sizes="(max-width: 720px) 45vw, 560px" alt="" :style="{objectPosition:wallpaper.position}" />
+                <figcaption>{{ wallpaper.name }}</figcaption>
+              </figure>
               <button
                 class="portrait-photo"
                 :class="{ 'is-bouncing': portraitBouncing }"
@@ -152,20 +173,13 @@ onUnmounted(() => { if (import.meta.env.DEV) window.removeEventListener('peanora
                 />
               </svg>
             </div>
-            <nav class="cover-bookmarks" aria-label="翻到主题介绍">
-              <button
+            <nav class="chapter-shelf" aria-label="翻到主题介绍">
+              <ChapterTicket
                 v-for="(chapter, index) in chapters"
                 :key="chapter.id"
-                :class="`bookmark-${chapter.kind}`"
-                :aria-label="`翻到${chapter.bookmark}主题介绍`"
+                :chapter="chapter" :sample="samples[chapter.kind]"
                 @click="goTo(index + 1)"
-              >
-                <ArtworkImage v-if="chapter.image" :src="chapter.image" thumbnail alt="" width="80" height="64" />
-                <span
-                  ><small>翻到主题 {{ chapter.number }}</small
-                  ><strong>{{ chapter.bookmark }}</strong></span
-                ><span class="bookmark-arrow" aria-hidden="true">↓</span>
-              </button>
+              />
             </nav>
           </div>
           <div v-else class="theme-screen-layout screen-layout shell">
@@ -177,7 +191,9 @@ onUnmounted(() => { if (import.meta.env.DEV) window.removeEventListener('peanora
                 <ContentText tag="span" plain :value="screen.title" :block-id="screen.id" field="title" />
               </h2>
               <ContentText tag="p" class="screen-description" :value="screen.description" :block-id="screen.id" field="description" />
-              <ContentText tag="p" plain class="screen-index" :value="screen.index" :block-id="screen.id" field="index" />
+              <RouterLink v-if="samples[screen.kind]" class="chapter-excerpt" :to="samples[screen.kind].path">
+                <small>{{ samples[screen.kind].label }}</small><span>{{ samples[screen.kind].text }}</span><i aria-hidden="true">↗</i>
+              </RouterLink>
               <RouterLink :to="screen.path" class="screen-entry"
                 ><ContentText tag="span" plain :value="screen.action" :block-id="screen.id" field="action" />
                 <span aria-hidden="true">↗</span></RouterLink
