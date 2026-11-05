@@ -105,6 +105,7 @@ export function validateContent(document) {
         if (noteIds.has(note.id) || !note.title.trim() || typeof note.draft !== 'boolean' || (note.date && !/^\d{4}-\d{2}-\d{2}$/.test(note.date))) fail('笔记标题、日期或 ID 无效（ID 不可跨模块重复）');
         noteIds.add(note.id);
         if (!objects(note.sections, ['id','heading','body','callout','code','language','image','alt','caption']) || !unique(note.sections) || note.sections.some(s => !image(s.image) || !['csharp','javascript','json','text'].includes(s.language))) fail('笔记章节、图片或代码语言无效');
+        if (note.sections.some(s=>s.headingLevel !== undefined && ![2,3,4,5,6].includes(s.headingLevel))) fail('章节标题级别应为 H2–H6');
       }
     }
     const textArray = (items) => Array.isArray(items) && items.length <= 200 && items.every((item) => typeof item === "string");

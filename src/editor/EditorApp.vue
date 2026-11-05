@@ -45,6 +45,8 @@ function mutate(change, key = "") {
 function fieldChange(path, value) {
   if (!selected.value) return;
   mutate(() => {
+    const levelPath = selected.value.type === 'unityNotes' && path.match(/^items\.(\d+)\.sections\.(\d+)\.headingLevel$/);
+    if (levelPath) selected.value.data.items[+levelPath[1]].sections[+levelPath[2]].headingLevel ??= 2;
     setField(selected.value.data, path, value);
     if (selected.value.type === "songs" && path.endsWith(".officialUrl")) {
       setField(selected.value.data, path.replace(/officialUrl$/, "neteaseId"), neteaseSongId(value));

@@ -24,7 +24,7 @@ function move(field, index, offset) {
     <RichField v-if="field.type === 'rich'" :value="value[field.key]" :label="field.label" :multiline="field.multiline" @change="set(field.key, $event)" />
     <textarea v-else-if="field.type === 'textarea'" :id="`field-${path(field.key)}`" :value="value[field.key]" rows="10" spellcheck="false" @input="set(field.key, $event.target.value)" />
     <input v-else-if="field.type === 'text'" :type="field.inputType || 'text'" :id="`field-${path(field.key)}`" :value="value[field.key]" @input="set(field.key, $event.target.value)" />
-    <select v-else-if="field.type === 'select'" :id="`field-${path(field.key)}`" :value="value[field.key]" @change="set(field.key, $event.target.value)"><option v-for="[key, label] in field.options" :key="key" :value="key">{{ label }}</option></select>
+    <select v-else-if="field.type === 'select'" :id="`field-${path(field.key)}`" :value="value[field.key] ?? field.default" @change="set(field.key, field.number ? Number($event.target.value) : $event.target.value)"><option v-for="[key, label] in field.options" :key="key" :value="key">{{ label }}</option></select>
     <label v-else-if="field.type === 'check'" class="ed-checkbox"><input type="checkbox" :checked="value[field.key]" @change="set(field.key, $event.target.checked)" />{{ field.label }}</label>
     <template v-else-if="field.type === 'strings'">
       <div v-for="(item, index) in value[field.key]" :key="index" class="ed-string-row">
