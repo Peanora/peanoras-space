@@ -2,11 +2,12 @@
 import { computed, nextTick, onUnmounted, ref, watch } from "vue";
 import { contentDocument } from "../../content/store";
 import { playableSongs } from "../../content/selectors";
-import { officialEmbedUrl, useMusicPlayer } from "../../composables/useMusicPlayer";
+import { musicPlatformName, officialEmbedUrl, useMusicPlayer } from "../../composables/useMusicPlayer";
 
 const { expanded, activeSong, embedUrl, revision, loadSong, stop, retry } = useMusicPlayer();
 const firstSong = computed(() => playableSongs(contentDocument.value).find((song) => officialEmbedUrl(song)));
 const selected = computed(() => activeSong.value || firstSong.value);
+const platform = computed(() => musicPlatformName(selected.value));
 const toggle = ref(null);
 const heading = ref(null);
 const status = ref("");
@@ -19,9 +20,9 @@ watch(expanded, async (value) => {
 });
 watch([embedUrl, revision], ([url]) => {
   clearTimeout(timer);
-  status.value = url ? "正在加载网易云播放器…" : "";
+  status.value = url ? `正在加载${platform.value}播放器…` : "";
   if (url) timer = setTimeout(() => {
-    status.value = "加载较慢，可以重试或前往网易云收听。";
+    status.value = `加载较慢，可以重试或前往${platform.value}收听。`;
   }, 10000);
 });
 function onFrameLoad() {
@@ -31,7 +32,7 @@ function onFrameLoad() {
 }
 function onFrameError() {
   clearTimeout(timer);
-  status.value = "暂时无法加载，请重试或前往网易云收听。";
+  status.value = `暂时无法加载，请重试或前往${platform.value}收听。`;
 }
 function show() {
   expanded.value = !expanded.value;
@@ -65,10 +66,10 @@ onUnmounted(() => clearTimeout(timer));
         <button class="music-panel-close" aria-label="收起音乐面板" @click="collapse">−</button>
       </div>
       <h2 id="music-panel-title" ref="heading" tabindex="-1">{{ selected.title }}</h2>
-      <p class="music-artist">{{ selected.artist }} <span>· 网易云音乐</span></p>
+      <p class="music-artist">{{ selected.artist }} <span>· {{ platform }}</span></p>
       <div v-if="embedUrl" class="official-player">
-        <iframe :key="`${activeSong.neteaseId}-${revision}`" :src="embedUrl"
-          :title="`网易云音乐官方播放器：${activeSong.title}`"
+        <iframe :key="`${embedUrl}-${revision}`" :src="embedUrl"
+          :title="`${platform}官方播放器：${activeSong.title}`"
           width="330" height="90" referrerpolicy="strict-origin-when-cross-origin"
           @load="onFrameLoad" @error="onFrameError"></iframe>
       </div>
@@ -78,13 +79,14 @@ onUnmounted(() => clearTimeout(timer));
       <p v-if="embedUrl" class="music-status" role="status">{{ status }}</p>
       <p v-else class="music-status">点击后加载，音乐不会自动播放。</p>
       <div class="music-panel-actions">
-        <a :href="selected.officialUrl" target="_blank" rel="noopener noreferrer">网易云收听 ↗</a>
+        <a :href="selected.officialUrl" target="_blank" rel="noopener noreferrer">{{ platform }}收听 ↗</a>
         <template v-if="embedUrl">
           <button @click="retry">重新加载</button>
           <button @click="stop">停止播放</button>
         </template>
       </div>
       <p class="music-footnote">收起面板或切换站内页面会保留播放器。若面板空白或无法播放，请前往官方页面。</p>
+      <p v-if="selected.qqSongId" class="music-footnote">完整收听以 QQ 音乐的登录及专辑购买权限为准。</p>
     </section>
   </div>
 </template>

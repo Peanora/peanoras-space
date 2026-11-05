@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
-import { blockTypes, clone, createBlock, safeLink, setField, validateContent, restoreContent, neteaseSongId } from "../content/model";
+import { blockTypes, clone, createBlock, safeLink, setField, validateContent, restoreContent, neteaseSongId, qqSongId } from "../content/model";
 import { createHistory } from "./history";
 import { layouts, schemas, pageFields } from "./schema";
 import InspectorFields from "./InspectorFields.vue";
@@ -47,9 +47,13 @@ function fieldChange(path, value) {
   mutate(() => {
     const levelPath = selected.value.type === 'unityNotes' && path.match(/^items\.(\d+)\.sections\.(\d+)\.headingLevel$/);
     if (levelPath) selected.value.data.items[+levelPath[1]].sections[+levelPath[2]].headingLevel ??= 2;
+    const qqPath = selected.value.type === 'songs' && path.match(/^items\.(\d+)\.qqSongId$/);
+    if (qqPath) selected.value.data.items[+qqPath[1]].qqSongId ??= '';
     setField(selected.value.data, path, value);
     if (selected.value.type === "songs" && path.endsWith(".officialUrl")) {
       setField(selected.value.data, path.replace(/officialUrl$/, "neteaseId"), neteaseSongId(value));
+      const song = selected.value.data.items[+path.split('.')[1]];
+      song.qqSongId = qqSongId(value);
     }
   }, `${pageId.value}:${selectedId.value}:${path}`);
 }

@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createServer } from "vite";
 import { createContentStore, editorRequestAllowed, imageExtension, localContentEditor } from "../server/contentEditor.js";
-import { clone, createBlock, newPhoto, newSong, neteaseSongId, restoreContent, safeLink, setField, validateContent } from "../src/content/model.js";
+import { clone, createBlock, newPhoto, newSong, neteaseSongId, qqSongId, restoreContent, safeLink, setField, validateContent } from "../src/content/model.js";
 import { contentPages, contentTarget, pageItems } from "../src/content/pages.js";
 import { createHistory } from "../src/editor/history.js";
 const existing = JSON.parse(await readFile(new URL("../src/data/content.json", import.meta.url), "utf8"));
@@ -14,6 +14,34 @@ const original = clone(existing);
 original.pages.world = { title: "My World", eyebrow: "", blocks: [createBlock("profile", "about"), createBlock("projects", "projects")] };
 original.pages.world.blocks[0].data.socials = [{ label: "GitHub", url: "https://github.com/Peanora" }];
 const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9Y9Zl1sAAAAASUVORK5CYII=", "base64");
+
+test('album layouts and optional QQ IDs accept old drafts but reject conflicting providers and unsafe IDs', () => {
+  const document = clone(original);
+  const album = createBlock('songs', 'test-album');
+  album.layout.preset = 'album';
+  const song = newSong('qq-track');
+  song.officialUrl = 'https://i.y.qq.com/v8/playsong.html?songid=610333693';
+  song.qqSongId = qqSongId(song.officialUrl);
+  album.data.items.push(song);
+  document.pages.music.blocks = [album];
+  assert.equal(song.qqSongId, '610333693');
+  assert.equal(qqSongId('https://y.qq.com/n/ryqq_v2/songDetail/610333693'), song.qqSongId);
+  for (const unsafe of ['https://i.y.qq.com.evil.example/?songid=123', 'javascript:alert(1)', 'https://i.y.qq.com/?songid=123%26auto%3D1']) assert.equal(qqSongId(unsafe), '');
+  assert.doesNotThrow(() => validateContent(document));
+  for (const invalid of [null, 610333693, '123&auto=1', '999']) {
+    song.qqSongId = invalid;
+    assert.throws(() => validateContent(document));
+  }
+  song.qqSongId = '610333693';
+  song.neteaseId = '123';
+  assert.throws(() => validateContent(document));
+  song.neteaseId = '';
+  delete song.qqSongId;
+  album.layout.preset = 'original';
+  assert.doesNotThrow(() => validateContent(document), 'legacy drafts without QQ IDs remain valid');
+  document.pages.world.blocks[0].layout.preset = 'album';
+  assert.throws(() => validateContent(document));
+});
 async function workspace(t) {
   const root = await mkdtemp(join(tmpdir(), "peanora-editor-"));
   t.after(() => rm(root, { recursive: true, force: true }));

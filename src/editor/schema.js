@@ -36,7 +36,7 @@ export const schemas = {
   divider: [rich("caption", "分隔说明（可留空）")],
   homeCover: [text('name', '首页大标题'), rich('welcome', '欢迎语'), strings('signatures', '轮播签名', true), text('entry', '翻页按钮文字'), text('portraitNote', '头像旁文字'), image('avatar', '头像'), list('socials', '首页社交链接', [text('label', '链接文字'), text('url', '链接地址')], { label: '新的链接', url: '' })],
   homeTheme: [text('title', '主题标题'), text('shortTitle', '手机目录短标题'), text('subtitle', '中文副标题'), rich('description', '主题介绍', true), text('index', '内容索引'), text('action', '入口按钮文字'), text('bookmark', '封面书签文字'), text('artworkNote', '插画说明'), strings('tags', '标签', true), image('image', '主题插画'), text('alt', '插画替代文字'), text('imagePosition', '图片裁剪位置（例如 50% 50%）')],
-  songs: [...heading, rich('emptyText', '空状态说明'), list('items', '歌曲', [text('title', '歌曲名称'), text('artist', '艺术家'), rich('thought', '个人感想', true), text('officialUrl', '官方播放链接'), text('neteaseId', '网易云歌曲 ID（链接填写后自动识别）'), image('cover', '歌曲封面'), text('alt', '封面替代文字'), check('coverIsPlaceholder', '封面为占位素材'), check('isPlaceholder', '歌曲信息待补充')], newSong(''))],
+  songs: [...heading, rich('emptyText', '空状态说明'), list('items', '歌曲', [text('title', '歌曲名称'), text('artist', '艺术家'), rich('thought', '个人感想', true), text('officialUrl', '官方播放链接'), text('neteaseId', '网易云歌曲 ID（链接填写后自动识别）'), text('qqSongId', 'QQ 音乐数字歌曲 ID（songid 链接自动识别）'), image('cover', '歌曲封面'), text('alt', '封面替代文字'), check('coverIsPlaceholder', '封面为占位素材'), check('isPlaceholder', '歌曲信息待补充')], newSong(''))],
   memories: [...heading, rich('emptyText', '空状态说明'), list('items', '回忆', [rich('title', '回忆标题'), { ...text('date', '日期（可以留空）'), inputType: 'date' }, rich('location', '地点'), strings('paragraphs', '回忆段落'), list('photos', '回忆照片', photoFields, newPhoto()), strings('mementos', '纪念内容'), check('isPlaceholder', '显示内容占位提示')], { id: '', title: '新的回忆', date: '', location: '', paragraphs: [], photos: [], mementos: [], isPlaceholder: true })],
   gallery: [...heading, rich('emptyText', '空状态说明'), list('items', '照片', photoFields, newPhoto(''))],
   notes: [rich('eyebrow', '纸条小标题'), list('items', '纸条', [rich('text', '纸条文字', true), rich('source', '来源'), check('rare', '作为偶尔出现的隐藏纸条')], { id: '', text: '新的纸条', source: '', rare: false }), text('nextLabel', '换一句按钮文字'), text('saveLabel', '收藏按钮文字'), text('savedLabel', '已收藏按钮文字'), rich('favoritesHeading', '收藏区标题'), text('favoritesLabel', '收藏计数文字'), rich('favoritesHint', '收藏说明'), rich('emptyText', '无纸条说明'), rich('emptyFavorites', '无收藏说明'), text('marginLabel', '页边小记按钮'), rich('marginText', '页边小记正文', true)],
@@ -46,7 +46,7 @@ export const layouts = {
   projects: [["original", "原有交错排版"], ["single", "单列"], ["two", "双列"], ["image-left", "左图右文"], ["image-right", "左文右图"]],
   text: [["original", "单列"], ["two", "双列正文"]],
   split: [["original", "左图右文"], ["image-right", "左文右图"], ["single", "单列"]],
-  songs: [['original', '原有唱片目录'], ['single', '紧凑唱片目录'], ['two', '双列唱片']],
+  songs: [['original', '原有唱片目录'], ['album', '可折叠专辑（原有大封面）'], ['two', '双列唱片']],
   gallery: [['original', '原有交错相册'], ['two', '等宽双列'], ['single', '单列']],
 };
 export const pageFields = {

@@ -716,7 +716,7 @@
       "eyebrow": "02 / 音乐与回忆",
       "titleFirst": "Music &",
       "titleLast": "Memories",
-      "disclaimer": "非官方个人音乐空间。专辑封面与曲目信息来自憨厚的厂牌官方发行页，版权归原权利人所有；歌曲通过网易云官方播放器或厂牌试听页收听。背景为个人提供的插画素材。",
+      "disclaimer": "非官方个人音乐空间。专辑封面与曲目信息来自憨厚的厂牌官方发行页，版权归原权利人所有；歌曲通过网易云或 QQ 音乐官方播放器收听。背景为个人提供的插画素材。",
       "blocks": [
         {
           "id": "songs",
@@ -725,7 +725,7 @@
           "navLabel": "一抹憨色",
           "hidden": false,
           "layout": {
-            "preset": "single",
+            "preset": "album",
             "align": "left",
             "width": 100
           },
@@ -864,13 +864,13 @@
           "navLabel": "二次元凶",
           "hidden": false,
           "layout": {
-            "preset": "single",
+            "preset": "album",
             "align": "left",
             "width": 100
           },
           "data": {
             "heading": "二次元凶",
-            "subtitle": "hanser · 二专 Mini EP · 4 首 · <a href=\"https://www.dizzylab.net/d/255/\" target=\"_blank\" rel=\"noopener noreferrer\">专辑资料 ↗</a>",
+            "subtitle": "hanser · 二专 Mini EP · 4 首 · <a href=\"https://y.qq.com/n/ryqq_v2/albumDetail/003PDOea18kOjf\" target=\"_blank\" rel=\"noopener noreferrer\">QQ 音乐专辑 ↗</a>",
             "items": [
               {
                 "id": "culprit2-01",
@@ -879,10 +879,11 @@
                 "thought": "",
                 "cover": "/content/uploads/fc823ca5-6993-4d6c-a163-59af2015b97a.webp",
                 "alt": "hanser《二次元凶》专辑封面",
-                "officialUrl": "https://www.dizzylab.net/d/255/",
+                "officialUrl": "https://i.y.qq.com/v8/playsong.html?songid=610333693",
                 "neteaseId": "",
                 "isPlaceholder": false,
-                "coverIsPlaceholder": false
+                "coverIsPlaceholder": false,
+                "qqSongId": "610333693"
               },
               {
                 "id": "culprit2-02",
@@ -891,10 +892,11 @@
                 "thought": "",
                 "cover": "/content/uploads/fc823ca5-6993-4d6c-a163-59af2015b97a.webp",
                 "alt": "hanser《二次元凶》专辑封面",
-                "officialUrl": "https://www.dizzylab.net/d/255/",
+                "officialUrl": "https://i.y.qq.com/v8/playsong.html?songid=610333608",
                 "neteaseId": "",
                 "isPlaceholder": false,
-                "coverIsPlaceholder": false
+                "coverIsPlaceholder": false,
+                "qqSongId": "610333608"
               },
               {
                 "id": "culprit2-03",
@@ -903,10 +905,11 @@
                 "thought": "",
                 "cover": "/content/uploads/fc823ca5-6993-4d6c-a163-59af2015b97a.webp",
                 "alt": "hanser《二次元凶》专辑封面",
-                "officialUrl": "https://www.dizzylab.net/d/255/",
+                "officialUrl": "https://i.y.qq.com/v8/playsong.html?songid=610333565",
                 "neteaseId": "",
                 "isPlaceholder": false,
-                "coverIsPlaceholder": false
+                "coverIsPlaceholder": false,
+                "qqSongId": "610333565"
               },
               {
                 "id": "culprit2-04",
@@ -915,10 +918,11 @@
                 "thought": "",
                 "cover": "/content/uploads/fc823ca5-6993-4d6c-a163-59af2015b97a.webp",
                 "alt": "hanser《二次元凶》专辑封面",
-                "officialUrl": "https://www.dizzylab.net/d/255/",
+                "officialUrl": "https://i.y.qq.com/v8/playsong.html?songid=610333603",
                 "neteaseId": "",
                 "isPlaceholder": false,
-                "coverIsPlaceholder": false
+                "coverIsPlaceholder": false,
+                "qqSongId": "610333603"
               }
             ],
             "emptyText": "歌曲收藏正在整理。"

@@ -44,7 +44,15 @@ export function newPhoto(id = "") {
   return { ...(id ? { id } : {}), src: "builtin:photo", alt: "图片说明", caption: "", shape: "landscape", position: "50% 50%", isPlaceholder: true };
 }
 export function newSong(id) {
-  return { id, title: "新的歌曲", artist: "", thought: "", cover: "builtin:record", alt: "待替换的歌曲封面", officialUrl: "", neteaseId: "", isPlaceholder: true, coverIsPlaceholder: true };
+  return { id, title: "新的歌曲", artist: "", thought: "", cover: "builtin:record", alt: "待替换的歌曲封面", officialUrl: "", neteaseId: "", qqSongId: "", isPlaceholder: true, coverIsPlaceholder: true };
+}
+export function qqSongId(value) {
+  try {
+    const url = new URL(value);
+    if (!['y.qq.com', 'i.y.qq.com'].includes(url.hostname) || !['http:', 'https:'].includes(url.protocol)) return '';
+    const id = url.searchParams.get('songid') || url.pathname.match(/^\/n\/ryqq(?:_v2)?\/songDetail\/(\d{1,20})\/?$/)?.[1] || '';
+    return /^\d{1,20}$/.test(id) ? id : '';
+  } catch { return ''; }
 }
 export function neteaseSongId(value) {
   try {
@@ -88,7 +96,7 @@ export function validateContent(document) {
     ids.add(block.id);
     if (!config.types.includes(block.type) || typeof block.hidden !== "boolean" || typeof block.label !== "string" || typeof block.navLabel !== "string" || !block.data || !block.layout) fail("模块格式或所属页面不正确");
     const layout = block.layout;
-    if (!["original", "single", "two", "image-left", "image-right"].includes(layout.preset) || !["left", "center", "right"].includes(layout.align)) fail("布局选项无效");
+    if (!["original", "single", "two", "image-left", "image-right", "album"].includes(layout.preset) || (layout.preset === 'album' && block.type !== 'songs') || !["left", "center", "right"].includes(layout.align)) fail("布局选项无效");
     for (const [key, min, max] of [["width", 60, 100], ["spacing", 0, 160], ["imageWidth", 25, 100], ["imageX", 0, 100], ["imageY", 0, 100]]) {
       if (layout[key] !== undefined && (!Number.isFinite(layout[key]) || layout[key] < min || layout[key] > max)) fail("布局数值超出范围");
     }
@@ -119,6 +127,7 @@ export function validateContent(document) {
     if (["image", "split"].includes(block.type) && !image(data.src)) fail("图片地址只能使用项目资源");
     if (block.type === "projects" && !data.items.every((item) => image(item.cover))) fail("项目图片地址无效");
     if (block.type === "songs" && (!objects(data.items, ["id", "title", "artist", "thought", "cover", "alt", "officialUrl", "neteaseId"]) || !unique(data.items) || !data.items.every((item) => image(item.cover) && (!item.officialUrl || /^https?:\/\//.test(safeLink(item.officialUrl))) && (!item.neteaseId || /^\d{1,20}$/.test(item.neteaseId)) && (!neteaseSongId(item.officialUrl) || !item.neteaseId || neteaseSongId(item.officialUrl) === item.neteaseId) && typeof item.isPlaceholder === "boolean" && typeof item.coverIsPlaceholder === "boolean"))) fail("歌曲或播放链接格式无效（网易云 ID 需为纯数字并匹配链接）");
+    if (block.type === 'songs' && !data.items.every(item => (item.qqSongId === undefined || (typeof item.qqSongId === 'string' && (!item.qqSongId || /^\d{1,20}$/.test(item.qqSongId)))) && !(item.qqSongId && item.neteaseId) && (!qqSongId(item.officialUrl) || !item.qqSongId || qqSongId(item.officialUrl) === item.qqSongId))) fail('QQ 音乐 ID 需为纯数字并匹配链接，一首歌曲只能选择一个播放器来源');
     if (block.type === "memories" && (!objects(data.items, ["id", "title", "date", "location"]) || !unique(data.items) || !data.items.every((item) => (!item.date || /^\d{4}-\d{2}-\d{2}$/.test(item.date)) && strings(item.paragraphs) && strings(item.mementos) && photos(item.photos) && typeof item.isPlaceholder === "boolean"))) fail("回忆日期、文字或照片格式无效");
     if (block.type === "gallery" && (!photos(data.items, true) || !unique(data.items))) fail("相册图片格式无效");
     if (block.type === "notes" && (!objects(data.items, ["id", "text", "source"]) || !unique(data.items) || !data.items.every((item) => typeof item.rare === "boolean"))) fail("纸条 ID、文字或隐藏属性无效");

@@ -2,7 +2,7 @@
 import { computed, inject, ref } from "vue";
 import ContentText from "./ContentText.vue";
 import ProjectEntry from "./ProjectEntry.vue";
-import SongEntry from "./SongEntry.vue";
+import SongsCollection from "./SongsCollection.vue";
 import MemoryEntry from "./MemoryEntry.vue";
 import PhotoGallery from "./PhotoGallery.vue";
 import NotesCollection from "./NotesCollection.vue";
@@ -47,14 +47,14 @@ function select() { if (editingContent.value) publishEditorEvent({ type: 'select
     tabindex="-1" @pointerdown.capture="select">
     <UnityNotebook v-if="block.type === 'unityNotes'" :data="data" :block-id="block.id" />
     <NotesCollection v-else-if="block.type === 'notes'" :data="data" :block-id="block.id" />
-    <template v-else-if="['songs', 'memories', 'gallery'].includes(block.type)">
+    <SongsCollection v-else-if="block.type === 'songs'" :songs="collection" :data="data" :block-id="block.id" :collapsible="block.layout.preset === 'album'" />
+    <template v-else-if="['memories', 'gallery'].includes(block.type)">
       <div class="section-heading">
         <ContentText tag="h2" class="display" :value="data.heading" :block-id="block.id" field="heading" />
         <ContentText tag="span" class="muted small" :value="data.subtitle" :block-id="block.id" field="subtitle" />
       </div>
       <div :class="`collection-${block.type}`">
-        <template v-if="block.type === 'songs'"><SongEntry v-for="(song, index) in collection" :key="song.id" :song="song" :index="index" :block-id="block.id" /></template>
-        <template v-else-if="block.type === 'memories'"><MemoryEntry v-for="(memory, index) in collection" :key="memory.id" :memory="memory" :index="index" :block-id="block.id" @open-photo="openPhoto" /></template>
+        <template v-if="block.type === 'memories'"><MemoryEntry v-for="(memory, index) in collection" :key="memory.id" :memory="memory" :index="index" :block-id="block.id" @open-photo="openPhoto" /></template>
         <PhotoGallery v-else :photos="collection" :block-id="block.id" :image-position="block.layout.imageX !== undefined || block.layout.imageY !== undefined ? style['--content-image-position'] : undefined" @open-photo="openPhoto" />
       </div>
       <ContentText v-if="!collection.length" tag="p" class="empty-note" :value="data.emptyText" :block-id="block.id" field="emptyText" />
