@@ -36,7 +36,7 @@ defineProps({
       :href="song.officialUrl"
       target="_blank"
       rel="noopener noreferrer"
-      >官方播放 ↗</a
+      >{{ /^https:\/\/(?:www\.)?dizzylab\.net\/d\//.test(song.officialUrl) ? '专辑试听 ↗' : '官方播放 ↗' }}</a
     >
     </div>
   </article>

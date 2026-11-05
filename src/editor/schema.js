@@ -46,7 +46,7 @@ export const layouts = {
   projects: [["original", "原有交错排版"], ["single", "单列"], ["two", "双列"], ["image-left", "左图右文"], ["image-right", "左文右图"]],
   text: [["original", "单列"], ["two", "双列正文"]],
   split: [["original", "左图右文"], ["image-right", "左文右图"], ["single", "单列"]],
-  songs: [['original', '原有唱片目录'], ['two', '双列唱片']],
+  songs: [['original', '原有唱片目录'], ['single', '紧凑唱片目录'], ['two', '双列唱片']],
   gallery: [['original', '原有交错相册'], ['two', '等宽双列'], ['single', '单列']],
 };
 export const pageFields = {

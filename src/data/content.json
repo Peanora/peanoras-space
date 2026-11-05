@@ -716,34 +716,209 @@
       "eyebrow": "02 / 音乐与回忆",
       "titleFirst": "Music &",
       "titleLast": "Memories",
-      "disclaimer": "非官方个人音乐空间。歌曲通过官方平台收听；唱片封面为占位插画，背景为个人提供的插画素材。",
+      "disclaimer": "非官方个人音乐空间。专辑封面与曲目信息来自憨厚的厂牌官方发行页，版权归原权利人所有；歌曲通过网易云官方播放器或厂牌试听页收听。背景为个人提供的插画素材。",
       "blocks": [
         {
           "id": "songs",
           "type": "songs",
-          "label": "歌曲收藏",
-          "navLabel": "Songs",
+          "label": "一专 · 一抹憨色",
+          "navLabel": "一抹憨色",
           "hidden": false,
           "layout": {
-            "preset": "original",
+            "preset": "single",
             "align": "left",
             "width": 100
           },
           "data": {
-            "heading": "On Repeat",
-            "subtitle": "喜欢的歌曲 / hanser",
+            "heading": "一抹憨色",
+            "subtitle": "hanser · 一专 · 10 首（含序曲与尾声） · <a href=\"https://www.dizzylab.net/d/515/\" target=\"_blank\" rel=\"noopener noreferrer\">专辑资料 ↗</a>",
             "items": [
+              {
+                "id": "netease-1982798726",
+                "title": "一抹憨色",
+                "artist": "hanser",
+                "thought": "",
+                "cover": "/content/uploads/e5a14515-b5b8-42fd-96a2-1d22f20d0536.webp",
+                "alt": "hanser《一抹憨色》专辑封面",
+                "officialUrl": "https://music.163.com/song?id=1982798726",
+                "neteaseId": "1982798726",
+                "isPlaceholder": false,
+                "coverIsPlaceholder": false
+              },
+              {
+                "id": "netease-1982796624",
+                "title": "不需等天晴",
+                "artist": "hanser",
+                "thought": "",
+                "cover": "/content/uploads/e5a14515-b5b8-42fd-96a2-1d22f20d0536.webp",
+                "alt": "hanser《一抹憨色》专辑封面",
+                "officialUrl": "https://music.163.com/song?id=1982796624",
+                "neteaseId": "1982796624",
+                "isPlaceholder": false,
+                "coverIsPlaceholder": false
+              },
+              {
+                "id": "netease-1982796625",
+                "title": "夏海安全指南",
+                "artist": "hanser",
+                "thought": "",
+                "cover": "/content/uploads/e5a14515-b5b8-42fd-96a2-1d22f20d0536.webp",
+                "alt": "hanser《一抹憨色》专辑封面",
+                "officialUrl": "https://music.163.com/song?id=1982796625",
+                "neteaseId": "1982796625",
+                "isPlaceholder": false,
+                "coverIsPlaceholder": false
+              },
+              {
+                "id": "netease-1982798727",
+                "title": "不需要陪伴的闲暇",
+                "artist": "hanser",
+                "thought": "",
+                "cover": "/content/uploads/e5a14515-b5b8-42fd-96a2-1d22f20d0536.webp",
+                "alt": "hanser《一抹憨色》专辑封面",
+                "officialUrl": "https://music.163.com/song?id=1982798727",
+                "neteaseId": "1982798727",
+                "isPlaceholder": false,
+                "coverIsPlaceholder": false
+              },
+              {
+                "id": "netease-1982798728",
+                "title": "吵闹的雪",
+                "artist": "hanser",
+                "thought": "",
+                "cover": "/content/uploads/e5a14515-b5b8-42fd-96a2-1d22f20d0536.webp",
+                "alt": "hanser《一抹憨色》专辑封面",
+                "officialUrl": "https://music.163.com/song?id=1982798728",
+                "neteaseId": "1982798728",
+                "isPlaceholder": false,
+                "coverIsPlaceholder": false
+              },
+              {
+                "id": "netease-1982798729",
+                "title": "明天一定起得来",
+                "artist": "hanser",
+                "thought": "",
+                "cover": "/content/uploads/e5a14515-b5b8-42fd-96a2-1d22f20d0536.webp",
+                "alt": "hanser《一抹憨色》专辑封面",
+                "officialUrl": "https://music.163.com/song?id=1982798729",
+                "neteaseId": "1982798729",
+                "isPlaceholder": false,
+                "coverIsPlaceholder": false
+              },
+              {
+                "id": "netease-1982798730",
+                "title": "偷腥",
+                "artist": "hanser",
+                "thought": "",
+                "cover": "/content/uploads/e5a14515-b5b8-42fd-96a2-1d22f20d0536.webp",
+                "alt": "hanser《一抹憨色》专辑封面",
+                "officialUrl": "https://music.163.com/song?id=1982798730",
+                "neteaseId": "1982798730",
+                "isPlaceholder": false,
+                "coverIsPlaceholder": false
+              },
+              {
+                "id": "netease-1982796627",
+                "title": "网线很细但我很粗",
+                "artist": "hanser",
+                "thought": "",
+                "cover": "/content/uploads/e5a14515-b5b8-42fd-96a2-1d22f20d0536.webp",
+                "alt": "hanser《一抹憨色》专辑封面",
+                "officialUrl": "https://music.163.com/song?id=1982796627",
+                "neteaseId": "1982796627",
+                "isPlaceholder": false,
+                "coverIsPlaceholder": false
+              },
               {
                 "id": "netease-1982799628",
                 "title": "它像一颗",
-                "artist": "Hanser",
+                "artist": "hanser",
                 "thought": "",
-                "cover": "builtin:record",
-                "alt": "原创唱片封面占位，非官方歌曲封面",
+                "cover": "/content/uploads/e5a14515-b5b8-42fd-96a2-1d22f20d0536.webp",
+                "alt": "hanser《一抹憨色》专辑封面",
                 "officialUrl": "https://music.163.com/song?id=1982799628",
                 "neteaseId": "1982799628",
                 "isPlaceholder": false,
-                "coverIsPlaceholder": true
+                "coverIsPlaceholder": false
+              },
+              {
+                "id": "netease-1982796626",
+                "title": "感谢陪伴",
+                "artist": "hanser",
+                "thought": "",
+                "cover": "/content/uploads/e5a14515-b5b8-42fd-96a2-1d22f20d0536.webp",
+                "alt": "hanser《一抹憨色》专辑封面",
+                "officialUrl": "https://music.163.com/song?id=1982796626",
+                "neteaseId": "1982796626",
+                "isPlaceholder": false,
+                "coverIsPlaceholder": false
+              }
+            ],
+            "emptyText": "歌曲收藏正在整理。"
+          }
+        },
+        {
+          "id": "culprit2",
+          "type": "songs",
+          "label": "二专 · 二次元凶",
+          "navLabel": "二次元凶",
+          "hidden": false,
+          "layout": {
+            "preset": "single",
+            "align": "left",
+            "width": 100
+          },
+          "data": {
+            "heading": "二次元凶",
+            "subtitle": "hanser · 二专 Mini EP · 4 首 · <a href=\"https://www.dizzylab.net/d/255/\" target=\"_blank\" rel=\"noopener noreferrer\">专辑资料 ↗</a>",
+            "items": [
+              {
+                "id": "culprit2-01",
+                "title": "二次元凶",
+                "artist": "hanser",
+                "thought": "",
+                "cover": "/content/uploads/fc823ca5-6993-4d6c-a163-59af2015b97a.webp",
+                "alt": "hanser《二次元凶》专辑封面",
+                "officialUrl": "https://www.dizzylab.net/d/255/",
+                "neteaseId": "",
+                "isPlaceholder": false,
+                "coverIsPlaceholder": false
+              },
+              {
+                "id": "culprit2-02",
+                "title": "中古店爱情",
+                "artist": "hanser",
+                "thought": "",
+                "cover": "/content/uploads/fc823ca5-6993-4d6c-a163-59af2015b97a.webp",
+                "alt": "hanser《二次元凶》专辑封面",
+                "officialUrl": "https://www.dizzylab.net/d/255/",
+                "neteaseId": "",
+                "isPlaceholder": false,
+                "coverIsPlaceholder": false
+              },
+              {
+                "id": "culprit2-03",
+                "title": "冲动是小天使",
+                "artist": "hanser",
+                "thought": "",
+                "cover": "/content/uploads/fc823ca5-6993-4d6c-a163-59af2015b97a.webp",
+                "alt": "hanser《二次元凶》专辑封面",
+                "officialUrl": "https://www.dizzylab.net/d/255/",
+                "neteaseId": "",
+                "isPlaceholder": false,
+                "coverIsPlaceholder": false
+              },
+              {
+                "id": "culprit2-04",
+                "title": "那太重了",
+                "artist": "hanser",
+                "thought": "",
+                "cover": "/content/uploads/fc823ca5-6993-4d6c-a163-59af2015b97a.webp",
+                "alt": "hanser《二次元凶》专辑封面",
+                "officialUrl": "https://www.dizzylab.net/d/255/",
+                "neteaseId": "",
+                "isPlaceholder": false,
+                "coverIsPlaceholder": false
               }
             ],
             "emptyText": "歌曲收藏正在整理。"
