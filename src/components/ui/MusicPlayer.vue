@@ -1,12 +1,20 @@
 <script setup>
 import { computed, nextTick, onUnmounted, ref, watch } from "vue";
 import { contentDocument } from "../../content/store";
-import { playableSongs } from "../../content/selectors";
 import { musicPlatformName, officialEmbedUrl, useMusicPlayer } from "../../composables/useMusicPlayer";
 
-const { expanded, activeSong, embedUrl, revision, loadSong, stop, retry } = useMusicPlayer();
-const firstSong = computed(() => playableSongs(contentDocument.value).find((song) => officialEmbedUrl(song)));
-const selected = computed(() => activeSong.value || firstSong.value);
+const { expanded, activeSong, selectedSong, embedUrl, revision, loadSong, chooseSong, stop, retry } = useMusicPlayer();
+const albums = computed(() => contentDocument.value.pages.music.blocks
+  .filter(block => block.type === 'songs' && !block.hidden)
+  .map(block => ({ id: block.id, label: block.label, songs: block.data.items.filter(song => officialEmbedUrl(song)) }))
+  .filter(album => album.songs.length));
+const songs = computed(() => albums.value.flatMap(album => album.songs));
+const firstSong = computed(() => songs.value[0]);
+const selected = computed(() => activeSong.value || selectedSong.value || firstSong.value);
+function selectTrack(event) {
+  const song = songs.value.find(song => song.id === event.target.value);
+  if (song) chooseSong(song);
+}
 const platform = computed(() => musicPlatformName(selected.value));
 const toggle = ref(null);
 const heading = ref(null);
@@ -65,6 +73,15 @@ onUnmounted(() => clearTimeout(timer));
         <span class="eyebrow">A LITTLE MUSIC</span>
         <button class="music-panel-close" aria-label="收起音乐面板" @click="collapse">−</button>
       </div>
+      <label class="music-picker">
+        选择歌曲
+        <select :value="selected.id" @change="selectTrack">
+          <option v-if="!songs.some(song => song.id === selected.id)" :value="selected.id">{{ selected.title }}</option>
+          <optgroup v-for="album in albums" :key="album.id" :label="album.label">
+            <option v-for="song in album.songs" :key="song.id" :value="song.id">{{ song.title }}</option>
+          </optgroup>
+        </select>
+      </label>
       <h2 id="music-panel-title" ref="heading" tabindex="-1">{{ selected.title }}</h2>
       <p class="music-artist">{{ selected.artist }} <span>· {{ platform }}</span></p>
       <div v-if="embedUrl" class="official-player">

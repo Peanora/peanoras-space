@@ -14,20 +14,27 @@ export const musicPlatformName = song => song?.qqSongId ? 'QQ 音乐' : '网易�
 // Shared outside route views so navigating the site never remounts the iframe.
 const expanded = ref(false);
 const activeSong = shallowRef(null);
+const selectedSong = shallowRef(null);
 const revision = ref(0);
 const embedUrl = computed(() => officialEmbedUrl(activeSong.value));
 function loadSong(song) {
   if (!officialEmbedUrl(song)) return false;
+  selectedSong.value = song;
   if (officialEmbedUrl(activeSong.value) !== officialEmbedUrl(song)) activeSong.value = song;
   expanded.value = true;
   return true;
+}
+function chooseSong(song) {
+  if (!officialEmbedUrl(song)) return false;
+  selectedSong.value = song;
+  return activeSong.value ? loadSong(song) : true;
 }
 function stop() {
   activeSong.value = null;
 }
 export function useMusicPlayer() {
   return {
-    expanded, activeSong, embedUrl, revision, loadSong, stop,
+    expanded, activeSong, selectedSong, embedUrl, revision, loadSong, chooseSong, stop,
     retry: () => { if (activeSong.value) revision.value += 1; },
   };
 }

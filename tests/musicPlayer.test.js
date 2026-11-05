@@ -54,3 +54,27 @@ test('switching between QQ and NetEase replaces the frame, while reopening a tra
   assert.equal(player.embedUrl.value, null);
   player.expanded.value = false;
 });
+
+test('choosing a song waits for explicit loading, switches an existing player and remembers the choice after stopping', () => {
+  const player = useMusicPlayer();
+  const first = { id: 'netease-1982799628', title: '它像一颗', neteaseId: '1982799628' };
+  const second = { id: 'culprit2-01', title: '二次元凶', neteaseId: '', qqSongId: '610333693' };
+  player.stop();
+  player.selectedSong.value = null;
+  player.expanded.value = true;
+  assert.equal(player.chooseSong(first), true);
+  assert.equal(player.selectedSong.value, first);
+  assert.equal(player.embedUrl.value, null, 'selecting before loading does not contact a platform');
+  player.loadSong(player.selectedSong.value);
+  assert.equal(player.activeSong.value, first);
+  assert.equal(player.chooseSong(second), true);
+  assert.equal(player.activeSong.value, second);
+  assert.match(player.embedUrl.value, /songid=610333693/);
+  player.stop();
+  assert.equal(player.embedUrl.value, null);
+  assert.equal(player.selectedSong.value, second, 'stop must not reset the picker to the first track');
+  assert.equal(player.chooseSong({ id: 'invalid' }), false);
+  assert.equal(player.selectedSong.value, second);
+  player.selectedSong.value = null;
+  player.expanded.value = false;
+});
