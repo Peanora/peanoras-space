@@ -24,7 +24,7 @@ function summaryClick(event) { if (editingContent.value) event.preventDefault();
         <svg viewBox="0 0 20 20" width="20" height="20" fill="none"><path d="m5 8 5 5 5-5" stroke="currentColor" stroke-width="1.5" /></svg>
       </span>
     </component>
-    <div class="collection-songs">
+    <div class="collection-songs" :class="{ 'album-tracks': collapsible }">
       <SongEntry v-for="(song, index) in songs" :key="song.id" :song="song" :index="index" :block-id="blockId" />
     </div>
     <ContentText v-if="!songs.length" tag="p" class="empty-note" :value="data.emptyText" :block-id="blockId" field="emptyText" />
