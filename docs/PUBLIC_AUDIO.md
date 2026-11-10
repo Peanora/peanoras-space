@@ -37,3 +37,10 @@
 - npm run build：通过；本地构建的公开文件与本机源逐字节一致。
 - 本地生产预览 Chromium 静音自动化：14/14 首均实际解码，时长有效、媒体时间推进；暂停、切歌、拖到 2:17、站内换页保持同一个正在播放的 audio、手机宽度浮层通过。首访音频请求为 0，audio 无 src，页面无 iframe。截图在本机忽略目录 output/playwright/public-audio-local.png 与 public-audio-mobile.png。
 - 未进行出声实听、真实手机、Safari 或 Firefox 验证。FLAC 保留音质，开始播放的等待时间仍取决于访客网络与 Pages 响应；本机播放结果不替代部署后的域名验证。
+
+## 域名发布验收
+
+- 代码提交 `dd44d1cec9c5cb7eb3eda3240a9529ccd1ea254e` 已推送 main。[Actions #22](https://github.com/Peanora/peanoras-space/actions/runs/42846143823) 的云端测试、构建、产物上传和 Pages 发布全部成功；完成时间 2026-11-10 23:44:31（Asia/Shanghai）。
+- 23:46 在 `https://peanora.cn/` 完成 Chromium 静音自动化：14/14 首音频实际解码，时长与本机结果一致，每首媒体时间推进超过 0.25 秒，播放和暂停有效；《不需等天晴》拖到 2:17 成功，站内进入 World 后同一个 audio 继续播放，手机宽度浮层可用。
+- 域名首次访问的音频请求为 0，audio 无 src 且暂停，无第三方 iframe；播放后仍只有一个 audio。控制台无错误或警告。域名的14个音频地址均返回 HTTP 206 分段响应，Content-Range 中总字节数与清单逐项一致。
+- 线上截图位于本机忽略目录 `output/playwright/public-audio-live.png`、`public-audio-live-mobile.png`。上述媒体状态验证不等于出声实听或真实手机验证。
