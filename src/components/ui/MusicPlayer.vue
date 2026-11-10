@@ -41,8 +41,9 @@ function step(direction) {
 }
 function collapse() {
   expanded.value = false;
-  if (window.matchMedia('(max-width: 767px)').matches) document.querySelector('.space-music-toggle')?.focus();
+  if (smallPlayer()) document.querySelector('.space-music-toggle')?.focus();
 }
+function smallPlayer() { return window.matchMedia(document.querySelector('.original-home-layout') ? '(max-width: 1023px)' : '(max-width: 767px)').matches; }
 function frameLoaded() {
   clearTimeout(frameTimer);
   // Cross-origin document loading cannot establish that the audio is playing.
@@ -60,7 +61,7 @@ watch([embedUrl, revision], ([url]) => {
 watch(expanded, async value => {
   if (!value) return;
   await nextTick();
-  if (!window.matchMedia('(max-width: 767px)').matches) {
+  if (!smallPlayer()) {
     document.getElementById('music-panel')?.scrollIntoView({ block: 'center', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }
   heading.value?.focus({ preventScroll: true });

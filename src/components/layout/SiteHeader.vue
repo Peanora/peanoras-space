@@ -6,6 +6,7 @@ import { contentDocument } from '../../content/store';
 import { unityEntries } from '../../content/unityNotes';
 import WallpaperPicker from '../ui/WallpaperPicker.vue';
 import { useMusicPlayer } from '../../composables/useMusicPlayer';
+defineProps({ homeSidebarOpen: Boolean });
 const route = useRoute(), router = useRouter();
 const open = ref(false), activeMenu = ref(''), toggle = ref(null), search = ref(''), searchOpen = ref(false), softTone = ref(false);
 const hoverMenu = ref('');
@@ -15,10 +16,11 @@ const categories = computed(() => [...new Set(notes.value.map(note => note.categ
 const menus = computed(() => headerMenuFor(categories.value));
 const results = computed(() => search.value.trim() ? notes.value.filter(note => `${note.title} ${note.summary} ${note.category}`.toLocaleLowerCase().includes(search.value.trim().toLocaleLowerCase())).slice(0, 6) : []);
 function closeMenus() { open.value = false; activeMenu.value = ''; hoverMenu.value = ''; searchOpen.value = false; }
+function showHomeSidebar() { closeMenus(); window.dispatchEvent(new CustomEvent('peanora:toggle-home-sidebar')); }
 function findNotes() { closeMenus(); router.push({ path: '/unity-notes', query: search.value.trim() ? { q: search.value.trim() } : {} }); }
 function scrollToContent() { document.getElementById('main-content')?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
 async function showMusic() {
-  if (window.matchMedia('(max-width: 767px)').matches) { musicExpanded.value = !musicExpanded.value; return; }
+  if (window.matchMedia(route.path === '/' ? '(max-width: 1023px)' : '(max-width: 767px)').matches) { musicExpanded.value = !musicExpanded.value; return; }
   musicExpanded.value = true;
   await nextTick();
   document.getElementById('music-panel')?.scrollIntoView({ block: 'center', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
@@ -75,6 +77,7 @@ onUnmounted(() => { window.removeEventListener('keydown', onEscape); document.re
     <button v-if="open" class="space-menu-backdrop" aria-label="关闭导航遮罩" @click="closeMenus"></button>
     <nav id="site-navigation" class="space-nav" :class="{ 'is-open': open }" aria-label="主要导航">
       <div class="space-mobile-nav-heading"><span>{{ site.name }}</span><button aria-label="关闭导航菜单" @click="closeMenus">×</button></div>
+      <button v-if="route.path === '/'" class="space-nav-item space-home-sidebar-entry" :aria-expanded="homeSidebarOpen" aria-controls="home-sidebar" @click="showHomeSidebar"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M20 21v-2a6 6 0 0 0-6-6h-4a6 6 0 0 0-6 6v2M16 6a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>个人侧栏</button>
       <div v-for="menu in menus" :key="menu.label" class="space-nav-group" :data-menu-label="menu.label" @pointerenter="enterMenu(menu.label, $event)" @pointerleave="leaveMenu">
         <RouterLink v-if="menu.path" :to="menu.path" class="space-nav-item"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="menu.icon" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>{{ menu.label }}</RouterLink>
         <button v-else class="space-nav-item" :aria-expanded="activeMenu === menu.label" :aria-controls="`menu-${menu.label}`" @click="toggleMenu(menu.label)" @keydown.down.prevent="focusMenu(menu.label)" @keydown.up.prevent="focusMenu(menu.label, true)"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="menu.icon" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>{{ menu.label }}<svg class="space-nav-chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 8 5 5 5-5" stroke="currentColor" stroke-width="1.5" /></svg></button>

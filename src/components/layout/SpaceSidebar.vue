@@ -12,8 +12,9 @@ import { useMusicPlayer } from '../../composables/useMusicPlayer';
 import ContentText from '../content/ContentText.vue';
 import SpaceCalendar from './SpaceCalendar.vue';
 import MusicPlayer from '../ui/MusicPlayer.vue';
+import '../../styles/home-sidebar.css';
 
-defineProps({ side: { type: String, default: 'left' } });
+defineProps({ side: { type: String, default: 'left' }, compact: Boolean });
 provide('content-page', 'home');
 const route = useRoute();
 const cover = computed(() => contentDocument.value.pages.home.blocks.find(block => block.type === 'homeCover')?.data);
@@ -44,7 +45,7 @@ const icons = {
 </script>
 
 <template>
-  <aside class="space-sidebar firefly-sidebar" :class="`space-sidebar-${side}`" :aria-label="side === 'left' ? '关于 Peanora 与笔记分类' : '小角落与内容统计'">
+  <aside class="space-sidebar firefly-sidebar" :class="[`space-sidebar-${side}`, { 'space-sidebar-home': compact && side === 'left' }]" :aria-label="side === 'left' ? compact ? 'Peanora、公告与音乐' : '关于 Peanora 与笔记分类' : '小角落与内容统计'">
     <template v-if="side === 'left'">
       <section class="space-panel space-profile firefly-profile">
         <RouterLink to="/world" class="space-avatar-link" aria-label="认识 Peanora">
@@ -73,7 +74,7 @@ const icons = {
 
       <MusicPlayer />
 
-      <div class="firefly-sidebar-sticky">
+      <div v-if="!compact" class="firefly-sidebar-sticky">
       <section v-if="categories.length" class="space-panel firefly-widget space-category-widget">
         <h2 class="space-widget-title">分类</h2>
         <ul><li v-for="item in categories" :key="item.name"><RouterLink :to="{ path: '/unity-notes', query: { category: item.name } }"><span>{{ item.name }}</span><span class="space-category-count">{{ item.count }}</span></RouterLink></li></ul>

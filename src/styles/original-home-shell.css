@@ -1,0 +1,18 @@
+/* Latest shell: current navigation and sidebar around the original four screens. */
+.app-frame.is-home { height: 100dvh; overflow: hidden; }
+.app-frame.is-home .original-home-layout { grid-template-columns: 280px minmax(0, 1fr); align-items: start; height: calc(100dvh - 104px); margin-top: 88px; }
+.original-home-layout > .app-main { height: 100%; min-height: 0; --original-home-height: 100%; }
+.original-home-layout #main-content { scroll-margin-top: 88px; }
+.app-frame.is-home .site-backdrop img { opacity: .15; }
+.app-frame.is-home .site-backdrop::after { background: linear-gradient(115deg, #fff9f0d9, #fcf3e0a8); opacity: 1; }
+.home-sidebar-backdrop, .space-header .space-home-sidebar-entry { display: none; }
+@media (max-width: 1023px) {
+  .app-frame.is-home .original-home-layout { grid-template-columns: minmax(0, 1fr); width: 100%; }
+  .home-sidebar-backdrop { display: block; position: fixed; inset: 72px 0 0; z-index: 60; border: 0; background: #37291f55; }
+  .space-header .space-home-sidebar-entry { display: inline-flex; }
+  .space-nav .space-home-sidebar-entry { justify-content: flex-start; width: 100%; padding: 10px 12px; min-height: 44px; font: inherit; text-align: left; }
+}
+@media (max-width: 767px) {
+  .app-frame.is-home .original-home-layout { height: calc(100dvh - 90px); margin-top: 76px; padding-inline: 7px; }
+  .home-sidebar-backdrop { top: 63px; }
+}

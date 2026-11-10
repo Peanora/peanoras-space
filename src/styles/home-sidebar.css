@@ -1,0 +1,30 @@
+/* Homepage adds only the three widgets shown in the sidebar reference. */
+.space-sidebar-home.firefly-sidebar.space-sidebar-left { align-self: start; }
+.space-sidebar-home.firefly-sidebar > .space-panel { flex: 0 0 auto; }
+.space-sidebar-home.firefly-sidebar .firefly-profile { padding-bottom: 16px; }
+.space-sidebar-home.firefly-sidebar .firefly-announcement { padding: 20px 16px 16px; }
+.space-sidebar-home.firefly-sidebar .firefly-announcement .space-widget-more { margin-top: 14px; }
+.space-sidebar-home.firefly-sidebar .music-widget { margin-bottom: 2px; }
+@media (min-width: 1024px) {
+  .space-sidebar-home.firefly-sidebar.space-sidebar-left { position: sticky; top: 88px; max-height: calc(100dvh - 104px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--apricot) transparent; padding-right: 4px; }
+  .space-sidebar-home::-webkit-scrollbar { width: 4px; }
+  .space-sidebar-home::-webkit-scrollbar-thumb { border-radius: 4px; background: var(--apricot); }
+}
+@media (max-width: 1023px) {
+  /* Keep the player mounted. A transformed or display:none ancestor would
+     trap or hide its viewport-fixed listening panel while the drawer closes. */
+  .space-sidebar-home.firefly-sidebar.space-sidebar-left { position: fixed; z-index: 65; top: 88px; left: -350px; width: min(320px, calc(100vw - 28px)); max-height: calc(100dvh - 104px); padding: 0 4px 4px 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--apricot) transparent; visibility: hidden; pointer-events: none; transition: left 220ms ease; }
+  .space-sidebar-home.firefly-sidebar.space-sidebar-left.is-open { left: 14px; visibility: visible; pointer-events: auto; }
+  .space-sidebar-home.firefly-sidebar.space-sidebar-left .firefly-music.music-widget { display: none; }
+  .space-sidebar-home.firefly-sidebar.space-sidebar-left.is-open .firefly-music.music-widget { display: block; }
+  .space-sidebar-home.firefly-sidebar.space-sidebar-left .firefly-music.music-widget.is-expanded { display: block; position: fixed; z-index: 71; top: 88px; left: max(14px, calc((100vw - 360px) / 2)); right: max(14px, calc((100vw - 360px) / 2)); width: auto; max-height: calc(100dvh - 104px); margin: 0; overflow: auto; overscroll-behavior: contain; visibility: visible; pointer-events: auto; box-shadow: 0 12px 40px #493b3233; }
+  .space-sidebar-home.firefly-sidebar .music-mobile-backdrop { display: block; position: fixed; z-index: 70; inset: 72px 0 0; border: 0; background: #37291f55; visibility: visible; pointer-events: auto; }
+  .space-sidebar-home.firefly-sidebar .music-widget .music-panel-top .music-panel-close { display: none; }
+  .space-sidebar-home.firefly-sidebar .music-widget.is-expanded .music-panel-top .music-panel-close { display: inline-flex; align-items: center; justify-content: center; }
+}
+@media (max-width: 767px) {
+  .space-sidebar-home.firefly-sidebar.space-sidebar-left { top: 75px; max-height: calc(100dvh - 90px); }
+  .space-sidebar-home.firefly-sidebar.space-sidebar-left .firefly-music.music-widget.is-expanded { top: 75px; max-height: calc(100dvh - 95px); }
+  .space-sidebar-home.firefly-sidebar .music-mobile-backdrop { top: 63px; }
+}
+@media (prefers-reduced-motion: reduce) { .space-sidebar-home.firefly-sidebar.space-sidebar-left { transition: none; } }
