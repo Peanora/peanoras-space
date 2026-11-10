@@ -14,7 +14,7 @@
 .music-track .music-title { margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: inherit; color: var(--text); font-size: 16px; font-weight: 700; line-height: 1.25; }
 .music-track .music-artist { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin: 0; color: var(--muted); font-size: 12px; font-weight: 500; line-height: 16px; }
 .music-time-volume { display: flex; align-items: center; gap: 12px; height: 20px; color: var(--muted); }
-.music-time { font: 10px/1.5 ui-monospace, monospace; white-space: nowrap; }
+.music-time { font: 600 11px/1.4 var(--font-display); font-variant-numeric: lining-nums tabular-nums; letter-spacing: .02em; white-space: nowrap; }
 .music-volume { display: flex; align-items: center; gap: 4px; min-width: 0; margin-left: auto; }
 .music-mute-button { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 18px; height: 20px; padding: 0; border: 0; border-radius: 4px; color: var(--muted); background: transparent; }
 .music-mute-button svg { width: 18px; height: 18px; }
