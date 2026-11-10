@@ -33,11 +33,12 @@ const router = createRouter({
     },
   ],
   scrollBehavior(to, from, savedPosition) {
+    if (!savedPosition && to.path === from.path && to.hash === from.hash && to.fullPath !== from.fullPath) return false;
     // 等待 180ms 的离场完成，避免旧页面高度影响返回位置和章节定位。
     return new Promise((resolve) =>
       setTimeout(() => {
         if (savedPosition) resolve(savedPosition);
-        else if (to.hash) resolve({ el: to.hash, top: 30, behavior: "auto" });
+        else if (to.hash) resolve({ el: to.hash, top: 100, behavior: "auto" });
         else resolve({ top: 0 });
       }, 220),
     );

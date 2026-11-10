@@ -215,7 +215,7 @@ onBeforeUnmount(() => { window.removeEventListener("message", message); window.r
         <nav class="ed-pages" aria-label="选择编辑页面"><button v-for="(config, id) in contentPages" :key="id" class="ed-page" :class="{ active: pageId === id }" :aria-current="pageId === id ? 'page' : undefined" @click="selectPage(id)">{{ config.label }}</button></nav>
         <button class="ed-page-settings" @click="select('__page')">当前页面设置</button>
         <p class="ed-kicker">BLOCKS / 模块顺序</p>
-        <p class="ed-help">{{ pageConfig.fixed ? '首页保持固定四屏；点击模块切换预览，编辑内容。' : '拖动调整顺序，也可用上下按钮。隐藏模块仅在编辑时可见。' }}</p>
+        <p class="ed-help">{{ pageConfig.fixed ? '首页保留封面与三个主题模块；点击模块滚动到对应内容，编辑文字。' : '拖动调整顺序，也可用上下按钮。隐藏模块仅在编辑时可见。' }}</p>
         <ol class="ed-block-list">
           <li v-for="(block, index) in page.blocks" :key="block.id" :data-order-id="block.id" :class="{ active: selectedId === block.id, 'ed-is-hidden': block.hidden, 'ed-drop-target': dropIndex === index }">
             <button class="ed-block-name" @dragstart.prevent @pointerdown="beginDrag($event, block.id)" @pointermove="updateDrag" @pointerup="endDrag" @pointercancel="dragState = null; dropIndex = -1" @click="blockClick(block.id)"><span aria-hidden="true">⠿</span><span>{{ block.label }}<small>{{ block.hidden ? '已隐藏' : blockTypes[block.type] }}</small></span></button>
@@ -257,7 +257,7 @@ onBeforeUnmount(() => { window.removeEventListener("message", message); window.r
         <template v-else>
           <p class="ed-kicker">PAGE / 页面设置</p>
           <InspectorFields :key="pageId" :value="page" :fields="pageFields[pageId]" :images="images" @change="pageChange" />
-          <p v-if="pageConfig.fixed" class="ed-help">首页大标题、欢迎语和轮播签名在“首页封面”模块；其他三屏分别编辑主题介绍与入口文字。</p>
+          <p v-if="pageConfig.fixed" class="ed-help">首页大标题、欢迎语和轮播签名在“首页封面”模块；其他三个主题分别编辑介绍与入口文字。</p>
           <p v-if="pageId === 'little'" class="ed-help">纸条内容会发布到网站；访客收藏保存在各自浏览器，工作台中的收藏仅供预览。</p>
           <p class="ed-help">点击左侧模块或中间网页，选择要编辑的区域。标题、正文、列表均可直接改字。链接地址与图片在右侧设置。</p>
           <div class="ed-tip"><strong>内容真正保存在项目里</strong><p>保存位置：src/data/content.json</p><p>自动备份：.editor-backups/</p><p>这里的修改只留在本地，不会自动推送或发布。</p></div>

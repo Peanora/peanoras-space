@@ -1,260 +1,137 @@
 <script setup>
-import { ref, computed, provide, onMounted, onUnmounted, watch } from "vue";
-import { contentDocument, editingContent, publishEditorEvent } from "../content/store";
-import { homeScreensFor } from "../content/selectors";
+import { computed, nextTick, onMounted, onUnmounted, provide, ref } from "vue";
+import { contentDocument, editingContent, publishEditorEvent, selectedContentBlock } from "../content/store";
 import { contentImage } from "../content/assets";
-import ContentText from "../components/content/ContentText.vue";
-import { appearance } from "../data/appearance";
-import { useAppearance } from "../composables/useAppearance";
-import "../styles/home-preview.css";
-const { wallpaper } = useAppearance();
-provide("content-page", "home");
-const homeScreens = computed(() => homeScreensFor(contentDocument.value));
-const cover = computed(() => contentDocument.value.pages.home.blocks[0].data);
-import WallpaperPicker from "../components/ui/WallpaperPicker.vue";
-import { useScreenPager } from "../composables/useScreenPager";
-import { useAmbientMotion } from "../composables/useAmbientMotion";
-import HomeScene from "../components/content/HomeScene.vue";
-import SignatureTypewriter from "../components/ui/SignatureTypewriter.vue";
-import ArtworkImage from "../components/ui/ArtworkImage.vue";
-import ChapterTicket from "../components/content/ChapterTicket.vue";
-import { unityEntries } from "../content/unityNotes";
 import { pageItems } from "../content/pages";
-const samples = computed(() => {
-  const doc = contentDocument.value;
-  const note = unityEntries(doc).at(-1);
-  const song = pageItems(doc, 'music', 'songs').find(item => !item.isPlaceholder);
-  const slip = pageItems(doc, 'little', 'notes').find(item => !item.rare);
-  return {
-    world: note && { label:'Unity 学习笔记', text:note.title, path:'/unity-notes/' + note.id },
-    music: song && { label:song.artist, text:song.title, path:'/music#songs' },
-    little: slip && { label:slip.source, text:slip.text, path:'/little-things' }
-  };
-});
-const stage = ref(null);
-const { current, direction, goTo, finishMove, transitionDuration } =
-  useScreenPager(stage, 4);
-const screen = computed(() => homeScreens.value[current.value]);
-watch(current, () => publishEditorEvent({ type: 'select', pageId: 'home', blockId: screen.value.id }));
-const brandWords = computed(() => cover.value.name.split(" "));
-const social = computed(() => cover.value.socials.find((item) => item.url));
-const chapters = computed(() => homeScreens.value.slice(1));
-const portraitBouncing = ref(false);
-const { still, reduced } = useAmbientMotion();
-function editorSelect(event) {
-  const id = event.detail;
-  const index = homeScreens.value.findIndex((item) => item.id === id);
-  if (index >= 0) current.value = index;
+import { unityEntries } from "../content/unityNotes";
+import ContentText from "../components/content/ContentText.vue";
+import ArtworkImage from "../components/ui/ArtworkImage.vue";
+import "../styles/home-feed.css";
+
+provide("content-page", "home");
+const category = ref("");
+const themes = computed(() => Object.fromEntries(contentDocument.value.pages.home.blocks
+  .filter(block => block.type === "homeTheme" && (!block.hidden || editingContent.value))
+  .map(block => [block.data.kind, { ...block.data, id: block.id }])));
+const notes = computed(() => unityEntries(contentDocument.value));
+const categories = computed(() => [...new Set(notes.value.map(note => note.category).filter(Boolean))]);
+const matchingNotes = computed(() => notes.value.filter(note => !category.value || note.category === category.value));
+const previewNotes = computed(() => matchingNotes.value.slice(0, 6));
+const albums = computed(() => contentDocument.value.pages.music.blocks
+  .filter(block => !block.hidden && block.type === "songs")
+  .map(block => ({ ...block, cover: block.data.items.find(song => song.cover), artist: block.data.items.find(song => song.artist)?.artist })));
+const quote = computed(() => pageItems(contentDocument.value, "little", "notes").find(note => !note.rare));
+const categoryNames = {
+  "Unity工作原理": "工作原理",
+  "Unity脚本基础": "脚本基础",
+  "Unity重要组件和Api": "组件与 API",
+  "核心系统": "核心系统",
+};
+
+function selectTheme(id) {
+  if (editingContent.value) publishEditorEvent({ type: "select", pageId: "home", blockId: id });
 }
-onMounted(() => { if (import.meta.env.DEV) window.addEventListener('peanora:select-home', editorSelect); });
-onUnmounted(() => { if (import.meta.env.DEV) window.removeEventListener('peanora:select-home', editorSelect); });
+function noteSummary(note) {
+  return note.summary || note.sections.filter(section => section.heading).slice(0, 3).map(section => section.heading).join("、");
+}
+async function editorSelect(event) {
+  await nextTick();
+  document.getElementById(event.detail)?.scrollIntoView({ block: "center", behavior: "auto" });
+}
+onMounted(() => {
+  if (import.meta.env.DEV) window.addEventListener("peanora:select-home", editorSelect);
+});
+onUnmounted(() => {
+  if (import.meta.env.DEV) window.removeEventListener("peanora:select-home", editorSelect);
+});
 </script>
+
 <template>
-  <div
-    ref="stage"
-    class="home-pager"
-    :class="{ 'is-still': still }"
-    :style="{ '--direction': direction }"
-    role="region"
-    aria-label="首页主题翻页"
-  >
-    <h1 class="sr-only" tabindex="-1">{{ cover.name }}</h1>
-    <div class="screen-stage">
-      <Transition
-        name="screen"
-        mode="out-in"
-        :duration="transitionDuration"
-        @after-enter="finishMove"
-      >
-        <section
-          :key="screen.id"
-          class="home-screen"
-          :class="`screen-${screen.kind}`"
-          :aria-label="screen.title"
-        >
-          <div
-            v-if="screen.kind === 'cover'"
-            class="cover-layout screen-layout shell"
-          >
-            <div class="cover-copy" @pointerdown="publishEditorEvent({ type: 'select', pageId: 'home', blockId: 'cover' })">
-              <p
-                class="home-title screen-heading"
-                tabindex="-1"
-                :aria-label="cover.name"
-              >
-                <span
-                  v-for="(word, wordIndex) in brandWords"
-                  :key="wordIndex"
-                  class="brand-word"
-                  aria-hidden="true"
-                  ><span
-                    v-for="(letter, index) in [...word]"
-                    :key="index"
-                    class="brand-letter"
-                    :style="{
-                      '--letter': index + wordIndex * 9,
-                      '--lean': `${((index % 3) - 1) * 2}deg`,
-                    }"
-                    ><span class="letter-float ambient-loop">{{
-                      letter
-                    }}</span></span
-                  ></span
-                >
-              </p>
-              <div class="cover-rule" aria-hidden="true"></div>
-              <div class="cover-message">
-                <ContentText tag="p" class="cover-welcome" :value="cover.welcome" block-id="cover" field="welcome" />
-                <ContentText v-if="editingContent && cover.signatures.length" tag="p" plain class="cover-signature" :value="cover.signatures[0] || ''" block-id="cover" field="signatures.0" />
-                <SignatureTypewriter v-else
-                  :phrases="cover.signatures"
-                  :paused="still"
-                  :reduced="reduced"
-                />
-              </div>
-              <button class="screen-entry cover-entry" @click="!editingContent && goTo(1)">
-                <ContentText tag="span" plain :value="cover.entry" block-id="cover" field="entry" /> <span aria-hidden="true">↓</span>
-              </button>
-            </div>
-            <div class="cover-portrait">
-              <figure class="cover-print">
-                <ArtworkImage :src="wallpaper.src" sizes="(max-width: 720px) 45vw, 560px" alt="" :style="{objectPosition:wallpaper.position}" />
-                <figcaption>{{ wallpaper.name }}</figcaption>
-              </figure>
-              <button
-                class="portrait-photo"
-                :class="{ 'is-bouncing': portraitBouncing }"
-                aria-label="和 Peanora 打个招呼"
-                @click="portraitBouncing = !reduced"
-                @animationend.self="portraitBouncing = false"
-              >
-                <img
-                  v-if="cover.avatar"
-                  :src="contentImage(cover.avatar)"
-                  :style="{ objectPosition: appearance.avatarPosition }"
-                  alt="Peanora 使用的二次元头像"
-                  width="280"
-                  height="280"
-                  fetchpriority="high"
-                />
-                <ContentText tag="span" plain class="portrait-note" :value="cover.portraitNote" block-id="cover" field="portraitNote" />
-              </button>
-              <svg
-                class="portrait-sun ambient-loop"
-                viewBox="0 0 64 64"
-                fill="none"
-                aria-hidden="true"
-              >
-                <circle
-                  cx="32"
-                  cy="32"
-                  r="13"
-                  stroke="currentColor"
-                  stroke-width="3"
-                />
-                <path
-                  d="M32 3v10m0 38v10M3 32h10m38 0h10M11 11l7 7m28 28 7 7M11 53l7-7m28-28 7-7"
-                  stroke="currentColor"
-                  stroke-width="3"
-                  stroke-linecap="round"
-                />
-              </svg>
-              <svg
-                class="portrait-thread"
-                viewBox="0 0 240 100"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M232 15C182 88 132 6 139 41S58 86 8 62m0 0 18-8M8 62l12 15"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-dasharray="4 5"
-                />
-              </svg>
-            </div>
-            <nav class="chapter-shelf" aria-label="翻到主题介绍">
-              <ChapterTicket
-                v-for="(chapter, index) in chapters"
-                :key="chapter.id"
-                :chapter="chapter" :sample="samples[chapter.kind]"
-                @click="goTo(index + 1)"
-              />
-            </nav>
-          </div>
-          <div v-else class="theme-screen-layout screen-layout shell">
-            <div class="screen-copy" @pointerdown="publishEditorEvent({ type: 'select', pageId: 'home', blockId: screen.id })">
-              <p class="eyebrow screen-part">
-                {{ screen.number }} / <ContentText tag="span" plain :value="screen.subtitle" :block-id="screen.id" field="subtitle" />
-              </p>
-              <h2 class="screen-heading screen-title" tabindex="-1">
-                <ContentText tag="span" plain :value="screen.title" :block-id="screen.id" field="title" />
-              </h2>
-              <ContentText tag="p" class="screen-description" :value="screen.description" :block-id="screen.id" field="description" />
-              <RouterLink v-if="samples[screen.kind]" class="chapter-excerpt" :to="samples[screen.kind].path">
-                <small>{{ samples[screen.kind].label }}</small><span>{{ samples[screen.kind].text }}</span><i aria-hidden="true">↗</i>
-              </RouterLink>
-              <RouterLink :to="screen.path" class="screen-entry"
-                ><ContentText tag="span" plain :value="screen.action" :block-id="screen.id" field="action" />
-                <span aria-hidden="true">↗</span></RouterLink
-              >
-            </div>
-            <HomeScene :key="screen.id" :screen="screen" />
-          </div>
-        </section>
-      </Transition>
-    </div>
-    <div class="pager-bottom shell">
-      <div class="pager-tools">
-        <WallpaperPicker /><span class="pager-help"
-          ><span class="desktop-help">滚轮翻页</span
-          ><span class="touch-help">上滑翻页</span> · 顶部导航直达详情</span
-        ><a
-          v-if="social"
-          :href="social.url"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="pager-social"
-          >{{ social.label }} ↗</a
-        >
+  <div class="home-feed">
+    <nav class="space-panel home-feed-navigation" aria-label="首页内容导航">
+      <a v-if="themes.world" href="#world">个人世界</a>
+      <a v-if="themes.music" href="#music">音乐与回忆</a>
+      <a v-if="themes.world && notes.length" href="#home-unity-notes">学习笔记 <span>{{ notes.length }}</span></a>
+      <a v-if="themes.little" href="#little">小角落</a>
+    </nav>
+
+    <section v-if="themes.world" :id="themes.world.id" class="space-panel home-world-intro"
+      :class="{ 'home-edit-selected': editingContent && selectedContentBlock === themes.world.id }"
+      tabindex="-1" @pointerdown.capture="selectTheme(themes.world.id)">
+      <div class="home-world-copy">
+        <ContentText tag="p" class="home-section-subtitle" :value="themes.world.subtitle" :block-id="themes.world.id" field="subtitle" />
+        <ContentText tag="h2" class="home-section-title" :value="themes.world.title" :block-id="themes.world.id" field="title" plain />
+        <ContentText tag="p" class="home-section-description" :value="themes.world.description" :block-id="themes.world.id" field="description" />
+        <RouterLink :to="themes.world.path" class="home-inline-link">
+          <ContentText tag="span" :value="themes.world.action" :block-id="themes.world.id" field="action" />
+          <svg viewBox="0 0 20 20" width="18" height="18" fill="none" aria-hidden="true"><path d="m8 5 5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        </RouterLink>
       </div>
-      <div class="pager-controls">
-        <button
-          class="pager-arrow"
-          :disabled="current === 0"
-          aria-label="上一屏"
-          @click="goTo(current - 1)"
-        >
-          ↑
-        </button>
-        <nav class="screen-navigation" aria-label="首页翻页目录">
-          <button
-            v-for="(item, index) in homeScreens"
-            :key="item.id"
-            :aria-current="current === index ? 'step' : undefined"
-            :aria-label="`翻到${index === 0 ? '首页' : item.title + '主题介绍'}`"
-            @click="goTo(index)"
-          >
-            <span class="screen-dot" aria-hidden="true"></span
-            ><span class="screen-nav-full">{{
-              index === 0 ? "首页" : item.title
-            }}</span
-            ><span class="screen-nav-short">{{ item.shortTitle }}</span>
-          </button>
-        </nav>
-        <button
-          class="pager-arrow"
-          :disabled="current === homeScreens.length - 1"
-          aria-label="下一屏"
-          @click="goTo(current + 1)"
-        >
-          ↓
-        </button>
-        <span class="screen-count" aria-live="polite"
-          >{{ String(current + 1).padStart(2, "0") }} /
-          {{ String(homeScreens.length).padStart(2, "0") }}</span
-        >
+      <figure v-if="themes.world.image" class="home-world-art">
+        <ArtworkImage :src="contentImage(themes.world.image)" sizes="(max-width: 600px) 120px, 230px" :alt="themes.world.alt" :style="{ objectPosition: themes.world.imagePosition }" loading="lazy" />
+        <figcaption>主题插画</figcaption>
+      </figure>
+    </section>
+
+    <section v-if="themes.music" :id="themes.music.id" class="space-panel home-music-feature"
+      :class="{ 'home-edit-selected': editingContent && selectedContentBlock === themes.music.id }"
+      tabindex="-1" @pointerdown.capture="selectTheme(themes.music.id)">
+      <header class="home-section-header">
+        <div>
+          <ContentText tag="p" class="home-section-subtitle" :value="themes.music.subtitle" :block-id="themes.music.id" field="subtitle" />
+          <ContentText tag="h2" class="home-section-title" :value="themes.music.title" :block-id="themes.music.id" field="title" plain />
+        </div>
+        <svg class="home-music-mark" viewBox="0 0 32 32" width="32" height="32" fill="none" aria-hidden="true"><path d="M12 23V8l15-3v15M12 12l15-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /><ellipse cx="7.5" cy="24" rx="4.5" ry="3.5" stroke="currentColor" stroke-width="1.7" /><ellipse cx="22.5" cy="21" rx="4.5" ry="3.5" stroke="currentColor" stroke-width="1.7" /></svg>
+      </header>
+      <ContentText tag="p" class="home-section-description" :value="themes.music.description" :block-id="themes.music.id" field="description" />
+      <div v-if="albums.length" class="home-albums">
+        <RouterLink v-for="album in albums" :key="album.id" :to="`/music#${album.id}`" class="home-album">
+          <img v-if="album.cover" :src="contentImage(album.cover.cover)" :alt="album.cover.alt" width="160" height="160" loading="lazy" />
+          <div class="home-album-copy">
+            <p v-if="album.artist" class="home-album-artist">{{ album.artist }}</p>
+            <ContentText tag="h3" :value="album.data.heading" />
+            <p class="home-album-count">{{ album.data.items.length }} 首歌曲</p>
+            <span class="home-album-action">查看专辑 <span aria-hidden="true">›</span></span>
+          </div>
+        </RouterLink>
       </div>
-    </div>
+      <RouterLink :to="themes.music.path" class="home-inline-link home-music-link">
+        <ContentText tag="span" :value="themes.music.action" :block-id="themes.music.id" field="action" />
+        <svg viewBox="0 0 20 20" width="18" height="18" fill="none" aria-hidden="true"><path d="m8 5 5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </RouterLink>
+    </section>
+
+    <section v-if="themes.world" id="home-unity-notes" class="home-notes-section" aria-labelledby="home-notes-title">
+      <header class="home-notes-heading">
+        <div><h2 id="home-notes-title">Unity Notes</h2><p>Unity 学习笔记</p></div>
+        <RouterLink to="/unity-notes" class="home-inline-link">全部 {{ notes.length }} 篇 <span aria-hidden="true">›</span></RouterLink>
+      </header>
+      <div v-if="notes.length" class="space-panel home-note-filters" role="group" aria-label="按分类筛选首页笔记">
+        <button :aria-pressed="category === ''" @click="category = ''">全部</button>
+        <button v-for="item in categories" :key="item" :aria-pressed="category === item" :title="item" @click="category = item">{{ categoryNames[item] || item }}</button>
+      </div>
+      <div class="home-note-results" aria-live="polite" aria-atomic="false">
+        <article v-for="note in previewNotes" :key="note.id" class="space-panel home-note-card">
+          <div class="home-note-meta"><span>{{ note.category || 'Unity 学习笔记' }}</span><time v-if="note.date" :datetime="note.date">{{ note.date }}</time></div>
+          <h3><RouterLink :to="`/unity-notes/${note.id}`">{{ note.title }}</RouterLink></h3>
+          <p v-if="noteSummary(note)" class="home-note-summary">{{ noteSummary(note) }}</p>
+          <div class="home-note-footer"><span class="home-note-tag">Unity</span><RouterLink :to="`/unity-notes/${note.id}`" class="home-note-read" :aria-label="`阅读${note.title}`">阅读笔记 <span aria-hidden="true">›</span></RouterLink></div>
+        </article>
+        <p v-if="!notes.length" class="space-panel home-note-empty">学习笔记正在整理，写好后会放在这里。</p>
+      </div>
+      <RouterLink v-if="matchingNotes.length > previewNotes.length" to="/unity-notes" class="space-panel home-more-notes">前往笔记目录，查看全部 {{ notes.length }} 篇 <span aria-hidden="true">›</span></RouterLink>
+    </section>
+
+    <section v-if="themes.little" :id="themes.little.id" class="space-panel home-little-feature"
+      :class="{ 'home-edit-selected': editingContent && selectedContentBlock === themes.little.id }"
+      tabindex="-1" @pointerdown.capture="selectTheme(themes.little.id)">
+      <div class="home-section-header">
+        <div><ContentText tag="p" class="home-section-subtitle" :value="themes.little.subtitle" :block-id="themes.little.id" field="subtitle" /><ContentText tag="h2" class="home-section-title" :value="themes.little.title" :block-id="themes.little.id" field="title" plain /></div>
+        <svg class="home-little-mark" viewBox="0 0 32 32" width="32" height="32" fill="none" aria-hidden="true"><path d="M7 5h18v17l-7 5H7V5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" /><path d="M18 27v-6h7M11 11h10M11 16h7" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" /></svg>
+      </div>
+      <figure v-if="quote" class="home-little-quote"><blockquote><ContentText tag="p" :value="quote.text" /></blockquote><figcaption v-if="quote.source">{{ quote.source }}</figcaption></figure>
+      <ContentText tag="p" class="home-section-description" :value="themes.little.description" :block-id="themes.little.id" field="description" />
+      <RouterLink :to="themes.little.path" class="home-inline-link"><ContentText tag="span" :value="themes.little.action" :block-id="themes.little.id" field="action" /><svg viewBox="0 0 20 20" width="18" height="18" fill="none" aria-hidden="true"><path d="m8 5 5 5-5 5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg></RouterLink>
+    </section>
   </div>
 </template>

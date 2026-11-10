@@ -18,6 +18,7 @@ function close(event) {
     <button
       ref="toggle"
       class="wallpaper-toggle"
+      :aria-label="`换张壁纸：${wallpaper.name}`"
       :aria-expanded="open"
       aria-controls="wallpaper-options"
       @click="open = !open"
