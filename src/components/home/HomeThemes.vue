@@ -80,9 +80,9 @@ function selectTheme(id) {
 </script>
 
 <template>
-  <div v-if="themes.length" ref="root" class="home-themes home-theme-pager" :class="{ 'is-still': still }"
+  <div v-if="themes.length" ref="root" class="home-themes home-theme-pager" :class="{ 'is-still': still, 'is-single-theme': themes.length === 1 }"
     :style="{ '--theme-direction': direction }" :data-current-theme="themes[current]?.id" :data-moving="moving"
-    role="region" aria-label="首页主题翻页" aria-roledescription="主题翻页" tabindex="0"
+    role="region" :aria-label="themes.length > 1 ? '首页主题翻页' : '首页小角落'" :aria-roledescription="themes.length > 1 ? '主题翻页' : undefined" tabindex="0"
     @wheel="onWheel" @keydown="onKeydown" @touchstart.passive="onTouchStart" @touchmove="onTouchMove"
     @touchend.passive="onTouchEnd" @touchcancel.passive="onTouchCancel" @click.capture="onClickCapture">
     <div ref="viewport" class="home-theme-stage" :aria-busy="moving">
@@ -92,7 +92,7 @@ function selectTheme(id) {
       :data-theme-active="index === current" :aria-hidden="index !== current" :inert="index !== current"
       :aria-labelledby="`home-theme-title-${theme.id}`" tabindex="-1" @pointerdown.capture="selectTheme(theme.id)">
       <div class="home-theme-copy">
-        <p class="home-theme-part"><span>{{ theme.number }} / </span><ContentText tag="span" plain :value="theme.subtitle" :block-id="theme.id" field="subtitle" /></p>
+        <p class="home-theme-part"><span v-if="themes.length > 1">{{ theme.number }} / </span><ContentText tag="span" plain :value="theme.subtitle" :block-id="theme.id" field="subtitle" /></p>
         <h2 :id="`home-theme-title-${theme.id}`" class="home-theme-title" tabindex="-1"><ContentText tag="span" plain :value="theme.title" :block-id="theme.id" field="title" /></h2>
         <ContentText tag="p" class="home-theme-description" :value="theme.description" :block-id="theme.id" field="description" />
         <RouterLink v-if="samples[theme.kind]" class="home-theme-excerpt" :to="samples[theme.kind].path">
@@ -108,8 +108,8 @@ function selectTheme(id) {
     </Transition>
     </div>
     <footer class="theme-pager-footer">
-      <span class="theme-pager-help"><span class="theme-help-desktop">滚动翻页</span><span class="theme-help-touch">滑动翻页</span></span>
-      <div class="theme-pager-controls">
+      <span v-if="themes.length > 1" class="theme-pager-help"><span class="theme-help-desktop">滚动翻页</span><span class="theme-help-touch">滑动翻页</span></span>
+      <div v-if="themes.length > 1" class="theme-pager-controls">
         <button class="theme-pager-arrow" aria-label="上一个主题" :disabled="current === 0" @click="goTo(current - 1, { align: true })">↑</button>
         <nav class="theme-pager-index" aria-label="首页主题目录">
           <button v-for="(theme, index) in themes" :key="theme.id" :aria-current="index === current ? 'step' : undefined" :aria-controls="theme.id" :aria-label="`翻到${theme.title}`" @click="goTo(index, { align: true })"><span class="theme-pager-dot" aria-hidden="true"></span><span class="theme-label-full">{{ theme.title }}</span><span class="theme-label-short">{{ theme.shortTitle || theme.title }}</span></button>

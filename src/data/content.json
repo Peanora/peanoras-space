@@ -2185,7 +2185,7 @@
           "type": "homeTheme",
           "label": "个人世界",
           "navLabel": "",
-          "hidden": false,
+          "hidden": true,
           "layout": {
             "preset": "original",
             "align": "left",
@@ -2218,7 +2218,7 @@
           "type": "homeTheme",
           "label": "音乐回忆",
           "navLabel": "",
-          "hidden": false,
+          "hidden": true,
           "layout": {
             "preset": "original",
             "align": "left",

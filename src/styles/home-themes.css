@@ -23,6 +23,8 @@
 .theme-pager-dot { width: 6px; height: 6px; flex-shrink: 0; border: 1px solid currentColor; border-radius: 50%; }
 .theme-pager-index button[aria-current] .theme-pager-dot { background: currentColor; }
 .theme-pager-count { min-width: 43px; color: var(--accent); font-size: 11px; font-variant-numeric: tabular-nums; text-align: center; white-space: nowrap; }
+.home-theme-pager.is-single-theme .theme-pager-footer { min-height: 56px; padding: 8px 20px; }
+.home-theme-pager.is-single-theme .theme-feed-link { min-height: 40px; margin-left: auto; }
 .home-theme { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: center; gap: clamp(36px, 5vw, 80px); min-width: 0; min-height: 590px; padding: 58px clamp(28px, 3.5vw, 56px); scroll-margin-top: 88px; }
 .home-theme + .home-theme { border-top: 1px solid var(--line); }
 .home-theme-copy { min-width: 0; }

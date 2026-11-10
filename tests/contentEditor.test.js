@@ -92,6 +92,16 @@ test("page-scoped edits and old World drafts preserve all other page content", (
 
 test("home invariants, nested photos, songs, notes and visible song selection are validated", () => {
   const document = clone(original);
+  for (const block of document.pages.home.blocks) block.hidden = false;
+  assert.doesNotThrow(() => validateContent(document), 'legacy all-visible home modules remain valid');
+  const homeBefore = clone(document.pages.home);
+  document.pages.home.blocks[1].hidden = true;
+  document.pages.home.blocks[2].hidden = true;
+  assert.equal(validateContent(document), document, 'hidden themes remain valid without dropping the fixed home modules');
+  assert.deepEqual(document.pages.home.blocks.filter(block => block.type === 'homeTheme' && !block.hidden).map(block => block.id), ['little']);
+  const restoredHome = clone(document.pages.home);
+  for (const block of restoredHome.blocks) block.hidden = false;
+  assert.deepEqual(restoredHome, homeBefore, 'hiding themes preserves their editable data and fixed entry routes');
   const songBlock = createBlock('songs', 'test-songs');
   const song = newSong('song-1');
   song.officialUrl = 'https://music.163.com/#/song?id=1982799628';
@@ -109,8 +119,15 @@ test("home invariants, nested photos, songs, notes and visible song selection ar
   document.pages.music.blocks.push(memory);
   assert.doesNotThrow(() => validateContent(document));
   for (const change of [
+    d => { d.pages.home.blocks[0].hidden = true; },
+    d => { d.pages.home.blocks.pop(); },
     d => { d.pages.home.blocks.reverse(); },
+    d => { d.pages.home.blocks[1].id = 'other-world'; },
+    d => { d.pages.home.blocks[1].type = 'homeCover'; },
+    d => { d.pages.home.blocks[1].data.kind = 'music'; },
+    d => { d.pages.home.blocks[1].data.path = '/music'; },
     d => { d.pages.home.blocks[1].data.path = 'https://evil.example'; },
+    d => { d.pages.home.blocks[1].hidden = 'true'; },
     d => { d.pages.music.blocks[0].data.items[0].neteaseId = '123&auto=1'; },
     d => { d.pages.music.blocks[0].data.items[0].officialUrl = 'javascript:alert(1)'; },
     d => { d.pages.music.blocks[1].data.items[0].photos[0].src = '/../../secret.png'; },

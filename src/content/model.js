@@ -87,7 +87,7 @@ export function validateContent(document) {
   if (!page) fail("页面缺失");
   if (typeof page.title !== "string" || typeof page.eyebrow !== "string" || !Array.isArray(page.blocks) || page.blocks.length > 100) fail("页面内容格式不正确，最多支持 100 个模块");
   if (pageId === "music" && ["titleFirst", "titleLast", "disclaimer"].some((key) => typeof page[key] !== "string")) fail("音乐页标题或说明缺失");
-  if (pageId === "home" && (page.blocks.length !== 4 || page.blocks.some((block, index) => block.id !== homeOrder[index] || block.hidden || block.type !== (index === 0 ? "homeCover" : "homeTheme") || (index > 0 && (block.data.kind !== block.id || block.data.path !== homePaths[block.id]))))) fail("首页必须保留封面、个人世界、音乐、小角落四屏及固定入口");
+  if (pageId === "home" && (page.blocks.length !== 4 || page.blocks.some((block, index) => block.id !== homeOrder[index] || (index === 0 && block.hidden) || block.type !== (index === 0 ? "homeCover" : "homeTheme") || (index > 0 && (block.data.kind !== block.id || block.data.path !== homePaths[block.id]))))) fail("首页必须保留可见封面、三个固定主题模块及其入口");
   if (pageId === "little" && page.blocks.filter((block) => block.type === "notes").length > 1) fail("小角落保留一个纸条与收藏模块，请在其中添加条目");
   const ids = new Set();
   const noteIds = new Set();
