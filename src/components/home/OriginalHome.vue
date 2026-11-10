@@ -51,6 +51,12 @@ const {
     if (source !== 'keyboard') root.value?.focus({ preventScroll: true });
   },
 });
+// Keep visited scenes mounted so their paper state survives a return visit,
+// while unopened scenes cannot race the browser's lazy-image heuristics.
+const visitedScenes = ref(new Set());
+watch(() => screens.value[current.value]?.id, id => {
+  if (id) visitedScenes.value.add(id);
+}, { immediate: true });
 function select(id) {
   if (editingContent.value) publishEditorEvent({ type: 'select', pageId: 'home', blockId: id });
 }
@@ -101,7 +107,7 @@ onUnmounted(() => {
               <button class="screen-entry cover-entry" @click="!editingContent && goTo(1, { align: false })"><ContentText tag="span" plain :value="cover.entry" block-id="cover" field="entry" /><span aria-hidden="true">↓</span></button>
             </div>
             <div class="cover-portrait">
-              <figure class="cover-print"><ArtworkImage :src="wallpaper.src" sizes="(max-width: 720px) 40vw, 460px" alt="" :style="{ objectPosition: wallpaper.position }" /><figcaption>{{ wallpaper.name }}</figcaption></figure>
+              <figure class="cover-print"><ArtworkImage :src="wallpaper.src" sizes="(max-width: 720px) 40vw, 460px" loading="eager" fetchpriority="high" alt="" :style="{ objectPosition: wallpaper.position }" /><figcaption>{{ wallpaper.name }}</figcaption></figure>
               <button class="portrait-photo" :class="{ 'is-bouncing': portraitBouncing }" aria-label="和 Peanora 打个招呼" @click="portraitBouncing = !reduced" @animationend.self="portraitBouncing = false">
                 <img v-if="cover.avatar" :src="contentImage(cover.avatar)" :style="{ objectPosition: appearance.avatarPosition }" alt="Peanora 使用的二次元头像" width="280" height="280" fetchpriority="high" />
                 <ContentText tag="span" plain class="portrait-note" :value="cover.portraitNote" block-id="cover" field="portraitNote" />
@@ -119,7 +125,7 @@ onUnmounted(() => {
               <RouterLink v-if="samples[screen.kind]" class="chapter-excerpt" :to="samples[screen.kind].path"><small>{{ samples[screen.kind].label }}</small><span>{{ samples[screen.kind].text }}</span><i aria-hidden="true">↗</i></RouterLink>
               <RouterLink :to="screen.path" class="screen-entry"><ContentText tag="span" plain :value="screen.action" :block-id="screen.id" field="action" /><span aria-hidden="true">↗</span></RouterLink>
             </div>
-            <HomeScene :screen="screen" />
+            <HomeScene v-if="visitedScenes.has(screen.id)" :screen="screen" />
           </div>
         </section>
       </Transition>

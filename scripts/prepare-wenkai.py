@@ -1,10 +1,11 @@
-"""Create a current-content WOFF2 face and disjoint Unicode fallback shards.
+"""Create a home/shell WOFF2 face and disjoint Unicode fallback shards.
 
 Usage: python scripts/prepare-wenkai.py path/to/LXGWWenKaiLite-Regular.ttf
 Requires fonttools[woff]. Font source: https://github.com/lxgw/LxgwWenKai-Lite
 The OFL and additional web conversion permission are shipped with the font.
 """
 import argparse
+import json
 from pathlib import Path
 import site
 from collections import defaultdict
@@ -24,9 +25,32 @@ font_dir = root / "src/assets/fonts"
 font = TTFont(args.source or font_dir / "LXGWWenKaiLite-Regular.woff2", recalcTimestamp=False)
 supported = set(font.getBestCmap())
 characters = set(range(32, 127))
-for source in (root / "src").rglob("*"):
-    if source.suffix in (".vue", ".js", ".json"):
-        characters.update(map(ord, source.read_text(encoding="utf-8")))
+# Keep the first-visit face focused on the shell and home. Including all note
+# bodies here would make every visitor download the entire reading vocabulary.
+sources = [root / "src/App.vue"]
+for folder in ("layout", "home", "ui"):
+    sources.extend((root / f"src/components/{folder}").glob("*.vue"))
+sources.extend(root / f"src/components/content/{name}.vue" for name in ("HomeScene", "ChapterTicket"))
+sources.extend((root / "src/data").glob("*.js"))
+for source in sources:
+    characters.update(map(ord, source.read_text(encoding="utf-8")))
+
+content = json.loads((root / "src/data/content.json").read_text(encoding="utf-8"))
+shell_content = [content["pages"]["home"]]
+for block in content["pages"]["world"]["blocks"]:
+    if block["type"] == "profile":
+        shell_content.append(block["data"])
+    elif block["type"] == "unityNotes":
+        shell_content.extend({key: note.get(key, "") for key in ("title", "category")}
+                             for note in block["data"]["items"] if not note.get("draft"))
+for block in content["pages"]["music"]["blocks"]:
+    if block["type"] == "songs" and not block.get("hidden"):
+        shell_content.extend({key: song.get(key, "") for key in ("title", "artist")}
+                             for song in block["data"]["items"])
+for block in content["pages"]["little"]["blocks"]:
+    if block["type"] == "notes" and not block.get("hidden"):
+        shell_content.append(block["data"])
+characters.update(map(ord, json.dumps(shell_content, ensure_ascii=False)))
 characters &= supported
 blocks = defaultdict(set)
 for codepoint in supported - characters:

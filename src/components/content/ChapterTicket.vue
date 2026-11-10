@@ -7,7 +7,7 @@ defineProps({ chapter:Object, sample:Object });
   <button class="chapter-ticket" :class="'ticket-'+chapter.kind" :aria-label="`翻到${chapter.bookmark}主题介绍`">
     <span class="ticket-stage">
       <span v-if="chapter.kind === 'music'" class="ticket-vinyl" aria-hidden="true"></span>
-      <ArtworkImage v-if="chapter.image" :src="chapter.image" sizes="(max-width:720px) 130px, 400px" alt="" class="ticket-art" />
+      <ArtworkImage v-if="chapter.image" :src="chapter.image" :thumbnail="chapter.kind !== 'world'" sizes="(max-width: 767px) 130px, (max-width: 1023px) 30vw, 320px" alt="" class="ticket-art" />
       <small v-if="chapter.kind === 'music' && chapter.image" class="sleeve-credit">主题插画</small>
       <span v-if="sample && chapter.kind !== 'world'" class="ticket-sample"><ContentText tag="span" :value="sample.text" /><small>{{ sample.label }}</small></span>
     </span>

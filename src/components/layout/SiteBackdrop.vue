@@ -9,8 +9,8 @@ const { wallpaper } = useAppearance();
       <ArtworkImage
         :key="wallpaper.id"
         :src="wallpaper.src"
-        sizes="100vw"
-        background
+        :responsive="false"
+        loading="eager"
         fetchpriority="low"
         alt=""
         :style="{ objectPosition: wallpaper.position }"

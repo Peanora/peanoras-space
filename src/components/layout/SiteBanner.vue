@@ -25,7 +25,7 @@ function selectCover() { if (editingContent.value && isHome.value) publishEditor
 </script>
 <template>
   <section id="cover" class="space-banner" :class="{ 'is-still': still }" aria-label="空间封面">
-    <ArtworkImage class="space-banner-art" :src="wallpaper.src" sizes="100vw" background alt="" fetchpriority="high" :style="{ objectPosition: wallpaper.position }" />
+    <ArtworkImage class="space-banner-art" :src="wallpaper.src" sizes="100vw" background loading="eager" alt="" fetchpriority="high" :style="{ objectPosition: wallpaper.position }" />
     <div class="space-banner-shade" aria-hidden="true"></div>
     <div v-if="isHome" class="space-banner-copy" @pointerdown="selectCover">
       <ContentText v-if="editingContent" tag="h1" plain class="space-banner-title" tabindex="-1" :value="cover?.name" block-id="cover" field="name" />
