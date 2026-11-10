@@ -1,0 +1,74 @@
+{
+  "tracks": {
+    "culprit2-01": {
+      "src": "/audio/hanser/culprit2-01.flac",
+      "bytes": 40685127,
+      "sha256": "c64af0d7aae9beced112cd68c2554cabc37b4665987d1ae50462b78a652d4bbd"
+    },
+    "culprit2-02": {
+      "src": "/audio/hanser/culprit2-02.mp3",
+      "bytes": 3387488,
+      "sha256": "e94e14f11e9c48c14be6d042b24f820e5495778470eeb11dc02a37c7fdf7cc5a"
+    },
+    "culprit2-03": {
+      "src": "/audio/hanser/culprit2-03.flac",
+      "bytes": 24925642,
+      "sha256": "39fb7321607204e225c1fa071222b89b8358c831b571dc48f2a0cb73516551d5"
+    },
+    "culprit2-04": {
+      "src": "/audio/hanser/culprit2-04.mp3",
+      "bytes": 3737904,
+      "sha256": "58b6d355e709b8a38e099fc1da8ac47c39db9fe8d51e5cd86f5d6cafd97c9fa7"
+    },
+    "netease-1982798726": {
+      "src": "/audio/hanser/netease-1982798726.flac",
+      "bytes": 3238488,
+      "sha256": "e719822ee6efe0002876ea96bf130373028ca691021b9b71db19d285a5974b2a"
+    },
+    "netease-1982796624": {
+      "src": "/audio/hanser/netease-1982796624.flac",
+      "bytes": 29326110,
+      "sha256": "e25cce5fb2e33790e6cb5106721437fbfad1a4cb20906367a0ec856bf49d7581"
+    },
+    "netease-1982796625": {
+      "src": "/audio/hanser/netease-1982796625.flac",
+      "bytes": 21648010,
+      "sha256": "33937602a2f60760e1d08f661a77f1ed5c596e8e4a761410a1a47b929fd4d715"
+    },
+    "netease-1982798727": {
+      "src": "/audio/hanser/netease-1982798727.flac",
+      "bytes": 22977476,
+      "sha256": "a6863defbe7e7c7f13289d5fe05513026590af20145674ff0ba41e4a8f1d17f8"
+    },
+    "netease-1982798728": {
+      "src": "/audio/hanser/netease-1982798728.flac",
+      "bytes": 23790399,
+      "sha256": "e42e05a42f50bf31981b12b1c03d2c4b79e751e837755930ff09689c1d34a08c"
+    },
+    "netease-1982798729": {
+      "src": "/audio/hanser/netease-1982798729.flac",
+      "bytes": 30012587,
+      "sha256": "2b31d2a9b1aefb2fd1892eebd25d71914b451d1d5d3b91eb47e9a20456fc739a"
+    },
+    "netease-1982798730": {
+      "src": "/audio/hanser/netease-1982798730.flac",
+      "bytes": 30988864,
+      "sha256": "d0bf6011f9555594266ed8e50e322dd056628e480686863f3f9db0ae91e5a60d"
+    },
+    "netease-1982796627": {
+      "src": "/audio/hanser/netease-1982796627.flac",
+      "bytes": 30329361,
+      "sha256": "1def97b047ca57586965af519b6dac0c77209a7395ecc2b1bfae222f7baa3b24"
+    },
+    "netease-1982799628": {
+      "src": "/audio/hanser/netease-1982799628.flac",
+      "bytes": 31268048,
+      "sha256": "ef98167d25885a1fd42777bdef499aeb24ba5ae4ee528b7558a5c4afb06f2b92"
+    },
+    "netease-1982796626": {
+      "src": "/audio/hanser/netease-1982796626.flac",
+      "bytes": 4665973,
+      "sha256": "0ee30bfdaceb3317bcf7b28fb75cf999d8809a6da8723288154ceccea2a7bb5a"
+    }
+  }
+}

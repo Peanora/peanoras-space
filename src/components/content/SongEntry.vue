@@ -1,5 +1,5 @@
 <script setup>
-import { officialEmbedUrl, localAudioUrl, useMusicPlayer } from "../../composables/useMusicPlayer";
+import { officialEmbedUrl, nativeAudioUrl, useMusicPlayer } from "../../composables/useMusicPlayer";
 import ContentText from "./ContentText.vue";
 const { loadSong } = useMusicPlayer();
 defineProps({
@@ -29,7 +29,7 @@ defineProps({
       <span v-if="song.isPlaceholder" class="muted small">歌曲信息待补充</span>
     </div>
     <div class="song-play song-actions">
-    <button v-if="officialEmbedUrl(song) || localAudioUrl(song)" class="text-link" @click="loadSong(song)">{{ localAudioUrl(song) ? '播放音乐' : '打开播放器' }}</button>
+    <button v-if="officialEmbedUrl(song) || nativeAudioUrl(song)" class="text-link" @click="loadSong(song)">{{ nativeAudioUrl(song) ? '播放音乐' : '打开播放器' }}</button>
     <a
       v-if="song.officialUrl"
       class="text-link"

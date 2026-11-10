@@ -1,4 +1,5 @@
 import { computed, ref, shallowRef } from "vue";
+import publishedAudio from '../data/audio.json' with { type: 'json' };
 
 export function officialEmbedUrl(song) {
   const qqId = String(song?.qqSongId || '');
@@ -19,21 +20,23 @@ const repeatOne = ref(false), lastAudibleVolume = ref(0.7);
 const muted = computed(() => volume.value === 0);
 let audio = null, detachAudio = null, playbackVersion = 0;
 
-export function localAudioUrl(song) {
+export function nativeAudioUrl(song) {
   const src = localTracks.value[song?.id]?.src;
-  if (typeof src !== 'string' || !src.startsWith('/.local-audio/') || /[?#\\]/.test(src)) return null;
-  try {
-    const path = decodeURIComponent(src);
-    if (/[\\\u0000-\u001f]/.test(path) || path.split('/').some(part => part === '..' || part === '.')) return null;
-    return src;
-  } catch { return null; }
+  if (typeof src === 'string' && src.startsWith('/.local-audio/') && !/[?#\\]/.test(src)) {
+    try {
+      const path = decodeURIComponent(src);
+      if (!/[\\\u0000-\u001f]/.test(path) && !path.split('/').some(part => part === '..' || part === '.')) return src;
+    } catch { /* Invalid preview paths fall back to an approved public source. */ }
+  }
+  const published = publishedAudio.tracks[song?.id]?.src;
+  return typeof published === 'string' && /^\/audio\/hanser\/[a-z0-9-]+\.(?:flac|mp3)$/.test(published) ? published : null;
 }
 export function setLocalAudioCatalog(catalog) {
   localTracks.value = catalog?.tracks && typeof catalog.tracks === 'object' && !Array.isArray(catalog.tracks) ? catalog.tracks : {};
 }
-const nativeSource = computed(() => localAudioUrl(activeSong.value));
+const nativeSource = computed(() => nativeAudioUrl(activeSong.value));
 const embedUrl = computed(() => nativeSource.value ? null : officialEmbedUrl(activeSong.value));
-function playable(song) { return Boolean(localAudioUrl(song) || officialEmbedUrl(song)); }
+function playable(song) { return Boolean(nativeAudioUrl(song) || officialEmbedUrl(song)); }
 function resetPosition() { currentTime.value = 0; duration.value = 0; playing.value = false; }
 function unloadAudio() {
   playbackVersion += 1;
@@ -60,8 +63,8 @@ function playNative() {
 }
 function loadSong(song) {
   if (!playable(song)) return false;
-  const source = localAudioUrl(song);
-  const changed = activeSong.value?.id !== song.id || localAudioUrl(activeSong.value) !== source || officialEmbedUrl(activeSong.value) !== officialEmbedUrl(song);
+  const source = nativeAudioUrl(song);
+  const changed = activeSong.value?.id !== song.id || nativeAudioUrl(activeSong.value) !== source || officialEmbedUrl(activeSong.value) !== officialEmbedUrl(song);
   selectedSong.value = song;
   if (changed) { unloadAudio(); activeSong.value = song; }
   expanded.value = true;
@@ -119,7 +122,7 @@ export function useMusicPlayer() {
   return {
     expanded, activeSong, selectedSong, embedUrl, revision, loadSong, chooseSong, stop,
     nativeSource, playing, currentTime, duration, volume, nativeStatus, muted, repeatOne,
-    localAudioUrl, setLocalAudioCatalog, attachAudio, releaseAudio, pause, seek, setVolume, toggleMute, setRepeatOne, toggleRepeat,
+    nativeAudioUrl, setLocalAudioCatalog, attachAudio, releaseAudio, pause, seek, setVolume, toggleMute, setRepeatOne, toggleRepeat,
     retry: () => { if (nativeSource.value) { unloadAudio(); playNative(); } else if (activeSong.value) revision.value += 1; },
   };
 }

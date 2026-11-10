@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { localAudioUrl, musicPlatformName, officialEmbedUrl, setLocalAudioCatalog, useMusicPlayer } from "../src/composables/useMusicPlayer.js";
+import { nativeAudioUrl, musicPlatformName, officialEmbedUrl, setLocalAudioCatalog, useMusicPlayer } from "../src/composables/useMusicPlayer.js";
 
 test("official embedding is click-only, shared across pages and explicitly stoppable", () => {
-  const song = { id: "netease-1982799628", neteaseId: "1982799628", title: "它像一颗" };
+  const song = { id: "official-only-netease", neteaseId: "1982799628", title: "它像一颗" };
   const first = useMusicPlayer();
   const second = useMusicPlayer();
   first.stop();
@@ -57,8 +57,8 @@ test('switching between QQ and NetEase replaces the frame, while reopening a tra
 
 test('choosing a song waits for explicit loading, switches an existing player and remembers the choice after stopping', () => {
   const player = useMusicPlayer();
-  const first = { id: 'netease-1982799628', title: '它像一颗', neteaseId: '1982799628' };
-  const second = { id: 'culprit2-01', title: '二次元凶', neteaseId: '', qqSongId: '610333693' };
+  const first = { id: 'official-only-netease', title: '它像一颗', neteaseId: '1982799628' };
+  const second = { id: 'official-only-qq', title: '二次元凶', neteaseId: '', qqSongId: '610333693' };
   player.stop();
   player.selectedSong.value = null;
   player.expanded.value = true;
@@ -95,6 +95,31 @@ class TestAudio extends EventTarget {
   play() { this.playCalls += 1; return Promise.resolve(); }
   pause() { this.dispatchEvent(new Event('pause')); }
 }
+
+test('approved public songs use native audio without loading a source until play', () => {
+  const player = useMusicPlayer();
+  const element = new TestAudio();
+  const song = { id: 'netease-1982796624', title: '不需等天晴', neteaseId: '1982796624' };
+  player.stop();
+  setLocalAudioCatalog({ tracks: {} });
+  player.attachAudio(element);
+  assert.equal(nativeAudioUrl(song), '/audio/hanser/netease-1982796624.flac');
+  player.chooseSong(song);
+  assert.equal(element.getAttribute('src'), null);
+  assert.equal(element.playCalls, 0);
+  assert.equal(player.loadSong(song), true);
+  assert.equal(element.getAttribute('src'), '/audio/hanser/netease-1982796624.flac');
+  assert.equal(player.embedUrl.value, null, 'Public playback does not open an official iframe');
+  assert.equal(element.loop, false);
+  element.dispatchEvent(new Event('playing'));
+  assert.equal(player.playing.value, true);
+  setLocalAudioCatalog({ tracks: { [song.id]: { src: '/.local-audio/test.wav' } } });
+  assert.equal(nativeAudioUrl(song), '/.local-audio/test.wav', 'Dev preview can override the public source');
+  player.releaseAudio();
+  setLocalAudioCatalog({ tracks: {} });
+  player.selectedSong.value = null;
+  player.expanded.value = false;
+});
 
 test('native playback waits for explicit play and media events, survives shared access, and stops without forgetting the track', () => {
   const player = useMusicPlayer();
@@ -141,7 +166,7 @@ test('local preview catalog rejects external URLs and traversal while keeping th
   const song = { id: 'test-source', neteaseId: '1982799628' };
   for (const src of ['https://example.com/song.mp3', '/.local-audio/../secret.mp3', '/.local-audio/%2e%2e/secret.mp3', '/.local-audio/%5csecret.mp3', '/.local-audio/file.mp3?x=1']) {
     setLocalAudioCatalog({ tracks: { [song.id]: { src } } });
-    assert.equal(localAudioUrl(song), null);
+    assert.equal(nativeAudioUrl(song), null);
   }
   const player = useMusicPlayer();
   player.loadSong(song);

@@ -22,22 +22,22 @@ const musicIcons = {
 
 const {
   expanded, activeSong, selectedSong, embedUrl, revision, loadSong, chooseSong, stop, retry,
-  nativeSource, playing, currentTime, duration, volume, nativeStatus, muted, repeatOne, localAudioUrl,
+  nativeSource, playing, currentTime, duration, volume, nativeStatus, muted, repeatOne, nativeAudioUrl,
   setLocalAudioCatalog, attachAudio, releaseAudio, pause, seek, setVolume, toggleMute, toggleRepeat,
 } = useMusicPlayer();
 const albums = computed(() => contentDocument.value.pages.music.blocks
   .filter(block => block.type === 'songs' && !block.hidden)
-  .map(block => ({ id: block.id, label: block.label, songs: block.data.items.filter(song => officialEmbedUrl(song) || localAudioUrl(song)) }))
+  .map(block => ({ id: block.id, label: block.label, songs: block.data.items.filter(song => officialEmbedUrl(song) || nativeAudioUrl(song)) }))
   .filter(album => album.songs.length));
 const songs = computed(() => albums.value.flatMap(album => album.songs));
-const selected = computed(() => activeSong.value || selectedSong.value || songs.value.find(song => localAudioUrl(song)) || songs.value[0]);
-const hasLocalAudio = computed(() => Boolean(localAudioUrl(selected.value)));
+const selected = computed(() => activeSong.value || selectedSong.value || songs.value.find(song => nativeAudioUrl(song)) || songs.value[0]);
+const hasNativeAudio = computed(() => Boolean(nativeAudioUrl(selected.value)));
 const platform = computed(() => musicPlatformName(selected.value));
 const officialUrl = computed(() => safeLink(selected.value?.officialUrl));
 const playlistOpen = ref(false), heading = ref(null), audioElement = ref(null), frameStatus = ref('');
 const { still } = useAmbientMotion();
 const nativePlaying = computed(() => Boolean(nativeSource.value && playing.value));
-const playbackLabel = computed(() => hasLocalAudio.value ? nativePlaying.value ? '暂停播放' : '播放音乐' : embedUrl.value ? '停止播放' : '加载官方播放器');
+const playbackLabel = computed(() => hasNativeAudio.value ? nativePlaying.value ? '暂停播放' : '播放音乐' : embedUrl.value ? '停止播放' : '加载官方播放器');
 const repeatLabel = computed(() => repeatOne.value ? '关闭单曲循环' : '开启单曲循环');
 const progressFill = computed(() => `${duration.value > 0 ? Math.min(100, Math.max(0, currentTime.value / duration.value * 100)) : 0}%`);
 let frameTimer;
@@ -46,7 +46,7 @@ function formatTime(seconds) {
   return `${Math.floor(value / 60)}:${String(Math.floor(value % 60)).padStart(2, '0')}`;
 }
 function play() {
-  if (hasLocalAudio.value) { if (nativePlaying.value) pause(); else loadSong(selected.value); }
+  if (hasNativeAudio.value) { if (nativePlaying.value) pause(); else loadSong(selected.value); }
   else if (embedUrl.value) stop();
   else loadSong(selected.value);
 }
@@ -101,7 +101,7 @@ onUnmounted(() => { clearTimeout(frameTimer); releaseAudio(); });
 <template>
   <audio ref="audioElement" class="music-audio" preload="none"></audio>
   <button v-if="expanded" class="music-mobile-backdrop" aria-label="收起音乐播放器" @click="collapse"></button>
-  <section v-if="selected" id="music-panel" class="space-panel firefly-widget firefly-music music-widget" :class="{ 'is-expanded': expanded, 'has-local-audio': hasLocalAudio, 'is-still': still }" aria-labelledby="music-panel-heading" @keydown="onEscape">
+  <section v-if="selected" id="music-panel" class="space-panel firefly-widget firefly-music music-widget" :class="{ 'is-expanded': expanded, 'has-native-audio': hasNativeAudio, 'is-still': still }" aria-labelledby="music-panel-heading" @keydown="onEscape">
     <div class="music-panel-top">
       <h2 id="music-panel-heading" ref="heading" tabindex="-1" class="space-widget-title">音乐</h2>
       <button class="music-panel-close" aria-label="收起音乐播放器" @click="collapse">×</button>
@@ -117,17 +117,17 @@ onUnmounted(() => { clearTimeout(frameTimer); releaseAudio(); });
         <div class="music-time-volume">
           <span class="music-time">{{ formatTime(currentTime) }} / {{ formatTime(duration) }}</span>
           <div class="music-volume">
-            <button class="music-mute-button" :aria-label="muted ? '取消静音' : '静音'" :title="muted ? '取消静音' : '静音'" :aria-pressed="muted" :disabled="!hasLocalAudio" @click="toggleMute"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="muted ? musicIcons.mute : musicIcons.volume" /></svg></button>
-            <input class="music-range" type="range" min="0" max="1" step="0.01" :value="volume" :style="{ '--range-fill': `${volume * 100}%` }" :disabled="!hasLocalAudio" aria-label="音量" @input="setVolume($event.target.value)" />
+            <button class="music-mute-button" :aria-label="muted ? '取消静音' : '静音'" :title="muted ? '取消静音' : '静音'" :aria-pressed="muted" :disabled="!hasNativeAudio" @click="toggleMute"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="muted ? musicIcons.mute : musicIcons.volume" /></svg></button>
+            <input class="music-range" type="range" min="0" max="1" step="0.01" :value="volume" :style="{ '--range-fill': `${volume * 100}%` }" :disabled="!hasNativeAudio" aria-label="音量" @input="setVolume($event.target.value)" />
           </div>
         </div>
       </div>
     </div>
-    <label class="music-progress"><span class="sr-only">播放进度</span><input class="music-range" type="range" min="0" :max="duration || 1" step="0.1" :value="currentTime" :style="{ '--range-fill': progressFill }" :disabled="!hasLocalAudio || !duration" aria-label="播放进度" :aria-valuetext="`${formatTime(currentTime)} / ${formatTime(duration)}`" @input="seek($event.target.value)" /></label>
+    <label class="music-progress"><span class="sr-only">播放进度</span><input class="music-range" type="range" min="0" :max="duration || 1" step="0.1" :value="currentTime" :style="{ '--range-fill': progressFill }" :disabled="!hasNativeAudio || !duration" aria-label="播放进度" :aria-valuetext="`${formatTime(currentTime)} / ${formatTime(duration)}`" @input="seek($event.target.value)" /></label>
     <div class="music-controls">
-      <button class="music-control music-repeat" :class="{ 'is-active': repeatOne }" :aria-label="repeatLabel" :title="repeatLabel" :aria-pressed="repeatOne" :disabled="!hasLocalAudio" @click="toggleRepeat"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="repeatOne ? musicIcons.repeatOne : musicIcons.repeat" /></svg></button>
+      <button class="music-control music-repeat" :class="{ 'is-active': repeatOne }" :aria-label="repeatLabel" :title="repeatLabel" :aria-pressed="repeatOne" :disabled="!hasNativeAudio" @click="toggleRepeat"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="repeatOne ? musicIcons.repeatOne : musicIcons.repeat" /></svg></button>
       <button class="music-control music-skip" aria-label="上一首" title="上一首" @click="step(-1)"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="musicIcons.previous" /></svg></button>
-      <button class="music-play-button" :class="{ 'is-playing': nativePlaying }" :aria-label="playbackLabel" :title="playbackLabel" @click="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path v-if="nativePlaying" :d="musicIcons.pause" /><path v-else-if="!hasLocalAudio && embedUrl" d="M6 6h12v12H6Z" /><path v-else :d="musicIcons.play" /></svg></button>
+      <button class="music-play-button" :class="{ 'is-playing': nativePlaying }" :aria-label="playbackLabel" :title="playbackLabel" @click="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path v-if="nativePlaying" :d="musicIcons.pause" /><path v-else-if="!hasNativeAudio && embedUrl" d="M6 6h12v12H6Z" /><path v-else :d="musicIcons.play" /></svg></button>
       <button class="music-control music-skip" aria-label="下一首" title="下一首" @click="step(1)"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="musicIcons.next" /></svg></button>
       <button class="music-control" aria-label="选择歌曲" title="歌单" aria-controls="music-playlist" :aria-expanded="playlistOpen" @click="playlistOpen = !playlistOpen"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="musicIcons.playlist" /></svg></button>
     </div>
@@ -144,7 +144,7 @@ onUnmounted(() => { clearTimeout(frameTimer); releaseAudio(); });
           <button :disabled="!activeSong" @click="retry">重试</button>
           <button aria-label="停止并卸载播放器" :disabled="!activeSong" @click="stop">停止</button>
         </div>
-        <p v-if="hasLocalAudio" class="music-footnote">本机试听 · 收起或换页继续播放</p>
+        <p v-if="hasNativeAudio" class="music-footnote">收起或换页继续播放</p>
         <template v-else>
           <p class="music-footnote">{{ platform }} · 点击加载后，在官方播放器内播放。</p>
           <p v-if="selected.qqSongId" class="music-footnote">完整收听以 QQ 音乐的登录及购买权限为准。</p>
@@ -154,7 +154,7 @@ onUnmounted(() => { clearTimeout(frameTimer); releaseAudio(); });
     <div v-if="embedUrl" class="official-player">
       <iframe :key="`${embedUrl}-${revision}`" :src="embedUrl" :title="`${platform}官方播放器：${activeSong.title}`" width="248" height="90" referrerpolicy="strict-origin-when-cross-origin" @load="frameLoaded" @error="frameFailed"></iframe>
     </div>
-    <p v-if="hasLocalAudio && nativeStatus" :class="nativeStatus === '播放结束' ? 'sr-only' : 'music-status'" role="status">{{ nativeStatus }}</p>
+    <p v-if="hasNativeAudio && nativeStatus" :class="nativeStatus === '播放结束' ? 'sr-only' : 'music-status'" role="status">{{ nativeStatus }}</p>
     <p v-else-if="embedUrl" class="music-status" role="status">{{ frameStatus }}</p>
   </section>
 </template>

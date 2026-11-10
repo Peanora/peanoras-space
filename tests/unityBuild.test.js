@@ -22,8 +22,12 @@ test('real production build emits published note HTML and excludes draft bodies 
     await mkdir(join(root, '.local-audio'));
     await writeFile(join(root, '.local-audio/catalog.json'), JSON.stringify({ tracks: { private: { src: '/.local-audio/PRIVATE_AUDIO_73.mp3' } } }));
     await writeFile(join(root, '.local-audio/PRIVATE_AUDIO_73.mp3'), 'PRIVATE_AUDIO_BYTES_73');
+    // Approved public assets are copied; the private preview directory is not.
+    await mkdir(join(root, 'public/audio/hanser'), { recursive: true });
+    await writeFile(join(root, 'public/audio/hanser/netease-1982796624.flac'), 'APPROVED_AUDIO_FIXTURE_91');
     await build({root,logLevel:'silent'});
     assert.ok(!(await readdir(join(root, 'dist'))).includes('.local-audio'));
+    assert.equal(await readFile(join(root, 'dist/audio/hanser/netease-1982796624.flac'), 'utf8'), 'APPROVED_AUDIO_FIXTURE_91');
     const html=await readFile(join(root,'dist/unity-notes/build-check/index.html'),'utf8');
     assert.ok(html.includes('构建验收文章'));assert.ok(html.includes('静态描述检查'));
     assert.ok(html.includes('https://peanora.cn/unity-notes/build-check/'));
@@ -38,6 +42,7 @@ test('real production build emits published note HTML and excludes draft bodies 
     assert.ok(js.some(s=>s.includes('构建验收正文')));
     assert.ok(!js.some(s=>s.includes('PRIVATE_DRAFT_BODY_47')||s.includes('DRAFT_SECRET_47')||s.includes('本地内容工作台')));
     assert.ok(!js.some(s=>s.includes('/.local-audio/catalog.json') || s.includes('PRIVATE_AUDIO_73') || s.includes('PRIVATE_AUDIO_BYTES_73')));
+    assert.ok(js.some(s=>s.includes('/audio/hanser/netease-1982796624.flac')), 'Public native catalog must reach production');
   } finally {
     if(dirname(resolve(root))!==resolve(tmpdir())||!basename(root).startsWith('peanora-unity-build-')) throw new Error('Unexpected test workspace');
     await rm(root,{recursive:true,force:true});
