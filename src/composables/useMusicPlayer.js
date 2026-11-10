@@ -15,6 +15,8 @@ export const musicPlatformName = song => song?.qqSongId ? 'QQ 音乐' : '网易�
 const expanded = ref(false), activeSong = shallowRef(null), selectedSong = shallowRef(null);
 const revision = ref(0), localTracks = shallowRef({});
 const playing = ref(false), currentTime = ref(0), duration = ref(0), volume = ref(0.7), nativeStatus = ref('');
+const repeatOne = ref(false), lastAudibleVolume = ref(0.7);
+const muted = computed(() => volume.value === 0);
 let audio = null, detachAudio = null, playbackVersion = 0;
 
 export function localAudioUrl(song) {
@@ -35,7 +37,7 @@ function playable(song) { return Boolean(localAudioUrl(song) || officialEmbedUrl
 function resetPosition() { currentTime.value = 0; duration.value = 0; playing.value = false; }
 function unloadAudio() {
   playbackVersion += 1;
-  if (audio) { audio.pause(); audio.removeAttribute('src'); audio.load(); }
+  if (audio) { audio.pause(); audio.loop = false; audio.removeAttribute('src'); audio.load(); }
   resetPosition();
 }
 function playNative() {
@@ -47,6 +49,7 @@ function playNative() {
     audio.pause(); resetPosition(); audio.setAttribute('src', nativeSource.value); audio.load();
   }
   audio.volume = volume.value;
+  audio.loop = repeatOne.value;
   const pending = audio.play();
   pending?.catch(() => {
     if (version === playbackVersion) {
@@ -85,12 +88,19 @@ function setVolume(value) {
   const level = Number(value);
   if (!Number.isFinite(level)) return;
   volume.value = Math.max(0, Math.min(1, level));
+  if (volume.value > 0) lastAudibleVolume.value = volume.value;
   if (audio) audio.volume = volume.value;
 }
+function toggleMute() { setVolume(muted.value ? lastAudibleVolume.value || 0.7 : 0); }
+function setRepeatOne(value) {
+  repeatOne.value = Boolean(value);
+  if (audio) audio.loop = Boolean(nativeSource.value && repeatOne.value);
+}
+function toggleRepeat() { setRepeatOne(!repeatOne.value); }
 function attachAudio(element) {
   detachAudio?.(); audio = element;
   if (!audio) return;
-  audio.preload = 'none'; audio.volume = volume.value;
+  audio.preload = 'none'; audio.volume = volume.value; audio.loop = false;
   const handlers = {
     play: () => { if (nativeSource.value) { playing.value = true; nativeStatus.value = ''; } },
     pause: () => { playing.value = false; },
@@ -108,8 +118,8 @@ function releaseAudio() { stop(); detachAudio?.(); detachAudio = null; audio = n
 export function useMusicPlayer() {
   return {
     expanded, activeSong, selectedSong, embedUrl, revision, loadSong, chooseSong, stop,
-    nativeSource, playing, currentTime, duration, volume, nativeStatus,
-    localAudioUrl, setLocalAudioCatalog, attachAudio, releaseAudio, pause, seek, setVolume,
+    nativeSource, playing, currentTime, duration, volume, nativeStatus, muted, repeatOne,
+    localAudioUrl, setLocalAudioCatalog, attachAudio, releaseAudio, pause, seek, setVolume, toggleMute, setRepeatOne, toggleRepeat,
     retry: () => { if (nativeSource.value) { unloadAudio(); playNative(); } else if (activeSong.value) revision.value += 1; },
   };
 }

@@ -1,0 +1,14 @@
+Material Symbols Rounded controls
+Author: Google
+Source: https://github.com/google/material-design-icons
+SVG paths: https://api.iconify.design/material-symbols.json
+License: Apache License 2.0
+
+Material Design Icons playlist-music
+Author: Pictogrammers
+Source: https://github.com/Templarian/MaterialDesign
+SVG path: https://api.iconify.design/mdi.json
+License: Apache License 2.0
+
+Both icon sets are used as inline SVG paths in the music player.
+The complete license is in material-icons-Apache-2.0.txt.

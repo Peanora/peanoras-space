@@ -2,6 +2,20 @@
 
 日期：2026-11-10。用户要求根据 [Firefly](https://github.com/CuteLeaf/Firefly) 重新构建布局与 UI。
 
+## 分类、标签与 Firefly 音乐卡（最新）
+
+用户要求首页侧栏加回分类、标签，并提供 Firefly 音乐卡截图要求对齐。首页侧栏现在按个人信息 → 公告 → 音乐 → 分类 → 标签排列，侧栏独立滚动；分类使用既有四类 Unity 笔记和数量，标签继续读取真实兴趣并链接个人介绍。首页内部不再让分类/标签二次吸顶，以免遮挡侧栏内容。
+
+音乐常态卡依据 [MusicPlayer.astro](https://github.com/CuteLeaf/Firefly/blob/master/src/components/features/MusicPlayer.astro) 与 [WidgetLayout.astro](https://github.com/CuteLeaf/Firefly/blob/master/src/components/common/WidgetLayout.astro)：原生卡宽280px、约202px高，封面56px、曲名16px、歌手12px、时间10px、音量64×4px、进度4px、主播放按钮48px。原截图为125%缩放，故视觉宽约350px。控制顺序恢复循环/上一首/播放/下一首/歌单，滑杆取消常驻大圆点；保留全站米黄/暖棕，替换曲目与封面为用户已有内容。
+
+默认卡面收起额外工具；停止、重试、官方入口在展开歌单中，错误仍有真实反馈。循环默认为关闭，只在主动开启后单曲循环；音量图标可静音并恢复此前音量。点击前不载入音源、两专14首、本机音源边界、跨路由/抽屉保持同一音频元素不变。
+
+控制图标使用 Firefly 同款 Google Material Symbols Rounded 与 Pictogrammers Material Design Icons 的原始 SVG 路径，本地内联，无远程图标请求。两套图标均为 Apache-2.0，完整许可与来源说明在 `public/licenses/material-icons-Apache-2.0.txt`、`material-icons-NOTICE.txt`。滑杆保持4px可见轨道和12px悬停/聚焦滑块，同时保留20px透明交互区域以支持触摸。
+
+验证：`npm test` 54/54、`npm run build` 通过；Edge 53项针对性检查通过，实测280×203px常态音乐卡、56px封面、48px播放按钮、分类筛选和真实标签链接、原生FLAC播放/暂停/进度/静音恢复/单曲循环及关闭后不连播、展开两专14首、同一音频元素跨路由、900/375px侧栏与独立浮层、键盘滑杆和扩大后的细条点击区域，以及官方播放器点击加载/切换/停止。截图 `output/playwright/firefly-music-final.png` 和 `firefly-taxonomy-mobile.png` 已目视检查。未测试真实手机、其他浏览器或出声实听；官方iframe只验证加载与替换逻辑，不将文档load当作实际播放。仅本地提交、预览，未推送部署。
+
+官方回退验证时，网易云跨域iframe自身脚本记录了访问父窗口document被阻止的SecurityError；本站无pageerror，本机原生音频正常。保留官方重试/外链，未将第三方控制台状态判成音频成功。
+
 ## 原版四屏 + 新顶栏 + 左侧栏（最新）
 
 用户将方案改为：新版顶部导航，保留域名正在部署的原版首页与三个翻屏主题，左侧加入截图中的个人信息、公告和音乐侧栏。已通过 HTTP 与 Edge 核对 [线上原版](https://peanora.cn/)，远端 main 为 `2df7eb0`；恢复其封面两行手写标题、明信片叠头像与三个书签，随后为 World 右侧手账、Music 左唱片右文字、Little 相片叠图钉纸条。欢迎语仍为“欢迎来到Peanora的空间”。

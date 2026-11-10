@@ -1,19 +1,20 @@
-/* Homepage adds only the three widgets shown in the sidebar reference. */
+/* Home sidebar shares the profile, announcement, music and taxonomy widgets. */
 .space-sidebar-home.firefly-sidebar.space-sidebar-left { align-self: start; }
 .space-sidebar-home.firefly-sidebar > .space-panel { flex: 0 0 auto; }
 .space-sidebar-home.firefly-sidebar .firefly-profile { padding-bottom: 16px; }
 .space-sidebar-home.firefly-sidebar .firefly-announcement { padding: 20px 16px 16px; }
 .space-sidebar-home.firefly-sidebar .firefly-announcement .space-widget-more { margin-top: 14px; }
 .space-sidebar-home.firefly-sidebar .music-widget { margin-bottom: 2px; }
+.space-sidebar-home .firefly-sidebar-sticky { position: static; }
 @media (min-width: 1024px) {
-  .space-sidebar-home.firefly-sidebar.space-sidebar-left { position: sticky; top: 88px; max-height: calc(100dvh - 104px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--apricot) transparent; padding-right: 4px; }
+  .space-sidebar-home.firefly-sidebar.space-sidebar-left { position: sticky; top: 88px; max-height: calc(100dvh - 104px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--apricot) transparent; }
   .space-sidebar-home::-webkit-scrollbar { width: 4px; }
   .space-sidebar-home::-webkit-scrollbar-thumb { border-radius: 4px; background: var(--apricot); }
 }
 @media (max-width: 1023px) {
   /* Keep the player mounted. A transformed or display:none ancestor would
      trap or hide its viewport-fixed listening panel while the drawer closes. */
-  .space-sidebar-home.firefly-sidebar.space-sidebar-left { position: fixed; z-index: 65; top: 88px; left: -350px; width: min(320px, calc(100vw - 28px)); max-height: calc(100dvh - 104px); padding: 0 4px 4px 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--apricot) transparent; visibility: hidden; pointer-events: none; transition: left 220ms ease; }
+  .space-sidebar-home.firefly-sidebar.space-sidebar-left { position: fixed; z-index: 65; top: 88px; left: -350px; width: min(320px, calc(100vw - 28px)); max-height: calc(100dvh - 104px); padding-bottom: 4px; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--apricot) transparent; visibility: hidden; pointer-events: none; transition: left 220ms ease; }
   .space-sidebar-home.firefly-sidebar.space-sidebar-left.is-open { left: 14px; visibility: visible; pointer-events: auto; }
   .space-sidebar-home.firefly-sidebar.space-sidebar-left .firefly-music.music-widget { display: none; }
   .space-sidebar-home.firefly-sidebar.space-sidebar-left.is-open .firefly-music.music-widget { display: block; }
