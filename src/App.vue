@@ -6,6 +6,7 @@ import SiteFooter from "./components/layout/SiteFooter.vue";
 import SiteBackdrop from "./components/layout/SiteBackdrop.vue";
 import SiteBanner from "./components/layout/SiteBanner.vue";
 import SpaceSidebar from "./components/layout/SpaceSidebar.vue";
+import HomeThemes from "./components/home/HomeThemes.vue";
 
 const route = useRoute();
 const isHome = computed(() => route.path === "/");
@@ -38,6 +39,7 @@ watch(
     <SiteHeader />
     <SiteBanner />
     <div class="space-layout">
+      <HomeThemes v-if="isHome" />
       <SpaceSidebar />
       <main id="main-content" class="app-main" tabindex="-1">
         <RouterView v-slot="{ Component, route: viewRoute }">
