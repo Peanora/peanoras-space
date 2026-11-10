@@ -1,0 +1,79 @@
+/* Firefly's sidebar composition with Peanora's cream palette and real content. */
+:where(.firefly-sidebar) { display: flex; }
+.firefly-sidebar { flex-direction: column; align-self: start; gap: 16px; min-width: 0; }
+.firefly-sidebar > .space-panel { border: 0; border-radius: 16px; background: var(--surface); box-shadow: none; }
+.firefly-sidebar-sticky { display: grid; gap: 16px; }
+.firefly-sidebar-sticky > .space-panel { border: 0; border-radius: 16px; background: var(--surface); box-shadow: none; }
+@media (min-width: 768px) {
+  .firefly-sidebar.space-sidebar-left { align-self: stretch; }
+  .firefly-sidebar-sticky { position: sticky; top: 88px; }
+}
+@media (max-height: 600px) { .firefly-sidebar-sticky { position: static; } }
+.firefly-sidebar svg { flex-shrink: 0; }
+.firefly-sidebar svg path { stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.firefly-sidebar .firefly-profile { padding: 12px; text-align: center; }
+.firefly-profile .space-avatar-link { display: block; width: 100%; max-width: 256px; margin: 0 auto; border-radius: 12px; overflow: hidden; }
+.firefly-profile .space-avatar-link img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; border: 0; border-radius: 12px; transition: transform 300ms ease; }
+.firefly-profile .space-avatar-link:hover img { transform: scale(1.025); }
+.firefly-profile h2 { margin: 8px 0 0; color: var(--text); font-family: var(--font-display); font-size: 20px; font-weight: 700; line-height: 1.45; }
+.firefly-profile .space-profile-rule { display: block; width: 20px; height: 4px; margin: 6px auto 8px; border-radius: 4px; background: var(--accent); }
+.firefly-profile-bio { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+.firefly-profile .firefly-socials { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 12px; }
+.firefly-profile .firefly-socials > a, .firefly-profile .firefly-socials > button { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; min-height: 40px; padding: 0; border: 0; border-radius: 8px; background: var(--accent-soft); color: var(--accent); transition: background 180ms ease, color 180ms ease; }
+.firefly-profile .firefly-socials > a:hover, .firefly-profile .firefly-socials > button:hover { background: var(--apricot); color: var(--text); }
+.firefly-socials svg { width: 20px; height: 20px; }
+.firefly-sidebar .firefly-widget { padding: 16px; }
+.firefly-sidebar .space-widget-title { position: relative; margin: 0; padding-left: 16px; color: var(--text); font-size: 18px; font-weight: 700; line-height: 28px; }
+.firefly-sidebar .space-widget-title::before { content: ''; position: absolute; top: 6px; bottom: auto; left: 0; width: 4px; height: 16px; border-radius: 4px; background: var(--accent); }
+.firefly-sidebar .space-widget-more { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; margin-top: 10px; color: var(--accent); font-size: 14px; line-height: 1.6; }
+.firefly-sidebar .space-widget-more svg { width: 17px; height: 17px; }
+.firefly-sidebar .space-widget-more > span { font-size: 20px; }
+.firefly-sidebar .space-widget-more:hover { text-decoration: underline; text-underline-offset: 4px; }
+.firefly-announcement-welcome { margin-top: 16px; font-size: 16px; color: var(--text); line-height: 1.6; }
+.firefly-announcement-signature { margin-top: 8px; font-size: 14px; color: var(--muted); line-height: 1.7; }
+.firefly-music-track { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+.firefly-music-track > img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; }
+.firefly-music-track > div { min-width: 0; }
+.firefly-music-title { color: var(--text); font-size: 16px; font-weight: 700; line-height: 1.5; overflow-wrap: anywhere; }
+.firefly-music-artist { margin-top: 4px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.firefly-music-status { margin-top: 14px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.firefly-music-open { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 42px; margin-top: 12px; padding: 7px 12px; border: 0; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font: inherit; font-size: 14px; transition: background 180ms ease; }
+.firefly-music-open svg { width: 18px; height: 18px; }
+.firefly-music-open:hover { background: var(--apricot); }
+.firefly-sidebar .space-category-widget ul { list-style: none; margin: 16px 0 0; padding: 0; }
+.firefly-sidebar .space-category-widget li + li { margin-top: 2px; }
+.firefly-sidebar .space-category-widget li a { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 38px; margin: 0 -6px; padding: 7px 6px; border-radius: 8px; color: var(--muted); font-size: 14px; line-height: 1.5; transition: background 180ms ease; }
+.firefly-sidebar .space-category-widget li a:hover { background: var(--accent-soft); color: var(--accent); }
+.firefly-sidebar .space-category-count { min-width: 23px; height: 23px; padding: 0 5px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
+.firefly-tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.firefly-tag-list a { padding: 4px 10px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-size: 14px; line-height: 1.5; transition: background 180ms ease; }
+.firefly-tag-list a:hover { background: var(--apricot); }
+.firefly-moment-list { margin-top: 16px; }
+.firefly-moment + .firefly-moment { margin-top: 20px; }
+.firefly-moment-source { display: flex; align-items: center; gap: 6px; color: var(--accent); font-size: 12px; line-height: 1.6; }
+.firefly-moment-source svg { width: 14px; height: 14px; }
+.firefly-moment-text { margin-top: 5px; color: var(--muted); font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; }
+.firefly-stats dl { margin: 16px 0 0; }
+.firefly-stats dl > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 38px; }
+.firefly-stats dt { display: inline-flex; align-items: center; gap: 10px; color: var(--muted); font-size: 16px; line-height: 1.5; }
+.firefly-stats dt svg { width: 19px; height: 19px; color: var(--accent); }
+.firefly-stats dd { margin: 0; color: var(--text); font-family: var(--font-display); font-size: 16px; font-weight: 800; }
+.firefly-sidebar .space-learning-widget ul { list-style: none; margin: 14px 0 0; padding: 0; }
+.firefly-sidebar .space-learning-widget li { display: flex; align-items: center; gap: 10px; min-height: 38px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+.firefly-sidebar .space-learning-dot { width: 6px; height: 6px; flex: 0 0 6px; border-radius: 50%; background: var(--accent); }
+.firefly-calendar-month { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; }
+.firefly-calendar-month button { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--muted); transition: background 180ms ease, color 180ms ease; }
+.firefly-calendar-month button:hover { background: var(--accent-soft); color: var(--accent); }
+.firefly-calendar-month button svg { width: 18px; height: 18px; }
+.firefly-calendar-month strong { color: var(--text); font-size: 14px; font-weight: 700; line-height: 1.5; }
+.firefly-calendar-weekdays, .firefly-calendar-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.firefly-calendar-weekdays { margin-top: 8px; color: var(--muted); font-size: 12px; text-align: center; line-height: 28px; }
+.firefly-calendar-days { gap: 2px 0; margin-top: 4px; }
+.firefly-calendar-day, .firefly-calendar-empty { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 30px; color: var(--muted); font-size: 13px; line-height: 1.4; border-radius: 8px; }
+.firefly-calendar-day.is-today { background: var(--accent); color: var(--surface); font-weight: 800; }
+.firefly-calendar-day.has-notes { position: relative; color: var(--accent); font-weight: 700; background: var(--accent-soft); }
+.firefly-calendar-day.has-notes::after { content: ''; position: absolute; left: calc(50% - 1.5px); bottom: 3px; width: 3px; height: 3px; border-radius: 50%; background: currentColor; }
+.firefly-calendar-day.has-notes:hover { background: var(--apricot); }
+.firefly-calendar-day.has-notes.is-today { color: var(--surface); background: var(--accent); }
+@media (max-width: 767px) { .firefly-sidebar .firefly-music, .firefly-sidebar .firefly-calendar { display: none; } }
+@media (prefers-reduced-motion: reduce) { .firefly-sidebar *, .firefly-sidebar *::before { transition: none; } }

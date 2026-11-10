@@ -11,6 +11,7 @@ import "./styles/content-blocks.css";
 import './styles/unity-notes.css';
 import './styles/space-shell.css';
 import './styles/space-content.css';
+import './styles/firefly-widgets.css';
 
 if (import.meta.env.DEV && /^\/__editor\/?$/.test(location.pathname)) {
   import("./editor/main.js");

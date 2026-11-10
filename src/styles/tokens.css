@@ -21,21 +21,27 @@
 }
 :root {
   color-scheme: light;
-  --background: #f4f6f2;
-  --surface: #fffdfa;
-  --text: #394741;
-  --muted: #647269;
-  --line: #e2e9df;
-  --accent: #337963;
-  --sea: #337963;
-  --apricot: #f3e3ca;
-  --paper: #fffdf8f5;
-  --accent-soft: #edf5ef;
-  --panel-radius: 18px;
+  --background: #f7f1e5;
+  --surface: #fffaf0;
+  --text: #4c4036;
+  --muted: #786958;
+  --line: #eadfcd;
+  --accent: #8a6037;
+  --sea: #8a6037;
+  --apricot: #eedab9;
+  --paper: #fffaf0f5;
+  --accent-soft: #f1e5ce;
+  --panel-radius: 16px;
   --font-body: "Nunito", "Peanora WenKai", sans-serif;
   --font-chinese: "Peanora WenKai", serif;
   --font-display: "Nunito", "Peanora WenKai", sans-serif;
   --font-handwriting: "Kalam", "Peanora WenKai", cursive;
   --gutter: clamp(16px, 3vw, 40px);
   --section-space: clamp(28px, 4vw, 48px);
+}
+:root[data-warm-tone="soft"] {
+  --background: #f0e5d1;
+  --surface: #fcf3e2;
+  --paper: #fcf3e2f5;
+  --accent-soft: #ead9bb;
 }

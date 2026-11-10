@@ -7,42 +7,124 @@ import { contentDocument, editingContent } from '../../content/store';
 import { contentImage } from '../../content/assets';
 import { pageItems } from '../../content/pages';
 import { unityEntries } from '../../content/unityNotes';
-import ContentText from '../content/ContentText.vue';
 import { safeLink } from '../../content/model';
+import { officialEmbedUrl, musicPlatformName, useMusicPlayer } from '../../composables/useMusicPlayer';
+import ContentText from '../content/ContentText.vue';
+import SpaceCalendar from './SpaceCalendar.vue';
+
 defineProps({ side: { type: String, default: 'left' } });
 provide('content-page', 'home');
 const route = useRoute();
 const cover = computed(() => contentDocument.value.pages.home.blocks.find(block => block.type === 'homeCover')?.data);
 const profile = computed(() => contentDocument.value.pages.world.blocks.find(block => block.type === 'profile' && !block.hidden)?.data);
 const notes = computed(() => unityEntries(contentDocument.value));
-const songCount = computed(() => pageItems(contentDocument.value, 'music', 'songs').filter(song => !song.isPlaceholder).length);
+const songs = computed(() => pageItems(contentDocument.value, 'music', 'songs').filter(song => !song.isPlaceholder));
+const albums = computed(() => contentDocument.value.pages.music.blocks.filter(block => !block.hidden && block.type === 'songs' && block.data.items.some(song => !song.isPlaceholder)));
+const littleNotes = computed(() => pageItems(contentDocument.value, 'little', 'notes').filter(note => !note.rare).slice(0, 2));
 const categories = computed(() => {
   const counts = new Map();
   for (const note of notes.value) if (note.category) counts.set(note.category, (counts.get(note.category) || 0) + 1);
   return [...counts].map(([name, count]) => ({ name, count }));
 });
-const socials = computed(() => (profile.value?.socials || site.socials).map(link => ({ ...link, url: safeLink(link.url) })).filter(link => link.url));
-const navigation = site.navigation.filter(item => item.path !== '/').map(item => ({ ...item, label: item.sidebarLabel || item.label }));
+const socials = computed(() => (cover.value?.socials || profile.value?.socials || site.socials)
+  .map(link => ({ ...link, url: safeLink(link.url) })).filter(link => link.url));
+const { expanded, activeSong, selectedSong } = useMusicPlayer();
+const song = computed(() => activeSong.value || selectedSong.value || songs.value.find(item => officialEmbedUrl(item)));
+const officialUrl = computed(() => safeLink(song.value?.officialUrl));
+function openMusic() { expanded.value = true; }
+
+const icons = {
+  github: 'M9 19c-4.3 1.2-4.3-2-6-2.5M15 22v-3.3a3 3 0 0 0-.8-2.3c2.7-.3 5.6-1.3 5.6-6a4.7 4.7 0 0 0-1.3-3.3 4.3 4.3 0 0 0-.1-3.3s-1-.3-3.4 1.3a11.3 11.3 0 0 0-6 0C6.6 3.5 5.6 3.8 5.6 3.8a4.3 4.3 0 0 0-.1 3.3A4.7 4.7 0 0 0 4.2 10c0 4.7 2.9 5.7 5.6 6a3 3 0 0 0-.8 2.3V22',
+  external: 'M14 3h7v7M21 3 10 14M10 3H3v18h18v-7',
+  world: 'M20 21v-2a6 6 0 0 0-6-6h-4a6 6 0 0 0-6 6v2M16 6a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z',
+  music: 'M9 18V5l11-2v12M9 8l11-2M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm11-3a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z',
+  note: 'M5 3h14v18H5V3Zm4 5h6M9 12h6M9 16h4',
+  categories: 'M3 5h7l2 2h9v13H3V5Z',
+  albums: 'M4 4h16v16H4V4Zm12 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z',
+};
 </script>
+
 <template>
-  <aside class="space-sidebar" :class="`space-sidebar-${side}`" :aria-label="side === 'left' ? '关于 Peanora' : '浏览分类'">
+  <aside class="space-sidebar firefly-sidebar" :class="`space-sidebar-${side}`" :aria-label="side === 'left' ? '关于 Peanora 与笔记分类' : '小角落与内容统计'">
     <template v-if="side === 'left'">
-      <section class="space-panel space-profile">
-        <RouterLink to="/world" class="space-avatar-link" aria-label="认识 Peanora"><img :src="contentImage(cover?.avatar || 'artwork:avatar')" :style="{ objectPosition: appearance.avatarPosition }" alt="Peanora 使用的二次元头像" width="180" height="180" /></RouterLink>
+      <section class="space-panel space-profile firefly-profile">
+        <RouterLink to="/world" class="space-avatar-link" aria-label="认识 Peanora">
+          <img :src="contentImage(cover?.avatar || 'artwork:avatar')" :style="{ objectPosition: appearance.avatarPosition }" alt="Peanora 使用的二次元头像" width="248" height="248" decoding="async" />
+        </RouterLink>
         <ContentText v-if="editingContent && route.path === '/'" tag="h2" plain :value="cover?.portraitNote || site.nickname" block-id="cover" field="portraitNote" />
         <h2 v-else>{{ cover?.portraitNote || profile?.name || site.nickname }}</h2>
         <span class="space-profile-rule" aria-hidden="true"></span>
-        <ContentText v-if="profile?.introduction" class="space-profile-intro" :value="profile.introduction" />
-        <div v-if="profile?.interests?.length" class="space-profile-interests"><span v-for="interest in profile.interests" :key="interest">{{ interest }}</span></div>
-        <div class="space-profile-counts"><RouterLink to="/unity-notes"><strong>{{ notes.length }}</strong><span>学习笔记</span></RouterLink><RouterLink to="/music"><strong>{{ songCount }}</strong><span>收藏歌曲</span></RouterLink></div>
-        <div class="space-profile-socials"><a v-for="link in socials" :key="link.label" :href="link.url" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 19c-4.3 1.2-4.3-2-6-2.5M15 22v-3.3a3 3 0 0 0-.8-2.3c2.7-.3 5.6-1.3 5.6-6a4.7 4.7 0 0 0-1.3-3.3 4.3 4.3 0 0 0-.1-3.3s-1-.3-3.4 1.3a11.3 11.3 0 0 0-6 0C6.6 3.5 5.6 3.8 5.6 3.8a4.3 4.3 0 0 0-.1 3.3A4.7 4.7 0 0 0 4.2 10c0 4.7 2.9 5.7 5.6 6a3 3 0 0 0-.8 2.3V22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" /></svg>{{ link.label }}</a></div>
+        <ContentText class="firefly-profile-bio" :value="cover?.welcome || ''" />
+        <div class="space-profile-socials firefly-socials">
+          <a v-for="link in socials" :key="link.url" :href="link.url" target="_blank" rel="noopener noreferrer" :aria-label="link.label" :title="link.label">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="link.url.includes('github.com') ? icons.github : icons.external" /></svg>
+          </a>
+          <RouterLink to="/world" aria-label="我的个人世界" title="我的个人世界"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.world" /></svg></RouterLink>
+          <button v-if="song" type="button" aria-label="打开听歌面板" title="打开听歌面板" @click="openMusic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.music" /></svg></button>
+          <RouterLink to="/little-things" aria-label="小角落" title="小角落"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.note" /></svg></RouterLink>
+        </div>
       </section>
-      <nav class="space-panel space-side-nav" aria-label="空间导览"><h2 class="space-widget-title">空间导览</h2><RouterLink v-for="item in navigation" :key="item.path" :to="item.path" :class="{ 'is-active': route.path.startsWith(item.path) }"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="item.icon" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" /></svg><span>{{ item.label }}</span><span class="space-side-chevron" aria-hidden="true">›</span></RouterLink></nav>
+
+      <section class="space-panel firefly-widget firefly-announcement">
+        <h2 class="space-widget-title">公告</h2>
+        <ContentText tag="p" class="firefly-announcement-welcome" :value="cover?.welcome || ''" />
+        <p v-if="cover?.signatures?.length" class="firefly-announcement-signature">{{ cover.signatures[0] }}</p>
+        <RouterLink to="/world" class="space-widget-more">了解更多 <span aria-hidden="true">›</span></RouterLink>
+      </section>
+
+      <section v-if="song" class="space-panel firefly-widget firefly-music">
+        <h2 class="space-widget-title">音乐</h2>
+        <div class="firefly-music-track">
+          <img v-if="song.cover" :src="contentImage(song.cover)" :alt="song.alt || `${song.title}封面`" width="56" height="56" loading="lazy" />
+          <div><p class="firefly-music-title">{{ song.title }}</p><p class="firefly-music-artist">{{ song.artist }}</p></div>
+        </div>
+        <p class="firefly-music-status">{{ activeSong ? '官方播放器已加载' : '尚未加载播放器' }}</p>
+        <button class="firefly-music-open" type="button" @click="openMusic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 5 10 7-10 7V5Z" /></svg>打开听歌面板</button>
+        <a v-if="officialUrl" :href="officialUrl" class="space-widget-more" target="_blank" rel="noopener noreferrer">{{ musicPlatformName(song) }}收听 <span aria-hidden="true">↗</span></a>
+      </section>
+
+      <div class="firefly-sidebar-sticky">
+      <section v-if="categories.length" class="space-panel firefly-widget space-category-widget">
+        <h2 class="space-widget-title">分类</h2>
+        <ul><li v-for="item in categories" :key="item.name"><RouterLink :to="{ path: '/unity-notes', query: { category: item.name } }"><span>{{ item.name }}</span><span class="space-category-count">{{ item.count }}</span></RouterLink></li></ul>
+        <RouterLink to="/unity-notes" class="space-widget-more">全部分类 <span aria-hidden="true">›</span></RouterLink>
+      </section>
+
+      <section v-if="profile?.interests?.length" class="space-panel firefly-widget firefly-tags">
+        <h2 class="space-widget-title">标签</h2>
+        <div class="firefly-tag-list"><RouterLink v-for="interest in profile.interests" :key="interest" to="/world#about">{{ interest }}</RouterLink></div>
+      </section>
+      </div>
     </template>
+
     <template v-else>
-      <section v-if="categories.length" class="space-panel space-category-widget"><h2 class="space-widget-title">笔记分类</h2><ul><li v-for="item in categories" :key="item.name"><RouterLink :to="{ path: '/unity-notes', query: { category: item.name } }"><span>{{ item.name }}</span><span class="space-category-count">{{ item.count }}</span></RouterLink></li></ul><RouterLink to="/unity-notes" class="space-widget-more">全部笔记 <span aria-hidden="true">›</span></RouterLink></section>
-      <section v-if="profile?.learning?.length" class="space-panel space-learning-widget"><h2 class="space-widget-title">正在学习</h2><ul><li v-for="item in profile.learning" :key="item.title"><span class="space-learning-dot" aria-hidden="true"></span><span>{{ item.title }}</span></li></ul><RouterLink to="/world#about" class="space-widget-more">更多关于我 <span aria-hidden="true">›</span></RouterLink></section>
-      <section class="space-panel space-music-widget"><svg class="space-mini-record" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29" fill="currentColor"/><circle cx="32" cy="32" r="20" fill="none" stroke="var(--surface)" stroke-opacity=".2"/><circle cx="32" cy="32" r="12" fill="var(--apricot)"/><circle cx="32" cy="32" r="3" fill="var(--surface)"/></svg><h2>Music & Memories</h2><p>喜欢的歌，慢慢收藏。</p><RouterLink to="/music" class="space-widget-more">去音乐角落 <span aria-hidden="true">›</span></RouterLink></section>
+      <section v-if="littleNotes.length" class="space-panel firefly-widget firefly-moments">
+        <h2 class="space-widget-title">小角落</h2>
+        <div class="firefly-moment-list">
+          <article v-for="note in littleNotes" :key="note.id" class="firefly-moment">
+            <p v-if="note.source" class="firefly-moment-source"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.note" /></svg>{{ note.source }}</p>
+            <ContentText tag="p" class="firefly-moment-text" :value="note.text" />
+          </article>
+        </div>
+        <RouterLink to="/little-things" class="space-widget-more"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.note" /></svg>更多纸条 <span aria-hidden="true">›</span></RouterLink>
+      </section>
+
+      <section class="space-panel firefly-widget firefly-stats">
+        <h2 class="space-widget-title">内容统计</h2>
+        <dl>
+          <div><dt><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.note" /></svg>笔记</dt><dd>{{ notes.length }}</dd></div>
+          <div><dt><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.categories" /></svg>分类</dt><dd>{{ categories.length }}</dd></div>
+          <div><dt><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.music" /></svg>歌曲</dt><dd>{{ songs.length }}</dd></div>
+          <div><dt><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.albums" /></svg>专辑</dt><dd>{{ albums.length }}</dd></div>
+        </dl>
+      </section>
+
+      <section v-if="profile?.learning?.length" class="space-panel firefly-widget space-learning-widget">
+        <h2 class="space-widget-title">正在学习</h2>
+        <ul><li v-for="item in profile.learning" :key="item.title"><span class="space-learning-dot" aria-hidden="true"></span><span>{{ item.title }}</span></li></ul>
+        <RouterLink to="/world#about" class="space-widget-more">更多关于我 <span aria-hidden="true">›</span></RouterLink>
+      </section>
+      <SpaceCalendar />
     </template>
   </aside>
 </template>

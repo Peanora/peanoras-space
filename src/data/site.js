@@ -12,3 +12,15 @@ export const site = {
   ],
 
 };
+
+export function headerMenuFor(categories = []) {
+  const icons = Object.fromEntries(site.navigation.map(item => [item.path, item.icon]));
+  return [
+    { label: '主页', path: '/', icon: icons['/'] },
+    { label: '文章', icon: icons['/unity-notes'], children: [{ label: '全部笔记', path: '/unity-notes' }, ...categories.map(category => ({ label: category, path: { path: '/unity-notes', query: { category } } }))] },
+    { label: '社交', icon: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8', children: site.socials.map(link => ({ label: link.label, url: link.url })) },
+    { label: '我的', icon: icons['/world'], children: site.navigation.filter(item => ['/world', '/music', '/little-things'].includes(item.path)) },
+    { label: '关于', icon: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM12 11v6M12 7h.01', children: [{ label: '关于 Peanora', path: '/world#about' }, { label: '正在学习', path: '/world#unity-notes' }] },
+    { label: '链接', icon: 'M10 13a5 5 0 0 0 7 .5l4-4a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7-.5l-4 4a5 5 0 0 0 7 7l2-2', children: [{ label: 'Peanora 的 GitHub', url: 'https://github.com/Peanora' }, { label: '本站源码', url: 'https://github.com/Peanora/peanoras-space' }] },
+  ];
+}
