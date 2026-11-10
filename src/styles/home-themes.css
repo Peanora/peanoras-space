@@ -1,5 +1,28 @@
-/* The original three scrapbook scenes sit above the Firefly article columns. */
+/* The three scrapbook scenes share a bounded pager above the article columns. */
 .home-themes { grid-column: 1 / -1; order: 0; display: grid; min-width: 0; border-radius: 16px; background: linear-gradient(120deg, #fffaf0e6, #fbf3e1db); }
+.home-themes.home-theme-pager { display: flex; flex-direction: column; height: calc(100dvh - 88px); scroll-margin-top: 88px; }
+.home-theme-stage { position: relative; flex: 1; min-height: 0; overflow: hidden; border-radius: 16px 16px 0 0; }
+.home-theme-pager .home-theme { position: absolute; inset: 0; height: 100%; min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior-y: auto; scrollbar-width: thin; scrollbar-color: var(--apricot) transparent; border-top: 0; }
+.home-theme-pager .home-theme::-webkit-scrollbar { width: 4px; }
+.home-theme-pager .home-theme::-webkit-scrollbar-thumb { border-radius: 4px; background: var(--apricot); }
+.home-theme-pager .theme-turn-enter-active { transition: opacity 390ms ease, transform 390ms cubic-bezier(.22, .86, .35, 1.12); }
+.home-theme-pager .theme-turn-leave-active { transition: opacity 140ms ease, transform 140ms ease; }
+.home-theme-pager .theme-turn-enter-from { opacity: 0; transform: translateY(calc(var(--theme-direction) * 38px)); }
+.home-theme-pager .theme-turn-leave-to { opacity: 0; transform: translateY(calc(var(--theme-direction) * -22px)); }
+.theme-pager-footer { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; min-height: 72px; padding: 12px 20px; border-top: 1px solid var(--line); color: var(--muted); }
+.theme-pager-help, .theme-feed-link { font-size: 12px; line-height: 24px; }
+.theme-help-touch, .theme-label-short { display: none; }
+.theme-feed-link { display: inline-flex; align-items: center; gap: 10px; min-height: 36px; color: var(--accent); }
+.theme-pager-controls { display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 0; }
+.theme-pager-arrow { display: inline-grid; place-items: center; flex-shrink: 0; width: 36px; height: 38px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: var(--surface); color: var(--accent); font-size: 19px; transition: background 180ms; }
+.theme-pager-arrow:hover { background: var(--accent-soft); }
+.theme-pager-arrow:disabled { cursor: default; opacity: .3; }
+.theme-pager-index { display: flex; align-items: center; gap: 4px; min-width: 0; }
+.theme-pager-index button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 38px; padding: 6px 10px; border: 0; border-radius: 20px; background: none; color: var(--muted); font: 13px/1.4 var(--font-display); white-space: nowrap; transition: background 180ms, color 180ms; }
+.theme-pager-index button:hover, .theme-pager-index button[aria-current] { background: var(--accent-soft); color: var(--accent); }
+.theme-pager-dot { width: 6px; height: 6px; flex-shrink: 0; border: 1px solid currentColor; border-radius: 50%; }
+.theme-pager-index button[aria-current] .theme-pager-dot { background: currentColor; }
+.theme-pager-count { min-width: 43px; color: var(--accent); font-size: 11px; font-variant-numeric: tabular-nums; text-align: center; white-space: nowrap; }
 .home-theme { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); align-items: center; gap: clamp(36px, 5vw, 80px); min-width: 0; min-height: 590px; padding: 58px clamp(28px, 3.5vw, 56px); scroll-margin-top: 88px; }
 .home-theme + .home-theme { border-top: 1px solid var(--line); }
 .home-theme-copy { min-width: 0; }
@@ -70,6 +93,18 @@
   .home-themes .note-content { min-height: 150px; }
 }
 @media (max-width: 767px) {
+  .home-themes.home-theme-pager { height: calc(100dvh - 78px); scroll-margin-top: 78px; }
+  .theme-pager-footer { min-height: 92px; padding: 8px 12px; gap: 4px 12px; }
+  .theme-pager-controls { order: 0; flex-basis: 100%; gap: 4px; }
+  .theme-pager-help { order: 1; }
+  .theme-feed-link { order: 2; margin-left: auto; min-height: 28px; }
+  .theme-help-desktop, .theme-label-full { display: none; }
+  .theme-help-touch, .theme-label-short { display: inline; }
+  .theme-pager-index { gap: 0; }
+  .theme-pager-index button { min-height: 36px; padding: 6px; gap: 4px; font-size: 11px; }
+  .theme-pager-dot { width: 5px; height: 5px; }
+  .theme-pager-arrow { width: 34px; height: 36px; }
+  .theme-pager-count { min-width: 36px; font-size: 10px; }
   .home-theme { grid-template-columns: minmax(0, 1fr); min-height: 0; gap: 34px; padding: 34px 26px 36px; scroll-margin-top: 78px; }
   .home-theme-title { margin: 18px 0 22px; font-size: clamp(38px, 7.4vw, 54px); }
   .home-theme-part { font-size: 13px; }
