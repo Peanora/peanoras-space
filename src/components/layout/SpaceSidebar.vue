@@ -8,9 +8,10 @@ import { contentImage } from '../../content/assets';
 import { pageItems } from '../../content/pages';
 import { unityEntries } from '../../content/unityNotes';
 import { safeLink } from '../../content/model';
-import { officialEmbedUrl, musicPlatformName, useMusicPlayer } from '../../composables/useMusicPlayer';
+import { useMusicPlayer } from '../../composables/useMusicPlayer';
 import ContentText from '../content/ContentText.vue';
 import SpaceCalendar from './SpaceCalendar.vue';
+import MusicPlayer from '../ui/MusicPlayer.vue';
 
 defineProps({ side: { type: String, default: 'left' } });
 provide('content-page', 'home');
@@ -28,9 +29,7 @@ const categories = computed(() => {
 });
 const socials = computed(() => (cover.value?.socials || profile.value?.socials || site.socials)
   .map(link => ({ ...link, url: safeLink(link.url) })).filter(link => link.url));
-const { expanded, activeSong, selectedSong } = useMusicPlayer();
-const song = computed(() => activeSong.value || selectedSong.value || songs.value.find(item => officialEmbedUrl(item)));
-const officialUrl = computed(() => safeLink(song.value?.officialUrl));
+const { expanded } = useMusicPlayer();
 function openMusic() { expanded.value = true; }
 
 const icons = {
@@ -60,7 +59,7 @@ const icons = {
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="link.url.includes('github.com') ? icons.github : icons.external" /></svg>
           </a>
           <RouterLink to="/world" aria-label="我的个人世界" title="我的个人世界"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.world" /></svg></RouterLink>
-          <button v-if="song" type="button" aria-label="打开听歌面板" title="打开听歌面板" @click="openMusic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.music" /></svg></button>
+          <button v-if="songs.length" type="button" aria-label="打开听歌面板" title="打开听歌面板" @click="openMusic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.music" /></svg></button>
           <RouterLink to="/little-things" aria-label="小角落" title="小角落"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.note" /></svg></RouterLink>
         </div>
       </section>
@@ -72,16 +71,7 @@ const icons = {
         <RouterLink to="/world" class="space-widget-more">了解更多 <span aria-hidden="true">›</span></RouterLink>
       </section>
 
-      <section v-if="song" class="space-panel firefly-widget firefly-music">
-        <h2 class="space-widget-title">音乐</h2>
-        <div class="firefly-music-track">
-          <img v-if="song.cover" :src="contentImage(song.cover)" :alt="song.alt || `${song.title}封面`" width="56" height="56" loading="lazy" />
-          <div><p class="firefly-music-title">{{ song.title }}</p><p class="firefly-music-artist">{{ song.artist }}</p></div>
-        </div>
-        <p class="firefly-music-status">{{ activeSong ? '官方播放器已加载' : '尚未加载播放器' }}</p>
-        <button class="firefly-music-open" type="button" @click="openMusic"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 5 10 7-10 7V5Z" /></svg>打开听歌面板</button>
-        <a v-if="officialUrl" :href="officialUrl" class="space-widget-more" target="_blank" rel="noopener noreferrer">{{ musicPlatformName(song) }}收听 <span aria-hidden="true">↗</span></a>
-      </section>
+      <MusicPlayer />
 
       <div class="firefly-sidebar-sticky">
       <section v-if="categories.length" class="space-panel firefly-widget space-category-widget">

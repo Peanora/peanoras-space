@@ -5,6 +5,7 @@ import { contentImage } from "../content/assets";
 import { pageItems } from "../content/pages";
 import { unityEntries } from "../content/unityNotes";
 import ContentText from "../components/content/ContentText.vue";
+import HomeNotes from "../components/content/HomeNotes.vue";
 import ArtworkImage from "../components/ui/ArtworkImage.vue";
 import "../styles/home-feed.css";
 
@@ -21,7 +22,6 @@ const previewNotes = computed(() => matchingNotes.value.slice(0, 6));
 const showThemes = computed(() => !category.value || editingContent.value);
 const albums = computed(() => contentDocument.value.pages.music.blocks.filter(block => !block.hidden && block.type === "songs"));
 const songCount = computed(() => pageItems(contentDocument.value, "music", "songs").filter(song => !song.isPlaceholder).length);
-const quote = computed(() => pageItems(contentDocument.value, "little", "notes").find(note => !note.rare));
 const categoryNames = {
   "Unity工作原理": "工作原理",
   "Unity脚本基础": "脚本基础",
@@ -45,10 +45,20 @@ async function editorSelect(event) {
   await nextTick();
   document.getElementById(event.detail)?.scrollIntoView({ block: "center", behavior: "auto" });
 }
+async function revealHomeAnchor(event) {
+  const id = String(event.detail || '').slice(1);
+  if (!['cover', 'world', 'music', 'little'].includes(id)) return;
+  category.value = '';
+  await nextTick();
+  const target = id === 'cover' ? document.querySelector('#cover h1') : document.getElementById(id);
+  target?.focus({ preventScroll: true });
+}
 onMounted(() => {
+  window.addEventListener('peanora:home-anchor', revealHomeAnchor);
   if (import.meta.env.DEV) window.addEventListener("peanora:select-home", editorSelect);
 });
 onUnmounted(() => {
+  window.removeEventListener('peanora:home-anchor', revealHomeAnchor);
   if (import.meta.env.DEV) window.removeEventListener("peanora:select-home", editorSelect);
 });
 </script>
@@ -98,6 +108,18 @@ onUnmounted(() => {
       <RouterLink v-if="themes.music.image" :to="themes.music.path" class="home-post-image" aria-label="进入音乐与回忆"><ArtworkImage :src="contentImage(themes.music.image)" sizes="(max-width: 767px) calc(100vw - 42px), 30vw" :alt="themes.music.alt" :style="{ objectPosition: themes.music.imagePosition }" loading="lazy" /><span class="home-cover-note">插画</span></RouterLink>
     </article>
 
+    <section v-if="showThemes && themes.little" :id="themes.little.id" class="space-panel home-little-feature"
+      :class="{ 'home-edit-selected': editingContent && selectedContentBlock === themes.little.id }"
+      tabindex="-1" @pointerdown.capture="selectTheme(themes.little.id)">
+      <header class="home-little-heading">
+        <h2 class="home-post-title"><RouterLink :to="themes.little.path"><ContentText tag="span" plain :value="themes.little.title" :block-id="themes.little.id" field="title" /><span class="home-title-chevron" aria-hidden="true">›</span></RouterLink></h2>
+        <ContentText tag="p" class="home-little-subtitle" :value="themes.little.subtitle" :block-id="themes.little.id" field="subtitle" />
+        <ContentText tag="p" class="home-little-description" :value="themes.little.description" :block-id="themes.little.id" field="description" />
+      </header>
+      <HomeNotes />
+      <footer class="home-little-footer"><RouterLink :to="themes.little.path" class="home-inline-link"><ContentText tag="span" plain :value="themes.little.action" :block-id="themes.little.id" field="action" /><span aria-hidden="true">›</span></RouterLink><span v-if="editingContent" class="muted small">纸条内容在 Little Things 中管理。</span></footer>
+    </section>
+
     <section v-if="themes.world" id="home-unity-notes" class="home-notes-section" aria-label="Unity 学习笔记预览">
       <div class="home-note-results" aria-live="polite" aria-atomic="false">
         <article v-for="(note, index) in previewNotes" :key="note.id" class="space-panel home-post-card home-note-card" :class="{ 'home-post-no-image': !noteArtwork(index) }">
@@ -118,17 +140,5 @@ onUnmounted(() => {
       <RouterLink v-if="matchingNotes.length > previewNotes.length" :to="directoryLink" class="space-panel home-more-notes">查看{{ category ? '此分类的' : '全部' }} {{ matchingNotes.length }} 篇笔记 <span aria-hidden="true">›</span></RouterLink>
     </section>
 
-    <article v-if="showThemes && themes.little" :id="themes.little.id" class="space-panel home-post-card home-little-feature"
-      :class="{ 'home-edit-selected': editingContent && selectedContentBlock === themes.little.id, 'home-post-no-image': !themes.little.image }"
-      tabindex="-1" @pointerdown.capture="selectTheme(themes.little.id)">
-      <div class="home-post-copy">
-        <h2 class="home-post-title"><RouterLink :to="themes.little.path"><ContentText tag="span" plain :value="themes.little.title" :block-id="themes.little.id" field="title" /><span class="home-title-chevron" aria-hidden="true">›</span></RouterLink></h2>
-        <div class="home-post-meta"><span class="home-post-category"><ContentText tag="span" :value="themes.little.subtitle" :block-id="themes.little.id" field="subtitle" /></span><span v-if="quote?.source" class="home-post-badge">{{ quote.source }}</span></div>
-        <blockquote v-if="quote" class="home-little-quote"><ContentText tag="p" :value="quote.text" /></blockquote>
-        <ContentText tag="p" class="home-post-summary" :value="themes.little.description" :block-id="themes.little.id" field="description" />
-        <div class="home-post-footer"><RouterLink :to="themes.little.path" class="home-inline-link"><ContentText tag="span" plain :value="themes.little.action" :block-id="themes.little.id" field="action" /><span aria-hidden="true">›</span></RouterLink></div>
-      </div>
-      <RouterLink v-if="themes.little.image" :to="themes.little.path" class="home-post-image" aria-label="去小角落看看"><ArtworkImage :src="contentImage(themes.little.image)" sizes="(max-width: 767px) calc(100vw - 42px), 30vw" :alt="themes.little.alt" :style="{ objectPosition: themes.little.imagePosition }" loading="lazy" /><span class="home-cover-note">插画</span></RouterLink>
-    </article>
   </div>
 </template>

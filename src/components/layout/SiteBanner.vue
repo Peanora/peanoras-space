@@ -12,6 +12,12 @@ provide('content-page', 'home');
 const route = useRoute();
 const isHome = computed(() => route.path === '/');
 const cover = computed(() => contentDocument.value.pages.home.blocks.find(block => block.type === 'homeCover')?.data);
+const titleWords = computed(() => {
+  let index = 0;
+  return String(cover.value?.name || '').split(/\s+/).filter(Boolean).map(word =>
+    Array.from(word, character => ({ character, index: index++ })),
+  );
+});
 const social = computed(() => cover.value?.socials.map(item => ({ ...item, url: safeLink(item.url) })).find(item => item.url));
 const { wallpaper } = useAppearance();
 const { still, reduced } = useAmbientMotion();
@@ -22,7 +28,8 @@ function selectCover() { if (editingContent.value && isHome.value) publishEditor
     <ArtworkImage class="space-banner-art" :src="wallpaper.src" sizes="100vw" background alt="" fetchpriority="high" :style="{ objectPosition: wallpaper.position }" />
     <div class="space-banner-shade" aria-hidden="true"></div>
     <div v-if="isHome" class="space-banner-copy" @pointerdown="selectCover">
-      <ContentText tag="h1" plain class="space-banner-title" tabindex="-1" :value="cover?.name" block-id="cover" field="name" />
+      <ContentText v-if="editingContent" tag="h1" plain class="space-banner-title" tabindex="-1" :value="cover?.name" block-id="cover" field="name" />
+      <h1 v-else class="space-banner-title" tabindex="-1" :aria-label="cover?.name"><span aria-hidden="true"><template v-for="(word, wordIndex) in titleWords" :key="wordIndex"><span class="banner-title-word"><span v-for="letter in word" :key="letter.index" class="banner-title-letter" :style="{ '--letter': letter.index }"><span class="banner-title-float">{{ letter.character }}</span></span></span>{{ wordIndex < titleWords.length - 1 ? ' ' : '' }}</template></span></h1>
       <ContentText tag="p" class="space-banner-welcome" :value="cover?.welcome" block-id="cover" field="welcome" />
       <ContentText v-if="editingContent && cover?.signatures?.length" tag="p" plain class="space-banner-signature" :value="cover.signatures[0]" block-id="cover" field="signatures.0" />
       <SignatureTypewriter v-else :phrases="cover?.signatures || []" :paused="still" :reduced="reduced" />
@@ -32,3 +39,23 @@ function selectCover() { if (editingContent.value && isHome.value) publishEditor
     <div class="space-banner-wave" aria-hidden="true"><svg viewBox="0 0 1440 120" preserveAspectRatio="none"><path class="space-wave-back" d="M0 24C340 45 500 135 900 94S1240 47 1440 32V120H0Z" fill="currentColor"/><path class="space-wave-front" d="M0 45C350 60 550 144 900 102S1250 70 1440 48V120H0Z" fill="currentColor"/></svg></div>
   </section>
 </template>
+
+<style scoped>
+.banner-title-word { display: inline-block; white-space: nowrap; }
+.banner-title-letter { display: inline-block; animation: banner-letter-land 420ms cubic-bezier(.22, .9, .28, 1.22) both; animation-delay: calc(var(--letter) * 24ms); }
+.banner-title-float { display: inline-block; animation: banner-letter-drift 4.8s ease-in-out infinite; animation-delay: calc(var(--letter) * -240ms); }
+.is-still .banner-title-letter, .is-still .banner-title-float { animation-play-state: paused; }
+@keyframes banner-letter-land {
+  0% { opacity: 0; transform: translateY(22px) rotate(-5deg) scale(.92); }
+  65% { opacity: 1; transform: translateY(-5px); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes banner-letter-drift {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  45% { transform: translateY(-3px) rotate(.7deg); }
+  70% { transform: translateY(1px) rotate(-.4deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .banner-title-letter, .banner-title-float { animation: none; }
+}
+</style>

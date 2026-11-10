@@ -41,7 +41,32 @@ a.home-post-category:hover { color: var(--accent); }
 .home-note-empty { padding: 32px; color: var(--muted); }
 .home-more-notes { display: flex; align-items: center; justify-content: center; gap: 14px; min-height: 56px; padding: 12px 16px; color: var(--accent); font-size: 14px; transition: background 180ms ease; }
 .home-more-notes:hover { background: var(--accent-soft); }
-.home-little-quote { margin-top: 16px; color: var(--text); font: 18px/1.7 var(--font-chinese); }
+.home-little-feature { min-width: 0; padding: 28px 28px 20px; }
+.home-little-heading { padding-left: 8px; }
+.home-little-feature:hover .home-title-chevron, .home-little-feature:focus-within .home-title-chevron { opacity: 1; transform: none; }
+.home-little-subtitle { margin-top: 8px; color: var(--accent); font-size: 14px; }
+.home-little-description { margin-top: 12px; color: var(--muted); font-size: 15px; line-height: 1.7; }
+.home-notes-paper { margin-top: 28px; min-width: 0; }
+.app-main .home-notes-paper .little-paper { position: relative; padding: 28px 28px 24px; border: 1px solid var(--line); border-radius: 3px 3px 18px 3px; background: linear-gradient(135deg, transparent calc(100% - 18px), var(--apricot) 0) bottom right / 24px 24px no-repeat, repeating-linear-gradient(transparent 0 31px, #a07b4710 31px 32px) 0 16px / 100% 32px, var(--background); box-shadow: 0 5px 14px #6a4e3209; }
+.home-notes-paper .little-paper::before { content: ""; position: absolute; top: -10px; left: calc(50% - 36px); width: 72px; height: 21px; border: 1px solid #ead9b750; background: #e5cca88c; transform: rotate(-4deg); }
+.home-notes-paper .eyebrow { color: var(--accent); letter-spacing: .12em; font-family: var(--font-display); }
+.app-main .home-notes-paper .quote-area { min-height: 144px; padding-block: 24px; }
+.app-main .home-notes-paper .quote-area blockquote { max-width: 100%; font: 26px/1.8 var(--font-chinese); }
+.home-notes-paper .little-actions { margin-top: 24px; flex-wrap: wrap; gap: 10px; }
+.home-notes-paper .plain-button { min-height: 40px; padding: 8px 14px; font-size: 14px; }
+.home-notes-paper .action-notice { min-height: 32px; padding-block: 7px; font-size: 12px; }
+.app-main .home-notes-paper .favorites-section { padding-top: 20px; border-top: 0; }
+.home-notes-paper .favorites-section .section-heading { gap: 12px; margin-bottom: 8px; }
+.app-main .home-notes-paper .favorites-section .display { font-size: 23px; }
+.home-notes-paper .favorites-section .small, .home-notes-paper .empty-note { font-size: 12px; line-height: 1.7; }
+.home-notes-paper .empty-note { margin-top: 10px; }
+.home-notes-paper .favorites-list { margin-top: 16px; }
+.home-notes-paper .favorites-list li { gap: 12px; padding-block: 12px; }
+.home-notes-paper .favorites-list p { font-size: 14px; overflow-wrap: anywhere; }
+.home-notes-paper .remove-favorite { min-height: 40px; }
+.app-main .home-notes-paper .margin-note { margin-top: 20px; padding-top: 8px; }
+.home-notes-paper .margin-note p { margin-top: 4px; }
+.home-little-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-top: 14px; padding-left: 8px; }
 .home-edit-selected { outline: 2px dashed var(--accent); outline-offset: 4px; }
 @media (max-width: 767px) {
   .home-feed-navigation { height: 49px; gap: 6px; padding: 8.5px 10.5px; }
@@ -61,5 +86,15 @@ a.home-post-category:hover { color: var(--accent); }
   .home-post-footer { gap: 4px 8px; margin-top: 8px; }
   .home-post-tag { padding-inline: 7px; font-size: 11px; }
   .home-inline-link { font-size: 12px; }
-  .home-little-quote { margin-top: 10px; font-size: 17px; }
+  .home-little-feature { padding: 18px 18px 16px; }
+  .home-little-heading { padding-left: 10px; }
+  .home-little-subtitle { font-size: 12px; }
+  .home-little-description { margin-top: 10px; font-size: 14px; }
+  .home-notes-paper { margin-top: 24px; }
+  .app-main .home-notes-paper .little-paper { padding: 22px 18px 20px; }
+  .app-main .home-notes-paper .quote-area { min-height: 144px; }
+  .app-main .home-notes-paper .quote-area blockquote { font-size: 23px; }
+  .home-notes-paper .little-actions { margin-top: 18px; }
+  .home-notes-paper .plain-button { font-size: 13px; padding-inline: 12px; }
+  .home-little-footer { padding-left: 10px; }
 }

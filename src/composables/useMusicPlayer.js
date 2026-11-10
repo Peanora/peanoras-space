@@ -11,30 +11,105 @@ export function officialEmbedUrl(song) {
 }
 export const musicPlatformName = song => song?.qqSongId ? 'QQ 音乐' : '网易云音乐';
 
-// Shared outside route views so navigating the site never remounts the iframe.
-const expanded = ref(false);
-const activeSong = shallowRef(null);
-const selectedSong = shallowRef(null);
-const revision = ref(0);
-const embedUrl = computed(() => officialEmbedUrl(activeSong.value));
+// One controller and one media element live outside route views.
+const expanded = ref(false), activeSong = shallowRef(null), selectedSong = shallowRef(null);
+const revision = ref(0), localTracks = shallowRef({});
+const playing = ref(false), currentTime = ref(0), duration = ref(0), volume = ref(0.7), nativeStatus = ref('');
+let audio = null, detachAudio = null, playbackVersion = 0;
+
+export function localAudioUrl(song) {
+  const src = localTracks.value[song?.id]?.src;
+  if (typeof src !== 'string' || !src.startsWith('/.local-audio/') || /[?#\\]/.test(src)) return null;
+  try {
+    const path = decodeURIComponent(src);
+    if (/[\\\u0000-\u001f]/.test(path) || path.split('/').some(part => part === '..' || part === '.')) return null;
+    return src;
+  } catch { return null; }
+}
+export function setLocalAudioCatalog(catalog) {
+  localTracks.value = catalog?.tracks && typeof catalog.tracks === 'object' && !Array.isArray(catalog.tracks) ? catalog.tracks : {};
+}
+const nativeSource = computed(() => localAudioUrl(activeSong.value));
+const embedUrl = computed(() => nativeSource.value ? null : officialEmbedUrl(activeSong.value));
+function playable(song) { return Boolean(localAudioUrl(song) || officialEmbedUrl(song)); }
+function resetPosition() { currentTime.value = 0; duration.value = 0; playing.value = false; }
+function unloadAudio() {
+  playbackVersion += 1;
+  if (audio) { audio.pause(); audio.removeAttribute('src'); audio.load(); }
+  resetPosition();
+}
+function playNative() {
+  if (!audio || !nativeSource.value) { nativeStatus.value = '播放器尚未准备好，请再点一次播放。'; return; }
+  if (playing.value && audio.getAttribute('src') === nativeSource.value) return;
+  const version = ++playbackVersion;
+  nativeStatus.value = '正在加载音频…';
+  if (audio.getAttribute('src') !== nativeSource.value) {
+    audio.pause(); resetPosition(); audio.setAttribute('src', nativeSource.value); audio.load();
+  }
+  audio.volume = volume.value;
+  const pending = audio.play();
+  pending?.catch(() => {
+    if (version === playbackVersion) {
+      playing.value = false;
+      nativeStatus.value = audio.error ? '音频暂时无法播放，可以重试或前往官方页面。' : '播放未开始，请再点一次播放。';
+    }
+  });
+}
 function loadSong(song) {
-  if (!officialEmbedUrl(song)) return false;
+  if (!playable(song)) return false;
+  const source = localAudioUrl(song);
+  const changed = activeSong.value?.id !== song.id || localAudioUrl(activeSong.value) !== source || officialEmbedUrl(activeSong.value) !== officialEmbedUrl(song);
   selectedSong.value = song;
-  if (officialEmbedUrl(activeSong.value) !== officialEmbedUrl(song)) activeSong.value = song;
+  if (changed) { unloadAudio(); activeSong.value = song; }
   expanded.value = true;
+  if (source) playNative();
   return true;
 }
 function chooseSong(song) {
-  if (!officialEmbedUrl(song)) return false;
+  if (!playable(song)) return false;
   selectedSong.value = song;
   return activeSong.value ? loadSong(song) : true;
 }
 function stop() {
-  activeSong.value = null;
+  unloadAudio(); activeSong.value = null; nativeStatus.value = '';
 }
+function pause() { audio?.pause(); }
+function seek(value) {
+  const seconds = Number(value);
+  if (audio && nativeSource.value && duration.value > 0 && Number.isFinite(seconds)) {
+    audio.currentTime = Math.max(0, Math.min(duration.value, seconds));
+    currentTime.value = audio.currentTime;
+  }
+}
+function setVolume(value) {
+  const level = Number(value);
+  if (!Number.isFinite(level)) return;
+  volume.value = Math.max(0, Math.min(1, level));
+  if (audio) audio.volume = volume.value;
+}
+function attachAudio(element) {
+  detachAudio?.(); audio = element;
+  if (!audio) return;
+  audio.preload = 'none'; audio.volume = volume.value;
+  const handlers = {
+    play: () => { if (nativeSource.value) { playing.value = true; nativeStatus.value = ''; } },
+    pause: () => { playing.value = false; },
+    ended: () => { playing.value = false; nativeStatus.value = '播放结束'; },
+    timeupdate: () => { currentTime.value = Number.isFinite(audio.currentTime) ? audio.currentTime : 0; },
+    durationchange: () => { duration.value = Number.isFinite(audio.duration) ? audio.duration : 0; },
+    error: () => { if (nativeSource.value) { playing.value = false; nativeStatus.value = '音频暂时无法播放，可以重试或前往官方页面。'; } },
+    waiting: () => { if (nativeSource.value) nativeStatus.value = '音频缓冲中…'; },
+    playing: () => { if (nativeSource.value) { playing.value = true; nativeStatus.value = ''; } },
+  };
+  Object.entries(handlers).forEach(([event, handler]) => audio.addEventListener(event, handler));
+  detachAudio = () => { Object.entries(handlers).forEach(([event, handler]) => element.removeEventListener(event, handler)); };
+}
+function releaseAudio() { stop(); detachAudio?.(); detachAudio = null; audio = null; }
 export function useMusicPlayer() {
   return {
     expanded, activeSong, selectedSong, embedUrl, revision, loadSong, chooseSong, stop,
-    retry: () => { if (activeSong.value) revision.value += 1; },
+    nativeSource, playing, currentTime, duration, volume, nativeStatus,
+    localAudioUrl, setLocalAudioCatalog, attachAudio, releaseAudio, pause, seek, setVolume,
+    retry: () => { if (nativeSource.value) { unloadAudio(); playNative(); } else if (activeSong.value) revision.value += 1; },
   };
 }

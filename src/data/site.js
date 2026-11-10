@@ -13,14 +13,38 @@ export const site = {
 
 };
 
-export function headerMenuFor(categories = []) {
+// Navigation destinations share their paths and page descriptions with the
+// router and generated Pages HTML entries. Personal content stays in JSON.
+export const sectionPages = [
+  { path: '/archive', label: '归档', title: 'Archives', kind: 'archive', description: '按目录翻阅 Peanora 已发布的学习笔记。' },
+  { path: '/categories', label: '分类', title: 'Categories', kind: 'categories', description: '按主题分类浏览 Peanora 的学习笔记。' },
+  { path: '/tags', label: '标签', title: 'Tags', kind: 'tags', description: 'Peanora 的文章标签索引。' },
+  { path: '/series', label: '系列', title: 'Series', kind: 'series', description: 'Peanora 的系列文章索引。' },
+  { path: '/diary', label: '动态', title: 'Diary', kind: 'diary', description: 'Peanora 的动态与近况。', empty: '还没有发布动态。' },
+  { path: '/projects', label: '项目', title: 'Projects', kind: 'projects', description: 'Peanora 的项目与作品。', empty: '项目正在整理，准备好后会放在这里。' },
+  { path: '/albums', label: '相册', title: 'Albums', kind: 'albums', description: 'Peanora 的相册。', empty: '相册暂时留白，等待下一份回忆。' },
+  { path: '/bookmarks', label: '书签导航', title: 'Bookmarks', kind: 'bookmarks', description: 'Peanora 收集的网页书签。', empty: '还没有添加书签。' },
+  { path: '/bilibili', label: '哔哩哔哩', title: 'Bilibili', kind: 'bilibili', description: 'Peanora 的哔哩哔哩入口。', empty: '还没有添加哔哩哔哩主页。' },
+  { path: '/friends', label: '友链', title: 'Friends', kind: 'friends', description: 'Peanora 的朋友们与友情链接。', empty: '友链席位暂时留白。' },
+  { path: '/guestbook', label: '留言', title: 'Guestbook', kind: 'guestbook', description: 'Peanora 的留言板。', empty: '留言板暂未开放。' },
+];
+
+export function headerMenuFor() {
   const icons = Object.fromEntries(site.navigation.map(item => [item.path, item.icon]));
+  const pageLink = kind => {
+    const page = sectionPages.find(item => item.kind === kind);
+    return { label: page.label, path: page.path };
+  };
   return [
     { label: '主页', path: '/', icon: icons['/'] },
-    { label: '文章', icon: icons['/unity-notes'], children: [{ label: '全部笔记', path: '/unity-notes' }, ...categories.map(category => ({ label: category, path: { path: '/unity-notes', query: { category } } }))] },
-    { label: '社交', icon: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8', children: site.socials.map(link => ({ label: link.label, url: link.url })) },
-    { label: '我的', icon: icons['/world'], children: site.navigation.filter(item => ['/world', '/music', '/little-things'].includes(item.path)) },
-    { label: '关于', icon: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM12 11v6M12 7h.01', children: [{ label: '关于 Peanora', path: '/world#about' }, { label: '正在学习', path: '/world#unity-notes' }] },
-    { label: '链接', icon: 'M10 13a5 5 0 0 0 7 .5l4-4a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7-.5l-4 4a5 5 0 0 0 7 7l2-2', children: [{ label: 'Peanora 的 GitHub', url: 'https://github.com/Peanora' }, { label: '本站源码', url: 'https://github.com/Peanora/peanoras-space' }] },
+    { label: '文章', icon: icons['/unity-notes'], children: ['archive', 'categories', 'tags', 'series'].map(pageLink) },
+    { label: '社交', icon: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8', children: ['friends', 'guestbook'].map(pageLink) },
+    { label: '我的', icon: icons['/world'], children: [
+      ...['diary', 'projects', 'albums', 'bookmarks', 'bilibili'].map(pageLink),
+      { label: '我的小角落', path: '/#little' },
+      { label: 'Music&Memories', path: '/music' },
+    ] },
+    { label: '关于', icon: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20ZM12 11v6M12 7h.01', children: [{ label: '本站源码', url: 'https://github.com/Peanora/peanoras-space' }] },
+    { label: '链接', icon: 'M10 13a5 5 0 0 0 7 .5l4-4a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7-.5l-4 4a5 5 0 0 0 7 7l2-2', children: [{ label: 'GitHub', url: 'https://github.com/Peanora' }] },
   ];
 }

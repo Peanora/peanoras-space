@@ -36,7 +36,8 @@ export default defineConfig({
             this.error("Cannot generate the Pages fallback without index.html");
           }
           // Real directory entries make the existing fixed pages return 200.
-          // Keep pageMetadata aligned with static routes in src/router/index.js.
+          // sectionPages feeds both router/index.js and pageMetadata, so new
+          // menu destinations receive real Pages entries and share metadata.
           const content = JSON.parse(readFileSync(new URL('./src/data/content.json', import.meta.url),'utf8'));
           for (const path of staticContentPaths(content).filter((path) => path !== "/")) {
             this.emitFile({ type: "asset", fileName: `${path.slice(1)}/index.html`, source: withMetadata(entry.source, path, content) });

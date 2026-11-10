@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { musicPlatformName, officialEmbedUrl, useMusicPlayer } from "../src/composables/useMusicPlayer.js";
+import { localAudioUrl, musicPlatformName, officialEmbedUrl, setLocalAudioCatalog, useMusicPlayer } from "../src/composables/useMusicPlayer.js";
 
 test("official embedding is click-only, shared across pages and explicitly stoppable", () => {
   const song = { id: "netease-1982799628", neteaseId: "1982799628", title: "它像一颗" };
@@ -75,6 +75,107 @@ test('choosing a song waits for explicit loading, switches an existing player an
   assert.equal(player.selectedSong.value, second, 'stop must not reset the picker to the first track');
   assert.equal(player.chooseSong({ id: 'invalid' }), false);
   assert.equal(player.selectedSong.value, second);
+  player.selectedSong.value = null;
+  player.expanded.value = false;
+});
+
+class TestAudio extends EventTarget {
+  attributes = new Map();
+  currentTime = 0;
+  duration = NaN;
+  volume = 1;
+  error = null;
+  playCalls = 0;
+  loadCalls = 0;
+  getAttribute(name) { return this.attributes.get(name) ?? null; }
+  setAttribute(name, value) { this.attributes.set(name, value); }
+  removeAttribute(name) { this.attributes.delete(name); }
+  load() { this.loadCalls += 1; }
+  play() { this.playCalls += 1; return Promise.resolve(); }
+  pause() { this.dispatchEvent(new Event('pause')); }
+}
+
+test('native playback waits for explicit play and media events, survives shared access, and stops without forgetting the track', () => {
+  const player = useMusicPlayer();
+  const song = { id: 'local-preview', title: 'Test fixture', neteaseId: '1982799628' };
+  const element = new TestAudio();
+  player.stop();
+  setLocalAudioCatalog({ tracks: { [song.id]: { src: '/.local-audio/test%20fixture.wav' } } });
+  player.attachAudio(element);
+  assert.equal(element.preload, 'none');
+  assert.equal(element.getAttribute('src'), null, 'attaching audio must not load a source');
+  player.chooseSong(song);
+  assert.equal(element.playCalls, 0, 'initial selection must not start playback');
+  player.loadSong(song);
+  assert.equal(element.getAttribute('src'), '/.local-audio/test%20fixture.wav');
+  assert.equal(player.embedUrl.value, null, 'native source must not load a second official player');
+  assert.equal(player.playing.value, false, 'a play request is not playback evidence');
+  element.dispatchEvent(new Event('playing'));
+  assert.equal(useMusicPlayer().playing.value, true);
+  player.expanded.value = false;
+  assert.equal(element.getAttribute('src'), '/.local-audio/test%20fixture.wav');
+  element.duration = 45;
+  element.dispatchEvent(new Event('durationchange'));
+  player.seek(15);
+  assert.equal(element.currentTime, 15);
+  player.seek(999);
+  assert.equal(element.currentTime, 45);
+  player.setVolume(0.25);
+  assert.equal(element.volume, 0.25);
+  player.pause();
+  assert.equal(player.playing.value, false);
+  const calls = element.playCalls;
+  element.dispatchEvent(new Event('ended'));
+  assert.equal(element.playCalls, calls, 'ended never advances or restarts a track');
+  player.stop();
+  assert.equal(element.getAttribute('src'), null);
+  assert.equal(player.selectedSong.value, song);
+  assert.equal(player.currentTime.value, 0);
+  player.releaseAudio();
+  setLocalAudioCatalog({ tracks: {} });
+  player.selectedSong.value = null;
+});
+
+test('local preview catalog rejects external URLs and traversal while keeping the official fallback', () => {
+  const song = { id: 'test-source', neteaseId: '1982799628' };
+  for (const src of ['https://example.com/song.mp3', '/.local-audio/../secret.mp3', '/.local-audio/%2e%2e/secret.mp3', '/.local-audio/%5csecret.mp3', '/.local-audio/file.mp3?x=1']) {
+    setLocalAudioCatalog({ tracks: { [song.id]: { src } } });
+    assert.equal(localAudioUrl(song), null);
+  }
+  const player = useMusicPlayer();
+  player.loadSong(song);
+  assert.match(player.embedUrl.value, /^https:\/\/music\.163\.com\//);
+  player.stop();
+  setLocalAudioCatalog({ tracks: {} });
+  player.selectedSong.value = null;
+  player.expanded.value = false;
+});
+
+test('failed native play requests do not claim playback and an old rejection cannot override a newly selected track', async () => {
+  const player = useMusicPlayer();
+  const element = new TestAudio();
+  const first = { id: 'first-local' }, second = { id: 'second-local' };
+  setLocalAudioCatalog({ tracks: { 'first-local': { src: '/.local-audio/first.wav' }, 'second-local': { src: '/.local-audio/second.wav' } } });
+  player.attachAudio(element);
+  let rejectFirst;
+  element.play = () => new Promise((resolve, reject) => { rejectFirst = reject; });
+  player.loadSong(first);
+  element.play = () => Promise.resolve();
+  player.loadSong(second);
+  element.dispatchEvent(new Event('playing'));
+  rejectFirst(new Error('Old source aborted'));
+  await Promise.resolve();
+  assert.equal(player.activeSong.value, second);
+  assert.equal(player.playing.value, true);
+  assert.equal(player.nativeStatus.value, '');
+  element.play = () => Promise.reject(new Error('NotAllowedError'));
+  player.pause();
+  player.loadSong(second);
+  await Promise.resolve();
+  assert.equal(player.playing.value, false);
+  assert.match(player.nativeStatus.value, /播放未开始/);
+  player.releaseAudio();
+  setLocalAudioCatalog({ tracks: {} });
   player.selectedSong.value = null;
   player.expanded.value = false;
 });

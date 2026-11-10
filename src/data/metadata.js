@@ -1,4 +1,4 @@
-import { site } from "./site.js";
+import { site, sectionPages } from "./site.js";
 import { unityEntries } from '../content/unityNotes.js';
 
 export const siteOrigin = "https://peanora.cn";
@@ -9,6 +9,7 @@ export const pageMetadata = {
   "/world": { title: `My World — ${site.name}`, description: "认识 Peanora：兴趣爱好、正在学习的方向，以及慢慢积累的个人世界。" },
   "/music": { title: `Music & Memories — ${site.name}`, description: "Peanora 喜欢的歌曲与音乐回忆，通过官方平台一起听歌。" },
   "/little-things": { title: `Little Things — ${site.name}`, description: "翻开一张小纸条，换一句文字，把喜欢的句子留在当前浏览器。" },
+  ...Object.fromEntries(sectionPages.map(page => [page.path, { title: `${page.title} — ${site.name}`, description: page.description }])),
 };
 
 export function metadataFor(path, content) {

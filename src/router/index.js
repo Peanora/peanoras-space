@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import { updateMetadata } from "../data/metadata.js";
 import { contentDocument } from '../content/store.js';
 import { migrateLegacyHash } from "./legacyHistory.js";
+import { sectionPages } from '../data/site.js';
 
 // Replace the current entry before Vue Router reads it: no reload or extra
 // history entry, and ordinary section anchors remain untouched.
@@ -27,6 +28,11 @@ const router = createRouter({
       path: "/little-things",
       component: () => import("../views/LittleThingsView.vue"),
     },
+    ...sectionPages.map(page => ({
+      path: page.path,
+      component: () => import('../views/SectionIndexView.vue'),
+      meta: { section: page.kind },
+    })),
     {
       path: "/:pathMatch(.*)*",
       component: () => import("../views/NotFoundView.vue"),
@@ -34,6 +40,9 @@ const router = createRouter({
   ],
   scrollBehavior(to, from, savedPosition) {
     if (!savedPosition && to.path === from.path && to.hash === from.hash && to.fullPath !== from.fullPath) return false;
+    // Same-page and repeated hash links also pass through scrollBehavior.
+    // Reveal home themes hidden by category filtering before locating them.
+    if (!savedPosition && to.path === '/' && to.hash) window.dispatchEvent(new CustomEvent('peanora:home-anchor', { detail: to.hash }));
     // 等待 180ms 的离场完成，避免旧页面高度影响返回位置和章节定位。
     return new Promise((resolve) =>
       setTimeout(() => {

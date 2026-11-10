@@ -2,7 +2,7 @@
 import { ref, computed } from "vue";
 import ContentText from "./ContentText.vue";
 import { isContentPreview } from "../../content/store";
-const props = defineProps({ data: Object, blockId: String });
+const props = defineProps({ data: Object, blockId: String, readonly: Boolean });
 const littleThings = computed(() => props.data.items);
 import { useLocalFavorites } from "../../composables/useLocalFavorites";
 
@@ -45,13 +45,13 @@ function removeSaved(id) {
 <template>
   <div>
     <section v-if="current" class="little-paper" aria-label="随机文字">
-      <ContentText tag="span" class="eyebrow" :value="data.eyebrow" :block-id="blockId" field="eyebrow" />
+      <ContentText tag="span" class="eyebrow" :value="data.eyebrow" :block-id="blockId" :field="readonly ? undefined : 'eyebrow'" />
       <div class="quote-area" aria-live="polite" aria-atomic="true">
         <Transition name="quote" mode="out-in"
-          ><ContentText tag="blockquote" :key="current.id" :value="current.text" :block-id="blockId" :field="`items.${currentIndex}.text`" /></Transition
+          ><ContentText tag="blockquote" :key="current.id" :value="current.text" :block-id="blockId" :field="readonly ? undefined : `items.${currentIndex}.text`" /></Transition
         >
       </div>
-      <ContentText tag="span" class="quote-source" :value="current.source" :block-id="blockId" :field="`items.${currentIndex}.source`" />
+      <ContentText tag="span" class="quote-source" :value="current.source" :block-id="blockId" :field="readonly ? undefined : `items.${currentIndex}.source`" />
       <div class="little-actions">
         <button class="plain-button" @click="nextText">
           {{ data.nextLabel }} <span aria-hidden="true">↻</span></button
@@ -65,19 +65,19 @@ function removeSaved(id) {
         </button>
       </div>
     </section>
-    <ContentText v-else tag="p" class="empty-note" :value="data.emptyText" :block-id="blockId" field="emptyText" />
+    <ContentText v-else tag="p" class="empty-note" :value="data.emptyText" :block-id="blockId" :field="readonly ? undefined : 'emptyText'" />
     <p class="action-notice" role="status">
       {{ storageNotice || announcement }}
     </p>
     <section class="favorites-section" :aria-labelledby="`${blockId}-favorites-title`">
       <div class="section-heading">
-        <ContentText tag="h2" :id="`${blockId}-favorites-title`" class="display" :value="data.favoritesHeading" :block-id="blockId" field="favoritesHeading" />
+        <ContentText tag="h2" :id="`${blockId}-favorites-title`" class="display" :value="data.favoritesHeading" :block-id="blockId" :field="readonly ? undefined : 'favoritesHeading'" />
         <span class="muted small">{{ data.favoritesLabel }} / {{ saved.length }}</span>
       </div>
-      <ContentText tag="p" class="small muted" :value="data.favoritesHint" :block-id="blockId" field="favoritesHint" />
+      <ContentText tag="p" class="small muted" :value="data.favoritesHint" :block-id="blockId" :field="readonly ? undefined : 'favoritesHint'" />
       <ul v-if="saved.length" class="favorites-list">
         <li v-for="item in saved" :key="item.id">
-          <ContentText tag="p" :value="item.text" :block-id="blockId" :field="`items.${littleThings.indexOf(item)}.text`" />
+          <ContentText tag="p" :value="item.text" :block-id="blockId" :field="readonly ? undefined : `items.${littleThings.indexOf(item)}.text`" />
           <button
             class="remove-favorite"
             :aria-label="`移除收藏：${item.text}`"
@@ -87,7 +87,7 @@ function removeSaved(id) {
           </button>
         </li>
       </ul>
-      <ContentText v-else tag="p" class="empty-note" :value="data.emptyFavorites" :block-id="blockId" field="emptyFavorites" />
+      <ContentText v-else tag="p" class="empty-note" :value="data.emptyFavorites" :block-id="blockId" :field="readonly ? undefined : 'emptyFavorites'" />
     </section>
     <div class="margin-note">
       <button
@@ -98,7 +98,7 @@ function removeSaved(id) {
       >
         {{ data.marginLabel }} <span aria-hidden="true">{{ noteOpen ? "−" : "+" }}</span>
       </button>
-      <ContentText v-if="noteOpen" tag="p" id="margin-note-content" :value="data.marginText" :block-id="blockId" field="marginText" />
+      <ContentText v-if="noteOpen" tag="p" id="margin-note-content" :value="data.marginText" :block-id="blockId" :field="readonly ? undefined : 'marginText'" />
     </div>
   </div>
 </template>

@@ -6,3 +6,4 @@ dist/
 *.log
 .editor-backups/
 src/data/content.json.*.tmp
+.local-audio/
