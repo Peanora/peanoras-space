@@ -40,6 +40,7 @@ export function headerMenuFor() {
     { label: '文章', icon: icons['/unity-notes'], children: ['archive', 'categories', 'tags', 'series'].map(pageLink) },
     { label: '社交', icon: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8', children: ['friends', 'guestbook'].map(pageLink) },
     { label: '我的', icon: icons['/world'], children: [
+      { label: 'TODO 清单', path: '/todo' },
       ...['diary', 'projects', 'albums', 'bookmarks', 'bilibili'].map(pageLink),
       { label: '我的小角落', path: '/#little' },
       { label: 'Music&Memories', path: '/music' },

@@ -33,6 +33,9 @@ test('real production build emits published note HTML and excludes draft bodies 
     assert.ok(html.includes('https://peanora.cn/unity-notes/build-check/'));
     assert.ok((await readdir(join(root,'dist/unity-notes'))).includes('index.html'));
     assert.ok(!(await readdir(join(root,'dist/unity-notes'))).includes('draft-check'));
+    const todoHtml = await readFile(join(root, 'dist/todo/index.html'), 'utf8');
+    assert.ok(todoHtml.includes('name="robots" content="noindex,nofollow"'));
+    assert.ok(todoHtml.includes('https://peanora.cn/todo/'));
     for (const page of sectionPages) {
       const entry = await readFile(join(root, 'dist', page.path.slice(1), 'index.html'), 'utf8');
       assert.ok(entry.includes(`href="https://peanora.cn${page.path}/"`), `Missing canonical static entry for ${page.path}`);

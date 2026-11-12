@@ -12,7 +12,7 @@ test('all requested header destinations have real static entries and share metad
       if (item.url) continue;
       const path = item.path.split('#')[0] || '/';
       assert.ok(paths.has(path), `Missing static entry for ${item.label}: ${path}`);
-      assert.equal(metadataFor(path).robots, 'index,follow');
+      assert.equal(metadataFor(path).robots, path === '/todo' ? 'noindex,nofollow' : 'index,follow');
     }
   }
   assert.equal(new Set(sectionPages.map(page => page.path)).size, sectionPages.length);
@@ -24,7 +24,7 @@ test('header keeps requested menu groups, homepage paper shortcut, and music acc
   const menu = label => menus.find(item => item.label === label).children;
   assert.deepEqual(menu('文章').map(item => item.label), ['归档', '分类', '标签', '系列']);
   assert.deepEqual(menu('社交').map(item => item.label), ['友链', '留言']);
-  assert.deepEqual(menu('我的').map(item => item.label), ['动态', '项目', '相册', '书签导航', '哔哩哔哩', '我的小角落', 'Music&Memories']);
+  assert.deepEqual(menu('我的').map(item => item.label), ['TODO 清单', '动态', '项目', '相册', '书签导航', '哔哩哔哩', '我的小角落', 'Music&Memories']);
   assert.equal(menu('我的').find(item => item.label === '我的小角落').path, '/#little');
   assert.equal(menu('我的').find(item => item.label === 'Music&Memories').path, '/music');
   assert.deepEqual(menu('关于'), [{ label: '本站源码', url: 'https://github.com/Peanora/peanoras-space' }]);

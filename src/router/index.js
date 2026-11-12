@@ -20,6 +20,7 @@ const router = createRouter({
       component: () => import("../views/WorldView.vue"),
     },
     { path: '/unity-notes/:id?', component: () => import('../views/UnityNotesView.vue') },
+    { path: '/todo', component: () => import('../views/TodoView.vue') },
     {
       path: "/music",
       component: () => import("../views/MusicView.vue"),

@@ -4,6 +4,7 @@ import { unityEntries } from '../content/unityNotes.js';
 export const siteOrigin = "https://peanora.cn";
 export const shareImage = `${siteOrigin}/social-cover.png`;
 export const pageMetadata = {
+  '/todo': { title: `To-do list — ${site.name}`, description: '登录后管理自己的私人待办清单。', robots: 'noindex,nofollow' },
   '/unity-notes': { title: `Unity Notes — ${site.name}`, description: 'Peanora 的 Unity 学习手册，整理学习中的思路、代码与小小发现。' },
   "/": { title: site.name, description: "欢迎来到 Peanora 的小空间，翻开个人世界、喜欢的音乐和生活里的小纸条。" },
   "/world": { title: `My World — ${site.name}`, description: "认识 Peanora：兴趣爱好、正在学习的方向，以及慢慢积累的个人世界。" },
@@ -17,7 +18,7 @@ export function metadataFor(path, content) {
   const article = content && unityEntries(content).find(note => normalized === `/unity-notes/${note.id}`);
   const page = pageMetadata[normalized] || (article && {title:`${article.title} — Unity Notes — ${site.name}`,description:article.summary || 'Unity 学习笔记'});
   return page
-    ? { ...page, url: `${siteOrigin}${normalized === "/" ? "/" : normalized + "/"}`, robots: "index,follow" }
+    ? { ...page, url: `${siteOrigin}${normalized === "/" ? "/" : normalized + "/"}`, robots: page.robots || "index,follow" }
     : { title: `页面未找到 — ${site.name}`, description: "这个页面暂时找不到，可以回到 Peanora 的小空间继续浏览。", url: null, robots: "noindex,follow" };
 }
 
