@@ -42,7 +42,8 @@ const router = createRouter({
     },
   ],
   scrollBehavior(to, from, savedPosition) {
-    if (!savedPosition && to.path === from.path && to.hash === from.hash && to.fullPath !== from.fullPath) return false;
+    const articlePageChanged = to.path === '/' && to.hash === '#home-articles' && to.query.page !== from.query.page;
+    if (!savedPosition && !articlePageChanged && to.path === from.path && to.hash === from.hash && to.fullPath !== from.fullPath) return false;
     // Same-page and repeated hash links also pass through scrollBehavior.
     // Reveal home themes hidden by category filtering before locating them.
     if (!savedPosition && to.path === '/' && to.hash) window.dispatchEvent(new CustomEvent('peanora:home-anchor', { detail: to.hash }));
