@@ -7,3 +7,4 @@ dist/
 .editor-backups/
 src/data/content.json.*.tmp
 .local-audio/
+supabase/.temp/

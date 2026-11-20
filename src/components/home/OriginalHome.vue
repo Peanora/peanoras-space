@@ -10,6 +10,7 @@ import { appearance } from '../../data/appearance';
 import { useAppearance } from '../../composables/useAppearance';
 import { useAmbientMotion } from '../../composables/useAmbientMotion';
 import { useThemePager } from '../../composables/useThemePager';
+import { useAccountDialog } from '../../composables/useAccountDialog.js';
 import ContentText from '../content/ContentText.vue';
 import HomeScene from '../content/HomeScene.vue';
 import ChapterTicket from '../content/ChapterTicket.vue';
@@ -19,6 +20,7 @@ import '../../styles/original-home.css';
 
 provide('content-page', 'home');
 const route = useRoute();
+const { show: showAccount } = useAccountDialog();
 const root = ref(null), viewport = ref(null), portraitBouncing = ref(false);
 const { wallpaper } = useAppearance();
 const { still, reduced } = useAmbientMotion();
@@ -104,7 +106,10 @@ onUnmounted(() => {
                 <ContentText v-if="editingContent && cover.signatures.length" tag="p" plain class="cover-signature" :value="cover.signatures[0]" block-id="cover" field="signatures.0" />
                 <SignatureTypewriter v-else :phrases="cover.signatures" :paused="still || current !== 0" :reduced="reduced" />
               </div>
-              <button class="screen-entry cover-entry" @click="!editingContent && goTo(1, { align: false })"><ContentText tag="span" plain :value="cover.entry" block-id="cover" field="entry" /><span aria-hidden="true">↓</span></button>
+              <div class="cover-actions">
+                <button class="screen-entry cover-entry" @click="!editingContent && goTo(1, { align: false })"><ContentText tag="span" plain :value="cover.entry" block-id="cover" field="entry" /><span aria-hidden="true">↓</span></button>
+                <button v-if="!editingContent" class="cover-account" type="button" aria-haspopup="dialog" @click="showAccount">账号登录</button>
+              </div>
             </div>
             <div class="cover-portrait">
               <figure class="cover-print"><ArtworkImage :src="wallpaper.src" sizes="(max-width: 720px) 40vw, 460px" loading="eager" fetchpriority="high" alt="" :style="{ objectPosition: wallpaper.position }" /><figcaption>{{ wallpaper.name }}</figcaption></figure>

@@ -31,7 +31,9 @@ const router = createRouter({
     },
     ...sectionPages.map(page => ({
       path: page.path,
-      component: () => import('../views/SectionIndexView.vue'),
+      component: ['friends', 'guestbook'].includes(page.kind)
+        ? () => import('../views/CommunityView.vue')
+        : () => import('../views/SectionIndexView.vue'),
       meta: { section: page.kind },
     })),
     {

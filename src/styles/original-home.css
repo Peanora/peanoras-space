@@ -24,6 +24,9 @@
 .original-home .screen-entry { display: inline-flex; align-items: center; justify-content: space-between; gap: 30px; min-height: 44px; padding: 9px 20px; border: 1px solid transparent; border-radius: 26px; background: #75503a; color: #fffcf4; font-size: 15px; line-height: 1.6; transition: background 180ms, transform 200ms; }
 .original-home .screen-entry:hover { background: #62442f; }
 .original-home .screen-entry:active { transform: scale(.97); }
+.original-home .cover-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.original-home .cover-account { min-height: 44px; padding: 8px 14px; border: 1px solid #cdb392; border-radius: 24px; background: var(--paper); color: var(--accent); font: 700 14px var(--font-body); }
+.original-home .cover-account:hover { background: var(--accent-soft); }
 .original-home .cover-portrait { position: relative; justify-self: end; width: 100%; padding: 5px 30px 35px 4px; }
 .original-home .cover-print { position: relative; margin: 0; padding: 9px 9px 0; background: #fffcf3; box-shadow: 0 12px 24px #5b493121, 0 1px 2px #39281933; transform: rotate(-3deg); }
 .original-home .cover-print::before { content: ''; position: absolute; z-index: 1; left: 40%; top: -9px; width: 76px; height: 22px; background: #ccb38bbf; transform: rotate(5deg); }

@@ -1,0 +1,5 @@
+project_id = "peanoras-space"
+
+[functions.username-login]
+verify_jwt = false
+entrypoint = "./functions/username-login/index.js"

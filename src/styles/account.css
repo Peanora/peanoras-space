@@ -1,0 +1,25 @@
+.site-account-dialog { width: min(480px, calc(100% - 28px)); max-height: min(760px, calc(100dvh - 32px)); padding: 0; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: var(--text); margin: auto; overflow: auto; box-shadow: 0 22px 70px #36221435; }
+.site-account-dialog::backdrop { background: #30231978; }
+.site-account-paper { position: relative; padding: 29px; }
+.account-dismiss { display: grid; place-items: center; position: absolute; top: 10px; right: 10px; min-width: 44px; min-height: 44px; border: 0; border-radius: 50%; background: transparent; color: var(--accent); font: 26px/1 var(--font-body); }
+.account-dismiss:hover { background: var(--accent-soft); }
+.account-panel { font-family: var(--font-body); }
+.account-panel h2 { color: var(--accent); font: 700 26px/1.4 var(--font-handwriting); margin: 0 44px 16px 0; }
+.account-panel p { overflow-wrap: anywhere; }
+.account-modes { display: flex; flex-wrap: wrap; gap: 6px; border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 18px; }
+.account-modes button, .account-actions button, .account-actions a, .account-secondary { display: inline-flex; justify-content: center; align-items: center; min-height: 44px; padding: 7px 12px; border: 0; border-radius: 8px; background: transparent; color: var(--accent); font: 700 14px var(--font-body); }
+.account-modes button[aria-pressed="true"], .account-modes button:hover, .account-actions :is(a, button):hover, .account-secondary:hover { background: var(--accent-soft); }
+.account-form { display: grid; gap: 8px; }
+.account-form label { font-weight: 700; margin-top: 4px; }
+.account-form input { width: 100%; min-width: 0; min-height: 46px; padding: 9px 13px; border: 1px solid var(--line); border-radius: 9px; background: var(--background); color: var(--text); font: inherit; }
+.account-form small, .account-guide { font-size: 13px; color: var(--muted); }
+.account-primary { min-height: 44px; padding: 8px 16px; margin-top: 7px; border: 1px solid var(--accent); border-radius: 9px; background: var(--accent); color: var(--surface); font: 700 15px var(--font-body); }
+.account-primary:hover { filter: brightness(.93); }
+.account-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; }
+.account-signed-in { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 8px; }
+.account-identity { font-weight: 700; margin-block: 6px; }
+.account-status { margin-top: 12px; padding: 9px 12px; background: var(--background); border-left: 3px solid var(--accent); border-radius: 4px; font-size: 14px; }
+.account-error { color: #823e2e; }
+.account-panel :disabled { opacity: .6; cursor: not-allowed; }
+.account-panel :focus-visible, .account-dismiss:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+@media (max-width: 540px) { .site-account-paper { padding: 23px 20px; } }

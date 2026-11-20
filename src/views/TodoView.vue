@@ -1,16 +1,17 @@
 <script setup>
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { useTodoList } from '../composables/useTodoList.js';
+import { useAccountDialog } from '../composables/useAccountDialog.js';
+import AccountPanel from '../components/account/AccountPanel.vue';
 import '../styles/todo.css';
 
-const { configured, state, controller } = useTodoList();
-const email = ref(''), token = ref(''), title = ref(''), filter = ref('all');
+const { account, state, controller } = useTodoList();
+const { configured, state: accountState } = account;
+const { show: showAccount } = useAccountDialog();
+const title = ref(''), filter = ref('all');
 const editId = ref(''), editTitle = ref(''), deleteId = ref('');
-const codeInput = ref(null), emailInput = ref(null), addInput = ref(null);
-const clock = ref(Date.now());
-let timer;
-const cooldown = computed(() => Math.max(0, Math.ceil((state.resendAt - clock.value) / 1000)));
-const busy = computed(() => state.mutating || state.loading || state.signingOut || !state.loaded);
+const addInput = ref(null);
+const busy = computed(() => state.mutating || state.loading || accountState.busy === 'sign-out' || !state.loaded);
 const completed = computed(() => state.items.filter(item => item.completed).length);
 const visible = computed(() => state.items.filter(item => filter.value === 'all' || (filter.value === 'done' ? item.completed : !item.completed)));
 const filters = computed(() => [
@@ -19,19 +20,7 @@ const filters = computed(() => [
   { id: 'done', label: '已完成', count: completed.value },
 ]);
 
-watch(() => state.user?.id, () => { title.value = ''; editId.value = ''; editTitle.value = ''; deleteId.value = ''; token.value = ''; email.value = ''; filter.value = 'all'; });
-onMounted(() => { timer = setInterval(() => { clock.value = Date.now(); }, 1000); });
-onUnmounted(() => clearInterval(timer));
-async function send() {
-  if (await controller.sendCode(state.pendingEmail || email.value)) {
-    clock.value = Date.now(); token.value = '';
-    await nextTick(); codeInput.value?.focus();
-  }
-}
-async function changeEmail() {
-  controller.changeEmail(); token.value = '';
-  await nextTick(); emailInput.value?.focus();
-}
+watch(() => state.userId, () => { title.value = ''; editId.value = ''; editTitle.value = ''; deleteId.value = ''; filter.value = 'all'; });
 async function add() {
   if (await controller.add(title.value)) { title.value = ''; filter.value = 'all'; }
   await nextTick(); addInput.value?.focus();
@@ -65,38 +54,21 @@ async function remove(item) {
       <p>登录与云端保存尚未开放，请稍后再来。</p>
       <RouterLink class="todo-button" to="/">返回首页</RouterLink>
     </section>
-    <div v-else-if="state.initializing" class="todo-login space-panel" role="status">正在恢复登录…</div>
-    <section v-else-if="!state.user" class="todo-login space-panel" aria-labelledby="todo-login-heading">
-      <h2 id="todo-login-heading">你的私人清单</h2>
-      <p>用邮箱验证码登录。首次登录会创建账户，清单随账户保存，只有你能查看。</p>
-      <form v-if="!state.pendingEmail" class="todo-auth-form" @submit.prevent="send">
-        <label for="todo-email">邮箱地址</label>
-        <input id="todo-email" ref="emailInput" v-model="email" type="email" autocomplete="email" inputmode="email" maxlength="254" placeholder="you@example.com" required :disabled="state.sending" />
-        <button class="todo-button todo-primary" :disabled="state.sending || cooldown > 0">{{ state.sending ? '正在发送…' : cooldown > 0 ? `${cooldown} 秒后可发送` : '发送验证码' }}</button>
-      </form>
-      <form v-else class="todo-auth-form" @submit.prevent="controller.verifyCode(token)">
-        <p class="todo-email-sent">验证码发送至 <strong>{{ state.pendingEmail }}</strong></p>
-        <label for="todo-code">邮箱验证码</label>
-        <input id="todo-code" ref="codeInput" v-model="token" type="text" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6,10}" minlength="6" maxlength="10" required :disabled="state.verifying || state.sending" aria-describedby="todo-code-help" />
-        <small id="todo-code-help">输入邮件中的数字验证码，过期后可重新发送。</small>
-        <button class="todo-button todo-primary" :disabled="state.verifying || state.sending">{{ state.verifying ? '正在登录…' : '登录 / 注册' }}</button>
-        <div class="todo-auth-actions">
-          <button class="todo-text-button" type="button" :disabled="cooldown > 0 || state.sending || state.verifying" @click="send">{{ state.sending ? '正在发送…' : cooldown > 0 ? `${cooldown} 秒后重发` : '重新发送' }}</button>
-          <button class="todo-text-button" type="button" :disabled="state.sending || state.verifying" @click="changeEmail">更换邮箱</button>
-        </div>
-      </form>
-      <p v-if="state.authMessage" class="todo-status" role="status">{{ state.authMessage }}</p>
-      <p v-if="state.authError" class="todo-error" role="alert">{{ state.authError }}</p>
-      <p class="todo-privacy">登录状态会保存在当前浏览器。在公用设备上使用后，请退出登录。</p>
-    </section>
+    <div v-else-if="accountState.initializing" class="todo-login space-panel" role="status">正在恢复登录…</div>
+    <div v-else-if="!accountState.user" class="todo-login space-panel">
+      <AccountPanel heading="你的私人清单" initial-mode="email" />
+    </div>
 
     <template v-else>
       <section class="todo-notebook space-panel" aria-label="我的待办清单">
         <div class="todo-account">
-          <div><span class="todo-account-label">当前账户</span><strong>{{ state.user.email }}</strong></div>
-          <button class="todo-text-button" :disabled="state.signingOut" @click="controller.signOut()">{{ state.signingOut ? '正在退出…' : '退出登录' }}</button>
+          <div><span class="todo-account-label">当前账户</span><strong>{{ accountState.user.email }}</strong></div>
+          <div class="todo-account-actions">
+            <button class="todo-text-button" type="button" aria-haspopup="dialog" @click="showAccount">账号设置</button>
+            <button class="todo-text-button" :disabled="accountState.busy === 'sign-out'" @click="account.controller.signOut()">{{ accountState.busy === 'sign-out' ? '正在退出…' : '退出登录' }}</button>
+          </div>
         </div>
-        <p v-if="state.authError" class="todo-error" role="alert">{{ state.authError }}</p>
+        <p v-if="accountState.error" class="todo-error" role="alert">{{ accountState.error }}</p>
         <form class="todo-add" @submit.prevent="add">
           <label class="sr-only" for="todo-new">添加待办</label>
           <input id="todo-new" ref="addInput" v-model="title" type="text" placeholder="下一件想做的事…" maxlength="1000" required :disabled="busy" />
@@ -106,7 +78,7 @@ async function remove(item) {
           <div class="todo-filters" role="group" aria-label="筛选待办">
             <button v-for="tab in filters" :key="tab.id" :aria-pressed="filter === tab.id" @click="filter = tab.id">{{ tab.label }} <span>{{ tab.count }}</span></button>
           </div>
-          <button class="todo-text-button" :disabled="state.loading || state.mutating || state.signingOut" @click="controller.refresh()">{{ state.loading ? '加载中…' : '刷新' }}</button>
+          <button class="todo-text-button" :disabled="state.loading || state.mutating || accountState.busy === 'sign-out'" @click="controller.refresh()">{{ state.loading ? '加载中…' : '刷新' }}</button>
         </div>
         <p v-if="state.loadError" class="todo-error" role="alert">{{ state.loadError }}</p>
         <p v-if="state.mutationError" class="todo-error" role="alert">{{ state.mutationError }}</p>

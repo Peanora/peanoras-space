@@ -1,14 +1,17 @@
 <script setup>
-import { computed, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, defineAsyncComponent, nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { RouterView, useRoute } from "vue-router";
 import SiteHeader from "./components/layout/SiteHeader.vue";
 import SiteFooter from "./components/layout/SiteFooter.vue";
 import SiteBackdrop from "./components/layout/SiteBackdrop.vue";
 import SiteBanner from "./components/layout/SiteBanner.vue";
 import SpaceSidebar from "./components/layout/SpaceSidebar.vue";
+import { useAccountDialog } from './composables/useAccountDialog.js';
 import './styles/original-home-shell.css';
 
 const route = useRoute();
+const { open: accountOpen, close: closeAccount } = useAccountDialog();
+const AccountDialog = defineAsyncComponent(() => import('./components/account/AccountDialog.vue'));
 const isHome = computed(() => route.path === "/");
 const isReading = computed(() => /^\/unity-notes\/[^/]+\/?$/.test(route.path));
 const homeSidebarOpen = ref(false);
@@ -83,5 +86,6 @@ watch(
       <SpaceSidebar v-if="!isHome && !isReading" side="right" />
     </div>
     <SiteFooter v-if="!isHome" />
+    <AccountDialog v-if="accountOpen" @close="closeAccount" />
   </div>
 </template>

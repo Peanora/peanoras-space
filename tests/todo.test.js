@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { todoConfig } from '../src/todo/config.js';
 import { createTodoController, cleanTitle } from '../src/todo/controller.js';
 import { createTodoApi } from '../src/todo/api.js';
+import { createAccount } from '../src/account/session.js';
 
 const session = id => ({ user: { id, email: `${id}@example.com` } });
 const row = (id = 'task-a', title = '测试待办') => ({ id, user_id: 'a', title, completed: false, created_at: '2026-11-12T00:00:00Z', updated_at: '2026-11-12T00:00:00Z' });
@@ -16,6 +17,8 @@ function harness(initialSession = session('a')) {
     async signInWithOtp(args) { calls.push(args); return {}; },
     async verifyOtp(args) { calls.push(args); return { data: { session: session('a') } }; },
     async signOut(args) { calls.push(args); listener('SIGNED_OUT', null); return {}; },
+    async updateUser(args) { calls.push(['updateUser', args]); return {}; },
+    async setSession(tokens) { calls.push(['setSession', tokens]); return { data: { session: session('a') } }; },
   };
   const api = {
     async list(id) { calls.push(['list', id]); return [row()]; },
@@ -23,10 +26,18 @@ function harness(initialSession = session('a')) {
     async update(id, item, patch) { calls.push(['update', id, item.id, patch]); return { ...item, ...patch, updated_at: 'new-version' }; },
     async remove(id, item) { calls.push(['remove', id, item.id]); },
   };
-  const controller = createTodoController({ auth, api, now: () => time, schedule: fn => scheduled.push(fn) });
-  return { controller, state: controller.state, auth, api, calls, scheduled, event: (id) => listener('SIGNED_IN', id ? session(id) : null), advance: ms => { time += ms; } };
+  const queue = fn => scheduled.push(fn);
+  const accountApi = { async username() { return null; }, async setUsername(name) { calls.push(['setUsername', name]); return name; } };
+  const account = createAccount({ auth, api: accountApi, now: () => time, schedule: queue });
+  const controller = createTodoController({ api, schedule: queue });
+  controller.setUser(initialSession?.user.id);
+  return {
+    controller, account, accountApi, state: controller.state, auth, api, calls,
+    event(id) { listener?.('SIGNED_IN', id ? session(id) : null); controller.setUser(id ?? ''); },
+    advance: ms => { time += ms; },
+  };
 }
-async function ready(h) { await h.controller.start(); await h.controller.refresh(); }
+async function ready(h) { await h.controller.refresh(); }
 
 test('configuration refuses private keys, insecure origins, and missing values', () => {
   const env = { VITE_SUPABASE_URL: 'https://sample.supabase.co', VITE_SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_test' };
@@ -37,35 +48,66 @@ test('configuration refuses private keys, insecure origins, and missing values',
 });
 
 test('OTP registers new users, verifies email codes, preserves cooldown across address changes', async () => {
-  const h = harness(null); await h.controller.start();
-  assert.equal(await h.controller.sendCode('not-an-email'), false);
+  const h = harness(null); await h.account.start();
+  assert.equal(await h.account.sendCode('not-an-email'), false);
   assert.equal(h.calls.length, 0);
-  assert.equal(await h.controller.sendCode(' user@example.com '), true);
+  assert.equal(await h.account.sendCode(' user@example.com '), true);
   assert.deepEqual(h.calls[0], { email: 'user@example.com', options: { shouldCreateUser: true } });
-  h.controller.changeEmail();
-  assert.equal(await h.controller.sendCode('second@example.com'), false);
+  h.account.changeEmail();
+  assert.equal(await h.account.sendCode('second@example.com'), false);
   h.advance(60000);
-  assert.equal(await h.controller.sendCode('second@example.com'), true);
-  assert.equal(await h.controller.verifyCode('123'), false);
-  assert.equal(await h.controller.verifyCode('123456'), true);
+  assert.equal(await h.account.sendCode('second@example.com'), true);
+  assert.equal(await h.account.verifyCode('123'), false);
+  assert.equal(await h.account.verifyCode('123456'), true);
   assert.deepEqual(h.calls.at(-1), { email: 'second@example.com', token: '123456', type: 'email' });
-  assert.equal(h.state.user.id, 'a');
-  assert.equal(h.state.pendingEmail, '');
-  h.controller.dispose();
+  assert.equal(h.account.state.user.id, 'a');
+  assert.equal(h.account.state.pendingEmail, '');
+  h.account.dispose();
 });
 
 test('failed sends never advance to code entry; failed verification preserves email', async () => {
-  const h = harness(null); await h.controller.start();
+  const h = harness(null); await h.account.start();
   h.auth.signInWithOtp = async () => ({ error: { status: 429 } });
-  assert.equal(await h.controller.sendCode('user@example.com'), false);
-  assert.equal(h.state.pendingEmail, ''); assert.equal(h.state.resendAt, 0);
-  assert.match(h.state.authError, /太频繁/);
-  h.state.pendingEmail = 'user@example.com';
+  assert.equal(await h.account.sendCode('user@example.com'), false);
+  assert.equal(h.account.state.pendingEmail, ''); assert.equal(h.account.state.resendAt, 0);
+  assert.match(h.account.state.error, /太频繁/);
+  h.account.state.pendingEmail = 'user@example.com';
   h.auth.verifyOtp = async () => ({ error: { code: 'otp_expired' } });
-  assert.equal(await h.controller.verifyCode('123456'), false);
-  assert.equal(h.state.user, null); assert.equal(h.state.pendingEmail, 'user@example.com');
-  assert.match(h.state.authError, /已过期/);
-  h.controller.dispose();
+  assert.equal(await h.account.verifyCode('123456'), false);
+  assert.equal(h.account.state.user, null); assert.equal(h.account.state.pendingEmail, 'user@example.com');
+  assert.match(h.account.state.error, /已过期/);
+  h.account.dispose();
+});
+
+test('username and password attach to the verified account and use its existing session ID', async () => {
+  const h = harness();
+  await h.account.start(); await h.account.loadProfile();
+  assert.equal(await h.account.setupPassword('Alice_1', 'strong passphrase', 'different'), false);
+  assert.equal(h.calls.length, 0);
+  const password = 'strong passphrase';
+  assert.equal(await h.account.setupPassword(' Alice_1 ', password, password), true);
+  assert.deepEqual(h.calls.slice(-2), [['updateUser', { password }], ['setUsername', 'alice_1']]);
+  assert.equal(h.account.state.user.id, 'a');
+  await h.account.signOut();
+  h.accountApi.passwordLogin = async (name, entered) => {
+    assert.equal(name, 'alice_1'); assert.equal(entered, password);
+    return { access_token: 'access', refresh_token: 'refresh' };
+  };
+  assert.equal(await h.account.passwordLogin('ALICE_1', password), true);
+  assert.equal(h.account.state.user.id, 'a');
+  assert.deepEqual(h.calls.at(-1), ['setSession', { access_token: 'access', refresh_token: 'refresh' }]);
+  h.account.dispose();
+});
+
+test('username collision can be retried with the password saved in the first attempt', async () => {
+  const h = harness(); await h.account.start(); await h.account.loadProfile();
+  h.accountApi.setUsername = async () => { throw { code: '23505' }; };
+  assert.equal(await h.account.setupPassword('taken', 'long password', 'long password'), false);
+  assert.match(h.account.state.error, /已被使用/);
+  h.auth.updateUser = async () => ({ error: { code: 'same_password' } });
+  h.accountApi.setUsername = async name => name;
+  assert.equal(await h.account.setupPassword('my_name', 'long password', 'long password'), true);
+  assert.equal(h.account.state.username, 'my_name'); h.account.dispose();
 });
 
 test('CRUD persists on server before changing the view, and filters writable fields', async () => {
@@ -114,12 +156,14 @@ test('logout and account switches discard private rows and late reads/writes', a
   await h.controller.refresh();
   const write = deferred(); h.api.add = () => write.promise;
   const adding = h.controller.add('b 的内容');
-  assert.equal(await h.controller.signOut(), true);
-  assert.deepEqual(h.state.items, []); assert.equal(h.state.user, null);
+  await h.account.start();
+  assert.equal(await h.account.signOut(), true);
+  h.event(null);
+  assert.deepEqual(h.state.items, []); assert.equal(h.state.userId, '');
   write.resolve({ ...row('late-b'), user_id: 'b' }); await adding;
   assert.deepEqual(h.state.items, []);
   assert.equal(await h.controller.add('未登录'), false);
-  h.controller.dispose(); assert.ok(h.calls.includes('unsubscribed'));
+  h.controller.dispose(); h.account.dispose(); assert.ok(h.calls.includes('unsubscribed'));
 });
 
 test('newer refresh and auth events win over older in-flight responses', async () => {
@@ -131,19 +175,19 @@ test('newer refresh and auth events win over older in-flight responses', async (
   assert.equal(h.state.items[0].id, 'latest');
   h.controller.dispose();
   const init = harness(null), restoring = deferred(); init.auth.getSession = () => restoring.promise;
-  const start = init.controller.start(); init.event('b'); restoring.resolve({ data: { session: session('a') } });
-  await start; assert.equal(init.state.user.id, 'b'); init.controller.dispose();
+  const start = init.account.start(); init.event('b'); restoring.resolve({ data: { session: session('a') } });
+  await start; assert.equal(init.account.state.user.id, 'b'); init.account.dispose();
 });
 
 test('failed initial load blocks edits, can retry, and dispose rejects late data', async () => {
-  const h = harness(); await h.controller.start();
+  const h = harness();
   h.api.list = async () => { throw new TypeError('fetch failed'); };
   await h.controller.refresh(); assert.equal(h.state.loaded, false);
   assert.equal(await h.controller.add('还没加载'), false); assert.match(h.state.loadError, /网络/);
   h.api.list = async () => [row()]; await h.controller.refresh(); assert.equal(h.state.loaded, true);
   const pending = deferred(); h.api.list = () => pending.promise;
   const read = h.controller.refresh(); h.controller.dispose(); pending.resolve([row()]); await read;
-  assert.deepEqual(h.state.items, []); assert.equal(h.state.user, null);
+  assert.deepEqual(h.state.items, []); assert.equal(h.state.userId, '');
 });
 
 test('API pages beyond the default row limit and uses owner/version filters on writes', async () => {

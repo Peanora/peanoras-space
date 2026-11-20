@@ -4,7 +4,8 @@ async (page) => {
   const ensure = (value, message) => { if (!value) throw new Error(message); };
   const fixture = 'https://todo-fixture.supabase.co';
   let activeEmail = 'browser-a@example.com', failWrite = false, failSend = false;
-  let rows = [], version = 0, providerRequests = 0;
+  let rows = [], version = 0, providerRequests = 0, accountUsername = '', accountPassword = '';
+  const submitted = [];
   const user = () => ({ id: activeEmail.includes('-b@') ? 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' : 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', email: activeEmail, aud: 'authenticated', role: 'authenticated', app_metadata: { provider: 'email', providers: ['email'] }, user_metadata: {}, created_at: '2026-11-12T00:00:00Z' });
   const authSession = () => {
     const exp = Math.floor(Date.now() / 1000) + 3600;
@@ -29,7 +30,32 @@ async (page) => {
     }
     if (url.pathname.endsWith('/logout')) return respond({});
     if (url.pathname.endsWith('/token')) return respond(authSession());
-    if (url.pathname.endsWith('/user')) return respond(user());
+    if (url.pathname.endsWith('/user')) {
+      if (method === 'PUT') accountPassword = body.password;
+      return respond(user());
+    }
+    if (url.pathname.endsWith('/username-login')) {
+      if (body.username !== accountUsername || body.password !== accountPassword) return respond({ code: 'invalid_login' }, 401);
+      const { access_token, refresh_token } = authSession();
+      return respond({ access_token, refresh_token });
+    }
+    if (url.pathname.endsWith('/get_site_username')) return respond(accountUsername || null);
+    if (url.pathname.endsWith('/set_site_username')) {
+      accountUsername = body.requested;
+      return respond(accountUsername);
+    }
+    if (url.pathname.endsWith('/list_site_entries')) return respond(submitted.filter(row => row.kind === body.entry_kind && row.status === 'published'));
+    if (url.pathname.endsWith('/my_site_entries')) return respond(submitted.filter(row => row.kind === body.entry_kind && row.status !== 'withdrawn'));
+    if (url.pathname.endsWith('/submit_site_entry')) {
+      const { entry_kind, entry_name, entry_body, entry_url } = body;
+      const entry = { id: 'entry-' + submitted.length, kind: entry_kind, display_name: entry_name, body: entry_body, url: entry_url, status: 'pending', created_at: new Date().toISOString() };
+      submitted.push(entry);
+      return respond(entry.id);
+    }
+    if (url.pathname.endsWith('/withdraw_site_entry')) {
+      submitted.find(row => row.id === body.entry_id).status = 'withdrawn';
+      return respond(true);
+    }
     if (url.pathname.endsWith('/todo_items')) {
       if (method === 'GET') return respond(rows.filter(row => row.user_id === user().id));
       if (failWrite) return route.abort('failed');
@@ -56,6 +82,12 @@ async (page) => {
   await page.goto('http://127.0.0.1:4179/');
   await page.getByRole('heading', { name: "Peanora's Space", exact: true }).waitFor();
   ensure(providerRequests === 0, 'Homepage must not contact the TODO provider');
+  await page.getByRole('button', { name: '账号登录', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: '账号登录与设置' });
+  await dialog.getByLabel('用户名', { exact: true }).waitFor();
+  await page.screenshot({ path: 'output/playwright/home-account-desktop.png', animations: 'disabled' });
+  await page.keyboard.press('Escape');
+  await dialog.waitFor({ state: 'hidden' });
   await page.getByRole('button', { name: '我的', exact: true }).click();
   await page.getByRole('link', { name: 'TODO 清单', exact: true }).click();
   await page.getByLabel('邮箱地址', { exact: true }).waitFor();
@@ -96,6 +128,23 @@ async (page) => {
   await page.locator('.todo-item-title').filter({ hasText: '修改后的验收待办' }).waitFor();
   await page.reload();
   await page.getByRole('checkbox', { name: '标为待完成：修改后的验收待办', exact: true }).waitFor();
+  await page.getByRole('button', { name: '账号设置', exact: true }).click();
+  await dialog.getByLabel('设置用户名', { exact: true }).fill('Browser_Account');
+  const fixturePassword = 'Browser-only fixture password';
+  await dialog.getByLabel('新密码', { exact: true }).fill(fixturePassword);
+  await dialog.getByLabel('确认新密码', { exact: true }).fill(fixturePassword);
+  await dialog.getByRole('button', { name: '保存登录密码', exact: true }).click();
+  await dialog.getByRole('status').filter({ hasText: '已保存' }).waitFor();
+  ensure(accountUsername === 'browser_account', 'Username was not normalized');
+  await dialog.getByRole('button', { name: '退出登录', exact: true }).click();
+  await dialog.getByLabel('用户名', { exact: true }).fill('BROWSER_ACCOUNT');
+  await dialog.getByLabel('密码', { exact: true }).fill('wrong password');
+  await dialog.getByRole('button', { name: '登录', exact: true }).click();
+  await dialog.getByRole('alert').filter({ hasText: '用户名或密码不正确' }).waitFor();
+  await dialog.getByLabel('密码', { exact: true }).fill(fixturePassword);
+  await dialog.getByRole('button', { name: '登录', exact: true }).click();
+  await dialog.getByRole('link', { name: '打开我的清单' }).click();
+  await page.getByRole('checkbox', { name: '标为待完成：修改后的验收待办', exact: true }).waitFor();
   await page.screenshot({ path: 'output/playwright/todo-list-desktop-fixture.png' });
   await page.setViewportSize({ width: 390, height: 844 });
   await page.screenshot({ path: 'output/playwright/todo-list-mobile-fixture.png' });
@@ -106,6 +155,39 @@ async (page) => {
   await page.getByRole('button', { name: '删除：修改后的验收待办', exact: true }).click();
   await page.getByRole('button', { name: '确认删除', exact: true }).click();
   await page.getByText('清单还是空的，写下第一件待办吧。', { exact: true }).waitFor();
+
+  await page.goto('http://127.0.0.1:4179/guestbook/');
+  await page.getByLabel('公开昵称', { exact: true }).fill('验收访客');
+  await page.getByLabel('留言内容', { exact: true }).fill('这是一条本地验证留言。');
+  await page.getByRole('button', { name: '提交留言', exact: true }).click();
+  await page.getByRole('status').filter({ hasText: '已提交' }).waitFor();
+  const publicFeed = page.getByRole('region', { name: '已公开的内容' });
+  ensure(await publicFeed.getByText('这是一条本地验证留言。', { exact: true }).count() === 0, 'Pending message leaked into public feed');
+  await page.getByText('我的提交', { exact: true }).click();
+  await page.getByText('待审核', { exact: true }).waitFor();
+  submitted[0].status = 'published';
+  await publicFeed.getByRole('button', { name: '刷新', exact: true }).click();
+  await publicFeed.getByText('这是一条本地验证留言。', { exact: true }).waitFor();
+  await page.screenshot({ path: 'output/playwright/guestbook-mobile-fixture.png', animations: 'disabled' });
+  ensure(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Guestbook horizontal overflow');
+  await page.getByRole('button', { name: '撤回', exact: true }).click();
+  await page.getByRole('button', { name: '确认撤回', exact: true }).click();
+  await page.getByRole('status').filter({ hasText: '已撤回' }).waitFor();
+
+  await page.goto('http://127.0.0.1:4179/friends/');
+  await page.getByLabel('站点名称', { exact: true }).fill('测试友链');
+  await page.getByLabel('站点网址', { exact: true }).fill('https://example.com');
+  await page.getByLabel('站点介绍', { exact: true }).fill('仅用于浏览器测试。');
+  await page.getByRole('button', { name: '提交友链申请', exact: true }).click();
+  await page.getByRole('status').filter({ hasText: '已提交' }).waitFor();
+  ensure(await publicFeed.getByRole('link', { name: '测试友链' }).count() === 0, 'Pending link leaked');
+  submitted[1].status = 'published';
+  await publicFeed.getByRole('button', { name: '刷新', exact: true }).click();
+  const publicLink = publicFeed.getByRole('link', { name: '测试友链' });
+  await publicLink.waitFor();
+  ensure(await publicLink.getAttribute('href') === 'https://example.com/', 'Friend link destination mismatch');
+
+  await page.goto('http://127.0.0.1:4179/todo/');
   await page.getByRole('button', { name: '退出登录', exact: true }).click();
   await page.getByLabel('邮箱地址', { exact: true }).waitFor();
   ensure(await page.locator('.todo-items').count() === 0, 'Logout must clear rows');
@@ -115,6 +197,13 @@ async (page) => {
   await page.getByRole('button', { name: '打开导航菜单', exact: true }).click();
   await page.getByRole('button', { name: '我的', exact: true }).click();
   ensure(await page.getByRole('link', { name: 'TODO 清单', exact: true }).isVisible(), 'Mobile menu missing TODO');
+  await page.goto('http://127.0.0.1:4179/');
+  await page.getByRole('button', { name: '账号登录', exact: true }).click();
+  await dialog.getByLabel('用户名', { exact: true }).waitFor();
+  ensure(await page.evaluate(() => document.querySelector('dialog').getBoundingClientRect().right <= innerWidth), 'Mobile login dialog overflow');
+  await page.screenshot({ path: 'output/playwright/home-account-mobile.png', animations: 'disabled' });
+  await dialog.getByRole('button', { name: '关闭账号面板', exact: true }).click();
+  await dialog.waitFor({ state: 'hidden' });
   ensure(errors.length === 0, `Page errors: ${errors.join(', ')}`);
-  return { checks: 'unconfigured, navigation, send failure, invalid OTP, login, CRUD, failed save, filters, reload, logout, mobile menu, 390px/320px overflow', consolePageErrors: errors.length, note: 'Supabase HTTP responses are local fixtures; no real email or cloud account was used.' };
+  return { checks: 'unconfigured, homepage account dialog, OTP, username setup and login, existing TODO CRUD, failed save, filters, reload, logout, guestbook submission and withdrawal, friend application and published link, mobile layouts', consolePageErrors: errors.length, note: 'Supabase HTTP responses are local fixtures; no real email or cloud account was used.' };
 }
