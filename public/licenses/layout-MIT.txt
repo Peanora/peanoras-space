@@ -1,6 +1,3 @@
-Firefly layout reference: https://github.com/CuteLeaf/Firefly
-Layout geometry and visual structure adapted for Peanora's Space.
-
 MIT License
 
 Copyright (c) 2024 saicaca

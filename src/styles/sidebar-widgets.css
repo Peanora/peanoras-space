@@ -1,0 +1,79 @@
+/* Shared sidebar cards for profile, music, and site content. */
+:where(.sidebar-widgets) { display: flex; }
+.sidebar-widgets { flex-direction: column; align-self: start; gap: 16px; min-width: 0; }
+.sidebar-widgets > .space-panel { border: 0; border-radius: 16px; background: var(--surface); box-shadow: none; }
+.sidebar-widget-group { display: grid; gap: 16px; }
+.sidebar-widget-group > .space-panel { border: 0; border-radius: 16px; background: var(--surface); box-shadow: none; }
+@media (min-width: 768px) {
+  .sidebar-widgets.space-sidebar-left { align-self: stretch; }
+  .sidebar-widget-group { position: sticky; top: 88px; }
+}
+@media (max-height: 600px) { .sidebar-widget-group { position: static; } }
+.sidebar-widgets svg { flex-shrink: 0; }
+.sidebar-widgets svg path { stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.sidebar-widgets .sidebar-profile { padding: 12px; text-align: center; }
+.sidebar-profile .space-avatar-link { display: block; width: 100%; max-width: 256px; margin: 0 auto; border-radius: 12px; overflow: hidden; }
+.sidebar-profile .space-avatar-link img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; border: 0; border-radius: 12px; transition: transform 300ms ease; }
+.sidebar-profile .space-avatar-link:hover img { transform: scale(1.025); }
+.sidebar-profile h2 { margin: 8px 0 0; color: var(--text); font-family: var(--font-display); font-size: 20px; font-weight: 700; line-height: 1.45; }
+.sidebar-profile .space-profile-rule { display: block; width: 20px; height: 4px; margin: 6px auto 8px; border-radius: 4px; background: var(--accent); }
+.sidebar-profile-bio { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+.sidebar-profile .sidebar-socials { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 12px; }
+.sidebar-profile .sidebar-socials > a, .sidebar-profile .sidebar-socials > button { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; min-height: 40px; padding: 0; border: 0; border-radius: 8px; background: var(--accent-soft); color: var(--accent); transition: background 180ms ease, color 180ms ease; }
+.sidebar-profile .sidebar-socials > a:hover, .sidebar-profile .sidebar-socials > button:hover { background: var(--apricot); color: var(--text); }
+.sidebar-socials svg { width: 20px; height: 20px; }
+.sidebar-widgets .sidebar-widget { padding: 16px; }
+.sidebar-widgets .space-widget-title { position: relative; margin: 0; padding-left: 16px; color: var(--text); font-size: 18px; font-weight: 700; line-height: 28px; }
+.sidebar-widgets .space-widget-title::before { content: ''; position: absolute; top: 6px; bottom: auto; left: 0; width: 4px; height: 16px; border-radius: 4px; background: var(--accent); }
+.sidebar-widgets .space-widget-more { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 40px; margin-top: 10px; color: var(--accent); font-size: 14px; line-height: 1.6; }
+.sidebar-widgets .space-widget-more svg { width: 17px; height: 17px; }
+.sidebar-widgets .space-widget-more > span { font-size: 20px; }
+.sidebar-widgets .space-widget-more:hover { text-decoration: underline; text-underline-offset: 4px; }
+.sidebar-announcement-welcome { margin-top: 16px; font-size: 16px; color: var(--text); line-height: 1.6; }
+.sidebar-announcement-signature { margin-top: 8px; font-size: 14px; color: var(--muted); line-height: 1.7; }
+.sidebar-music-track { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+.sidebar-music-track > img { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; }
+.sidebar-music-track > div { min-width: 0; }
+.sidebar-music-title { color: var(--text); font-size: 16px; font-weight: 700; line-height: 1.5; overflow-wrap: anywhere; }
+.sidebar-music-artist { margin-top: 4px; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.sidebar-music-status { margin-top: 14px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.sidebar-music-open { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 42px; margin-top: 12px; padding: 7px 12px; border: 0; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font: inherit; font-size: 14px; transition: background 180ms ease; }
+.sidebar-music-open svg { width: 18px; height: 18px; }
+.sidebar-music-open:hover { background: var(--apricot); }
+.sidebar-widgets .space-category-widget ul { list-style: none; margin: 16px 0 0; padding: 0; }
+.sidebar-widgets .space-category-widget li + li { margin-top: 2px; }
+.sidebar-widgets .space-category-widget li a { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-height: 38px; margin: 0 -6px; padding: 7px 6px; border-radius: 8px; color: var(--muted); font-size: 14px; line-height: 1.5; transition: background 180ms ease; }
+.sidebar-widgets .space-category-widget li a:hover { background: var(--accent-soft); color: var(--accent); }
+.sidebar-widgets .space-category-count { min-width: 23px; height: 23px; padding: 0 5px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); font-size: 12px; display: inline-flex; align-items: center; justify-content: center; }
+.sidebar-tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.sidebar-tag-list a { padding: 4px 10px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); font-size: 14px; line-height: 1.5; transition: background 180ms ease; }
+.sidebar-tag-list a:hover { background: var(--apricot); }
+.sidebar-moment-list { margin-top: 16px; }
+.sidebar-moment + .sidebar-moment { margin-top: 20px; }
+.sidebar-moment-source { display: flex; align-items: center; gap: 6px; color: var(--accent); font-size: 12px; line-height: 1.6; }
+.sidebar-moment-source svg { width: 14px; height: 14px; }
+.sidebar-moment-text { margin-top: 5px; color: var(--muted); font-size: 14px; line-height: 1.65; overflow-wrap: anywhere; }
+.sidebar-stats dl { margin: 16px 0 0; }
+.sidebar-stats dl > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 38px; }
+.sidebar-stats dt { display: inline-flex; align-items: center; gap: 10px; color: var(--muted); font-size: 16px; line-height: 1.5; }
+.sidebar-stats dt svg { width: 19px; height: 19px; color: var(--accent); }
+.sidebar-stats dd { margin: 0; color: var(--text); font-family: var(--font-display); font-size: 16px; font-weight: 800; }
+.sidebar-widgets .space-learning-widget ul { list-style: none; margin: 14px 0 0; padding: 0; }
+.sidebar-widgets .space-learning-widget li { display: flex; align-items: center; gap: 10px; min-height: 38px; color: var(--muted); font-size: 15px; line-height: 1.6; }
+.sidebar-widgets .space-learning-dot { width: 6px; height: 6px; flex: 0 0 6px; border-radius: 50%; background: var(--accent); }
+.sidebar-calendar-month { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; }
+.sidebar-calendar-month button { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--muted); transition: background 180ms ease, color 180ms ease; }
+.sidebar-calendar-month button:hover { background: var(--accent-soft); color: var(--accent); }
+.sidebar-calendar-month button svg { width: 18px; height: 18px; }
+.sidebar-calendar-month strong { color: var(--text); font-size: 14px; font-weight: 700; line-height: 1.5; }
+.sidebar-calendar-weekdays, .sidebar-calendar-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.sidebar-calendar-weekdays { margin-top: 8px; color: var(--muted); font-size: 12px; text-align: center; line-height: 28px; }
+.sidebar-calendar-days { gap: 2px 0; margin-top: 4px; }
+.sidebar-calendar-day, .sidebar-calendar-empty { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 30px; color: var(--muted); font-size: 13px; line-height: 1.4; border-radius: 8px; }
+.sidebar-calendar-day.is-today { background: var(--accent); color: var(--surface); font-weight: 800; }
+.sidebar-calendar-day.has-notes { position: relative; color: var(--accent); font-weight: 700; background: var(--accent-soft); }
+.sidebar-calendar-day.has-notes::after { content: ''; position: absolute; left: calc(50% - 1.5px); bottom: 3px; width: 3px; height: 3px; border-radius: 50%; background: currentColor; }
+.sidebar-calendar-day.has-notes:hover { background: var(--apricot); }
+.sidebar-calendar-day.has-notes.is-today { color: var(--surface); background: var(--accent); }
+@media (max-width: 767px) { .sidebar-widgets .sidebar-music, .sidebar-widgets .sidebar-calendar { display: none; } }
+@media (prefers-reduced-motion: reduce) { .sidebar-widgets *, .sidebar-widgets *::before { transition: none; } }

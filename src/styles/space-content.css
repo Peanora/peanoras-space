@@ -97,14 +97,10 @@ html::-webkit-scrollbar { width: 0; }
 .app-main .unity-note-date { grid-column: 1/-1; flex-direction: row; flex-wrap: wrap; font-size: 12px; }
 .app-main .unity-note-link { font-size: 24px; }
 .app-main .unity-note-row p { font-size: 14px; margin-top: 10px; }
-.app-main .unity-reading-layout { grid-template-columns: minmax(0, 1fr) 280px; gap: 16px; margin-top: 16px; }
 .app-main .unity-article { background: var(--surface); border: 1px solid var(--line); border-radius: var(--panel-radius); padding: 30px; }
 .app-main .unity-article h1 { font-size: clamp(28px, 2.8vw, 40px); }
 .app-main .unity-article-summary { font-size: 16px; }
 .app-main .unity-article .body-copy { font-size: 16px; color: var(--text); }
-.app-main .unity-toc { top: 98px; padding: 18px; border: 1px solid var(--line); border-radius: var(--panel-radius); background: var(--surface); }
-.app-main .unity-toc nav { max-height: calc(100dvh - 210px); }
-.app-main .unity-toc a { padding: 8px 10px; font-size: 13px; }
 .app-main .unity-reading-footer { background: var(--surface); border: 1px solid var(--line); border-radius: var(--panel-radius); padding: 18px 22px; margin-top: 20px; font-size: 14px; }
 .app-main .little-paper { padding: 0; border: 0; background: none; box-shadow: none; }
 .app-main .quote-area { min-height: 180px; }
@@ -119,9 +115,6 @@ html::-webkit-scrollbar { width: 0; }
 @media (max-width: 1279px) {
   .space-layout { grid-template-columns: 280px minmax(0, 1fr); width: 100%; }
   .space-sidebar-right { display: none; }
-  .app-main .unity-reading-layout { grid-template-columns: minmax(0, 1fr); }
-  .app-main .unity-toc { position: static; grid-row: 1; }
-  .app-main .unity-toc nav { max-height: 280px; }
 }
 @media (max-width: 1023px) {
   .app-frame:not(.is-home) .space-layout { margin-top: 88px; }

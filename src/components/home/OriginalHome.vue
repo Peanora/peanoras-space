@@ -20,6 +20,7 @@ import SignatureTypewriter from '../ui/SignatureTypewriter.vue';
 import '../../styles/original-home.css';
 
 provide('content-page', 'home');
+const emit = defineEmits(['show-articles']);
 const route = useRoute();
 const { show: showAccount } = useAccountDialog();
 const root = ref(null), viewport = ref(null), portraitBouncing = ref(false);
@@ -50,10 +51,16 @@ const {
 } = useThemePager({
   root, viewport, count: computed(() => screens.value.length),
   getTopOffset: () => window.matchMedia('(max-width: 767px)').matches ? 78 : 88,
-  onBoundary: (_step, { source }) => {
-    if (source !== 'keyboard') root.value?.focus({ preventScroll: true });
+  onBoundary: (step, { source }) => {
+    if (step > 0 && !editingContent.value) emit('show-articles', source === 'keyboard');
+    else if (source !== 'keyboard') root.value?.focus({ preventScroll: true });
   },
 });
+const atLastScreen = computed(() => current.value === screens.value.length - 1);
+function advance() {
+  if (atLastScreen.value) emit('show-articles');
+  else goTo(current.value + 1, { align: false });
+}
 // Keep visited scenes mounted so their paper state survives a return visit,
 // while unopened scenes cannot race the browser's lazy-image heuristics.
 const visitedScenes = ref(new Set());
@@ -96,7 +103,7 @@ onUnmounted(() => {
     <div ref="viewport" class="original-stage" :aria-busy="moving">
       <Transition v-for="(screen, index) in screens" :key="screen.id" name="original-screen" :duration="transitionDuration" @after-enter="finishMove">
         <section v-show="index === current" :id="screen.id" class="home-theme original-screen" :class="`screen-${screen.kind}`"
-          :data-theme-active="index === current" :aria-hidden="index !== current" :inert="index !== current"
+          :data-theme-active="index === current" :inert="index !== current"
           :aria-label="screen.title" tabindex="-1" @pointerdown.capture="select(screen.id)">
           <div v-if="screen.kind === 'cover'" class="cover-layout original-screen-layout">
             <div class="cover-copy">
@@ -138,11 +145,15 @@ onUnmounted(() => {
       </Transition>
     </div>
     <footer class="original-pager-footer pager-bottom">
-      <div class="pager-tools"><span class="pager-help"><span class="desktop-help">滚轮翻页</span><span class="touch-help">上滑翻页</span> · 顶部导航直达详情</span><a href="https://github.com/CuteLeaf/Firefly" target="_blank" rel="noopener noreferrer" class="pager-social" aria-label="顶栏与侧栏布局参考 Firefly">Firefly</a><a v-if="social" :href="social.url" target="_blank" rel="noopener noreferrer" class="pager-social">{{ social.label }} ↗</a></div>
+      <div class="pager-tools">
+        <span class="pager-help"><span class="desktop-help">滚轮翻页</span><span class="touch-help">上滑翻页</span></span>
+        <button v-if="!editingContent" type="button" class="pager-articles" @click="emit('show-articles')">浏览文章 <span aria-hidden="true">↓</span></button>
+        <a v-if="social" :href="social.url" target="_blank" rel="noopener noreferrer" class="pager-social">{{ social.label }} ↗</a>
+      </div>
       <div class="pager-controls">
         <button class="pager-arrow" aria-label="上一屏" :disabled="current === 0" @click="goTo(current - 1, { align: false })">↑</button>
         <nav class="screen-navigation" aria-label="首页翻页目录"><button v-for="(screen, index) in screens" :key="screen.id" :aria-current="current === index ? 'step' : undefined" :aria-controls="screen.id" :aria-label="`翻到${index === 0 ? '首页' : screen.title + '主题介绍'}`" @click="goTo(index, { align: false })"><span class="screen-dot" aria-hidden="true"></span><span class="screen-nav-full">{{ index === 0 ? '首页' : screen.title }}</span><span class="screen-nav-short">{{ index === 0 ? '首页' : screen.shortTitle }}</span></button></nav>
-        <button class="pager-arrow" aria-label="下一屏" :disabled="current === screens.length - 1" @click="goTo(current + 1, { align: false })">↓</button>
+        <button class="pager-arrow" :aria-label="atLastScreen && !editingContent ? '浏览下方文章' : '下一屏'" :disabled="atLastScreen && editingContent" @click="advance">↓</button>
         <span class="screen-count" aria-live="polite">{{ String(current + 1).padStart(2, '0') }} / {{ String(screens.length).padStart(2, '0') }}</span>
       </div>
     </footer>

@@ -1,8 +1,8 @@
 .music-audio { display: none; }
-.firefly-sidebar .firefly-music.music-widget { position: relative; min-width: 0; scroll-margin-top: 88px; }
-.firefly-sidebar .music-widget .space-widget-title { line-height: 27px; }
-.firefly-sidebar .music-widget .space-widget-title::before { top: 5.5px; }
-.firefly-sidebar .music-widget svg path { stroke: none; }
+.sidebar-widgets .sidebar-music.music-widget { position: relative; min-width: 0; scroll-margin-top: 88px; }
+.sidebar-widgets .music-widget .space-widget-title { line-height: 27px; }
+.sidebar-widgets .music-widget .space-widget-title::before { top: 5.5px; }
+.sidebar-widgets .music-widget svg path { stroke: none; }
 .music-panel-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .music-panel-top .music-panel-close { display: none; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 8px; color: var(--muted); background: transparent; font: inherit; font-size: 24px; }
 .music-track { display: flex; align-items: center; gap: 8px; margin: 8px 4px; }
@@ -71,8 +71,8 @@
 .music-widget.is-still .music-cover img { animation-play-state: paused; }
 @media (max-width: 767px) {
   .music-mobile-backdrop { display: block; position: fixed; inset: 63px 0 0; z-index: 60; border: 0; background: #37291f55; }
-  .firefly-sidebar .firefly-music.music-widget { display: none; }
-  .firefly-sidebar .firefly-music.music-widget.is-expanded { display: block; position: fixed; z-index: 61; top: 75px; left: max(14px, calc((100vw - 360px) / 2)); right: max(14px, calc((100vw - 360px) / 2)); max-height: calc(100dvh - 95px); margin: 0; overflow: auto; overscroll-behavior: contain; box-shadow: 0 12px 40px #493b3233; }
+  .sidebar-widgets .sidebar-music.music-widget { display: none; }
+  .sidebar-widgets .sidebar-music.music-widget.is-expanded { display: block; position: fixed; z-index: 61; top: 75px; left: max(14px, calc((100vw - 360px) / 2)); right: max(14px, calc((100vw - 360px) / 2)); max-height: calc(100dvh - 95px); margin: 0; overflow: auto; overscroll-behavior: contain; box-shadow: 0 12px 40px #493b3233; }
   .music-panel-top .music-panel-close { display: inline-flex; align-items: center; justify-content: center; }
   .music-playlist-album > button { min-height: 40px; font-size: 13px; }
   .music-playlist-songs { max-height: 220px; }

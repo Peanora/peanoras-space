@@ -47,17 +47,17 @@ const icons = {
 </script>
 
 <template>
-  <aside class="space-sidebar firefly-sidebar" :class="[`space-sidebar-${side}`, { 'space-sidebar-home': compact && side === 'left' }]" :aria-label="side === 'left' ? compact ? 'Peanora、公告、音乐、分类与标签' : '关于 Peanora 与笔记分类' : '小角落与内容统计'">
+  <aside class="space-sidebar sidebar-widgets" :class="[`space-sidebar-${side}`, { 'space-sidebar-home': compact && side === 'left' }]" :aria-label="side === 'left' ? compact ? 'Peanora、公告、音乐、分类与标签' : '关于 Peanora 与笔记分类' : '小角落与内容统计'">
     <template v-if="side === 'left'">
-      <section class="space-panel space-profile firefly-profile">
+      <section class="space-panel space-profile sidebar-profile">
         <RouterLink to="/world" class="space-avatar-link" aria-label="认识 Peanora">
           <img :src="contentImage(cover?.avatar || 'artwork:avatar')" :style="{ objectPosition: appearance.avatarPosition }" alt="Peanora 使用的二次元头像" width="248" height="248" decoding="async" />
         </RouterLink>
         <ContentText v-if="editingContent && route.path === '/'" tag="h2" plain :value="cover?.portraitNote || site.nickname" block-id="cover" field="portraitNote" />
         <h2 v-else>{{ cover?.portraitNote || profile?.name || site.nickname }}</h2>
         <span class="space-profile-rule" aria-hidden="true"></span>
-        <ContentText class="firefly-profile-bio" :value="cover?.welcome || ''" />
-        <div class="space-profile-socials firefly-socials">
+        <ContentText class="sidebar-profile-bio" :value="cover?.welcome || ''" />
+        <div class="space-profile-socials sidebar-socials">
           <a v-for="link in socials" :key="link.url" :href="link.url" target="_blank" rel="noopener noreferrer" :aria-label="link.label" :title="link.label">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="link.url.includes('github.com') ? icons.github : icons.external" /></svg>
           </a>
@@ -67,42 +67,42 @@ const icons = {
         </div>
       </section>
 
-      <section class="space-panel firefly-widget firefly-announcement">
+      <section class="space-panel sidebar-widget sidebar-announcement">
         <h2 class="space-widget-title">公告</h2>
-        <ContentText tag="p" class="firefly-announcement-welcome" :value="cover?.welcome || ''" />
-        <p v-if="cover?.signatures?.length" class="firefly-announcement-signature">{{ cover.signatures[0] }}</p>
+        <ContentText tag="p" class="sidebar-announcement-welcome" :value="cover?.welcome || ''" />
+        <p v-if="cover?.signatures?.length" class="sidebar-announcement-signature">{{ cover.signatures[0] }}</p>
         <RouterLink to="/world" class="space-widget-more">了解更多 <span aria-hidden="true">›</span></RouterLink>
       </section>
 
       <MusicPlayer />
 
-      <div class="firefly-sidebar-sticky">
-      <section v-if="categories.length" class="space-panel firefly-widget space-category-widget">
+      <div class="sidebar-widget-group">
+      <section v-if="categories.length" class="space-panel sidebar-widget space-category-widget">
         <h2 class="space-widget-title">分类</h2>
         <ul><li v-for="item in categories" :key="item.name"><RouterLink :to="{ path: '/unity-notes', query: { category: item.name } }"><span>{{ item.name }}</span><span class="space-category-count">{{ item.count }}</span></RouterLink></li></ul>
         <RouterLink to="/unity-notes" class="space-widget-more">全部分类 <span aria-hidden="true">›</span></RouterLink>
       </section>
 
-      <section v-if="profile?.interests?.length" class="space-panel firefly-widget firefly-tags">
+      <section v-if="profile?.interests?.length" class="space-panel sidebar-widget sidebar-tags">
         <h2 class="space-widget-title">标签</h2>
-        <div class="firefly-tag-list"><RouterLink v-for="interest in profile.interests" :key="interest" to="/world#about">{{ interest }}</RouterLink></div>
+        <div class="sidebar-tag-list"><RouterLink v-for="interest in profile.interests" :key="interest" to="/world#about">{{ interest }}</RouterLink></div>
       </section>
       </div>
     </template>
 
     <template v-else>
-      <section v-if="notePreviews.length" class="space-panel firefly-widget firefly-moments">
+      <section v-if="notePreviews.length" class="space-panel sidebar-widget sidebar-moments">
         <h2 class="space-widget-title">小角落</h2>
-        <div class="firefly-moment-list">
-          <article v-for="note in notePreviews" :key="note.id" class="firefly-moment">
-            <p v-if="note.source" class="firefly-moment-source"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.note" /></svg>{{ note.source }}</p>
-            <ContentText tag="p" class="firefly-moment-text" :value="note.text" :plain="Boolean(note.revision)" />
+        <div class="sidebar-moment-list">
+          <article v-for="note in notePreviews" :key="note.id" class="sidebar-moment">
+            <p v-if="note.source" class="sidebar-moment-source"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.note" /></svg>{{ note.source }}</p>
+            <ContentText tag="p" class="sidebar-moment-text" :value="note.text" :plain="Boolean(note.revision)" />
           </article>
         </div>
         <RouterLink to="/little-things" class="space-widget-more"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.note" /></svg>更多纸条 <span aria-hidden="true">›</span></RouterLink>
       </section>
 
-      <section class="space-panel firefly-widget firefly-stats">
+      <section class="space-panel sidebar-widget sidebar-stats">
         <h2 class="space-widget-title">内容统计</h2>
         <dl>
           <div><dt><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.note" /></svg>笔记</dt><dd>{{ notes.length }}</dd></div>
@@ -112,7 +112,7 @@ const icons = {
         </dl>
       </section>
 
-      <section v-if="profile?.learning?.length" class="space-panel firefly-widget space-learning-widget">
+      <section v-if="profile?.learning?.length" class="space-panel sidebar-widget space-learning-widget">
         <h2 class="space-widget-title">正在学习</h2>
         <ul><li v-for="item in profile.learning" :key="item.title"><span class="space-learning-dot" aria-hidden="true"></span><span>{{ item.title }}</span></li></ul>
         <RouterLink to="/world#about" class="space-widget-more">更多关于我 <span aria-hidden="true">›</span></RouterLink>

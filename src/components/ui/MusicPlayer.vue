@@ -101,7 +101,7 @@ onUnmounted(() => { clearTimeout(frameTimer); releaseAudio(); });
 <template>
   <audio ref="audioElement" class="music-audio" preload="none"></audio>
   <button v-if="expanded" class="music-mobile-backdrop" aria-label="收起音乐播放器" @click="collapse"></button>
-  <section v-if="selected" id="music-panel" class="space-panel firefly-widget firefly-music music-widget" :class="{ 'is-expanded': expanded, 'has-native-audio': hasNativeAudio, 'is-still': still }" aria-labelledby="music-panel-heading" @keydown="onEscape">
+  <section v-if="selected" id="music-panel" class="space-panel sidebar-widget sidebar-music music-widget" :class="{ 'is-expanded': expanded, 'has-native-audio': hasNativeAudio, 'is-still': still }" aria-labelledby="music-panel-heading" @keydown="onEscape">
     <div class="music-panel-top">
       <h2 id="music-panel-heading" ref="heading" tabindex="-1" class="space-widget-title">音乐</h2>
       <button class="music-panel-close" aria-label="收起音乐播放器" @click="collapse">×</button>

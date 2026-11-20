@@ -1,4 +1,4 @@
-/* Firefly geometry with Peanora's beige palette. */
+/* Shared navigation, page spacing, and footer. */
 .site-header.space-header { position:fixed;z-index:50;inset:0 auto auto 50%;transform:translateX(-50%);width:min(1568px,calc(92vw - 32px));height:72px;min-height:72px;padding:0 24px;margin:0;display:flex;align-items:center;gap:24px;border:0;border-radius:0 0 12px 12px;background:#fff8e8db;color:var(--text);backdrop-filter:blur(12px);transition:background 250ms; }
 .space-wordmark { display:inline-flex;align-items:center;gap:9px;white-space:nowrap;font-size:17px;font-weight:800;min-height:44px; }
 .space-brand-leaf { width:28px;height:28px;flex:none;color:var(--text); }

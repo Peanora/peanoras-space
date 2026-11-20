@@ -51,19 +51,19 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <section class="space-panel firefly-widget firefly-calendar" aria-labelledby="space-calendar-title">
+  <section class="space-panel sidebar-widget sidebar-calendar" aria-labelledby="space-calendar-title">
     <h2 id="space-calendar-title" class="space-widget-title">日历</h2>
-    <div class="firefly-calendar-month">
+    <div class="sidebar-calendar-month">
       <button type="button" aria-label="上一个月" title="上一个月" @click="monthIndex -= 1"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m12 5-5 5 5 5" /></svg></button>
       <strong aria-live="polite">{{ year }} 年 {{ month + 1 }} 月</strong>
       <button type="button" aria-label="下一个月" title="下一个月" @click="monthIndex += 1"><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m8 5 5 5-5 5" /></svg></button>
     </div>
-    <div class="firefly-calendar-weekdays" aria-hidden="true"><span v-for="weekday in weekdays" :key="weekday">{{ weekday }}</span></div>
-    <div class="firefly-calendar-days" role="group" :aria-label="`${year}年${month + 1}月，上海时区`">
+    <div class="sidebar-calendar-weekdays" aria-hidden="true"><span v-for="weekday in weekdays" :key="weekday">{{ weekday }}</span></div>
+    <div class="sidebar-calendar-days" role="group" :aria-label="`${year}年${month + 1}月，上海时区`">
       <template v-for="cell in days" :key="cell.key">
-        <span v-if="!cell.day" class="firefly-calendar-empty" aria-hidden="true"></span>
-        <RouterLink v-else-if="cell.notes.length" :to="`/unity-notes/${cell.notes[0].id}`" class="firefly-calendar-day has-notes" :class="{ 'is-today': cell.isToday }" :aria-label="cell.label" :title="cell.label"><time :datetime="cell.key">{{ cell.day }}</time></RouterLink>
-        <time v-else :datetime="cell.key" class="firefly-calendar-day" :class="{ 'is-today': cell.isToday }" :aria-label="cell.label" :aria-current="cell.isToday ? 'date' : undefined">{{ cell.day }}</time>
+        <span v-if="!cell.day" class="sidebar-calendar-empty" aria-hidden="true"></span>
+        <RouterLink v-else-if="cell.notes.length" :to="`/unity-notes/${cell.notes[0].id}`" class="sidebar-calendar-day has-notes" :class="{ 'is-today': cell.isToday }" :aria-label="cell.label" :title="cell.label"><time :datetime="cell.key">{{ cell.day }}</time></RouterLink>
+        <time v-else :datetime="cell.key" class="sidebar-calendar-day" :class="{ 'is-today': cell.isToday }" :aria-label="cell.label" :aria-current="cell.isToday ? 'date' : undefined">{{ cell.day }}</time>
       </template>
     </div>
   </section>
