@@ -85,7 +85,7 @@ async function createPassword() {
       </form>
     </template>
     <template v-else>
-      <p class="account-identity">{{ state.user.email }}</p>
+      <p class="account-identity">{{ state.user.email }} <strong v-if="state.isOwner">· 站主</strong></p>
       <p v-if="state.profile === 'loading'" role="status">正在读取账号设置…</p>
       <div v-else-if="state.profile === 'unavailable'" class="account-actions">
         <p>密码设置暂不可用。</p><button type="button" :disabled="!!state.busy" @click="controller.loadProfile()">重试</button>
@@ -108,6 +108,10 @@ async function createPassword() {
       </template>
       <div class="account-actions account-signed-in">
         <RouterLink to="/todo" @click="$emit('close')">打开我的清单</RouterLink>
+        <template v-if="state.isOwner">
+          <RouterLink to="/friends" @click="$emit('close')">友链审核</RouterLink>
+          <RouterLink to="/guestbook" @click="$emit('close')">留言审核</RouterLink>
+        </template>
         <button type="button" :disabled="!!state.busy" @click="controller.signOut()">退出登录</button>
       </div>
     </template>

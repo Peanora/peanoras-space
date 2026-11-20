@@ -5,6 +5,7 @@ import { useSiteAccount } from '../composables/useSiteAccount.js';
 import { useAccountDialog } from '../composables/useAccountDialog.js';
 import { getTodoClient } from '../todo/client.js';
 import { communityUrl, createCommunityApi } from '../community/api.js';
+import ModerationPanel from '../components/community/ModerationPanel.vue';
 import '../styles/community.css';
 
 const { state: account } = useSiteAccount();
@@ -16,6 +17,7 @@ const api = client && createCommunityApi(client);
 const entries = ref([]), mine = ref([]), cursor = ref(null), more = ref(false);
 const loadState = ref('loading'), mineState = ref('idle'), listError = ref(''), formError = ref(''), notice = ref('');
 const available = ref(false);
+const moderationRevision = ref(0);
 const name = ref(''), body = ref(''), url = ref(''), sending = ref(false), withdrawing = ref(false), confirmId = ref('');
 const editable = computed(() => Boolean(api && account.user && loadState.value === 'ready'));
 const statusLabel = { pending: '待审核', published: '已公开', rejected: '未通过' };
@@ -78,6 +80,7 @@ async function submit() {
     if (!currentUser(userId)) return;
     body.value = ''; url.value = '';
     notice.value = '已提交，站主审核通过后会公开。';
+    moderationRevision.value++;
     await loadMine();
   } catch (error) {
     if (currentUser(userId)) formError.value = error?.message === 'site_submit_rate_limit' ? '提交太频繁，请过几分钟再试。' : '提交失败，内容已保留，请重试。';
@@ -95,6 +98,7 @@ async function withdraw(id) {
     mine.value = mine.value.filter(item => item.id !== id);
     notice.value = '已撤回。';
     entries.value = entries.value.filter(item => item.id !== id);
+    moderationRevision.value++;
   } catch {
     if (currentUser(userId)) formError.value = '撤回失败，请刷新后重试。';
   } finally { if (currentUser(userId)) withdrawing.value = false; }
@@ -114,6 +118,9 @@ onUnmounted(() => { active = false; });
       <h1 tabindex="-1">{{ friend ? '友情链接' : '留言板' }}</h1>
       <p>{{ friend ? '从这里出发，去朋友们的小站看看。' : '路过的话，可以留几句话。' }}</p>
     </header>
+
+    <ModerationPanel v-if="api && account.user && account.isOwner" :key="account.user.id"
+      :api="api" :kind="kind" :revision="moderationRevision" @changed="reload" />
 
     <section class="community-paper space-panel" aria-label="已公开的内容">
       <div class="community-toolbar"><h2>{{ friend ? '朋友的小站' : '访客留言' }}</h2>

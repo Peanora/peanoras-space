@@ -5,6 +5,7 @@ async (page) => {
   const fixture = 'https://todo-fixture.supabase.co';
   let activeEmail = 'browser-a@example.com', failWrite = false, failSend = false;
   let rows = [], version = 0, providerRequests = 0, accountUsername = '', accountPassword = '';
+  let accountOwner = false, ownerChecks = 0;
   const submitted = [];
   const user = () => ({ id: activeEmail.includes('-b@') ? 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' : 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', email: activeEmail, aud: 'authenticated', role: 'authenticated', app_metadata: { provider: 'email', providers: ['email'] }, user_metadata: {}, created_at: '2026-11-12T00:00:00Z' });
   const authSession = () => {
@@ -40,11 +41,26 @@ async (page) => {
       return respond({ access_token, refresh_token });
     }
     if (url.pathname.endsWith('/get_site_username')) return respond(accountUsername || null);
+    if (url.pathname.endsWith('/site_is_owner')) {
+      ownerChecks++;
+      return respond(accountOwner);
+    }
     if (url.pathname.endsWith('/set_site_username')) {
       accountUsername = body.requested;
       return respond(accountUsername);
     }
     if (url.pathname.endsWith('/list_site_entries')) return respond(submitted.filter(row => row.kind === body.entry_kind && row.status === 'published'));
+    if (url.pathname.endsWith('/site_moderation_queue')) {
+      ensure(accountOwner, 'Regular visitors must not request the moderation queue');
+      return respond(submitted.filter(row => row.kind === body.entry_kind && row.status === body.entry_status));
+    }
+    if (url.pathname.endsWith('/review_site_entry')) {
+      ensure(accountOwner, 'Regular visitors must not request changes to moderation status');
+      const entry = submitted.find(row => row.id === body.entry_id && row.kind === body.entry_kind && row.status === body.expected_status);
+      if (!entry) return respond(false);
+      entry.status = body.next_status;
+      return respond(true);
+    }
     if (url.pathname.endsWith('/my_site_entries')) return respond(submitted.filter(row => row.kind === body.entry_kind && row.status !== 'withdrawn'));
     if (url.pathname.endsWith('/submit_site_entry')) {
       const { entry_kind, entry_name, entry_body, entry_url } = body;
@@ -156,6 +172,7 @@ async (page) => {
   await page.getByRole('button', { name: '确认删除', exact: true }).click();
   await page.getByText('清单还是空的，写下第一件待办吧。', { exact: true }).waitFor();
 
+  const previousOwnerChecks = ownerChecks;
   await page.goto('http://127.0.0.1:4179/guestbook/');
   await page.getByLabel('公开昵称', { exact: true }).fill('验收访客');
   await page.getByLabel('留言内容', { exact: true }).fill('这是一条本地验证留言。');
@@ -165,11 +182,17 @@ async (page) => {
   ensure(await publicFeed.getByText('这是一条本地验证留言。', { exact: true }).count() === 0, 'Pending message leaked into public feed');
   await page.getByText('我的提交', { exact: true }).click();
   await page.getByText('待审核', { exact: true }).waitFor();
-  submitted[0].status = 'published';
-  await publicFeed.getByRole('button', { name: '刷新', exact: true }).click();
+  ensure(ownerChecks > previousOwnerChecks, 'Owner status was not checked');
+  ensure(await page.getByRole('heading', { name: '留言审核' }).count() === 0, 'Regular account sees review panel');
+  accountOwner = true;
+  await page.reload();
+  const messageReview = page.getByRole('region', { name: '留言审核' });
+  await messageReview.getByText('这是一条本地验证留言。', { exact: true }).waitFor();
+  await messageReview.getByRole('button', { name: '通过并公开' }).click();
   await publicFeed.getByText('这是一条本地验证留言。', { exact: true }).waitFor();
   await page.screenshot({ path: 'output/playwright/guestbook-mobile-fixture.png', animations: 'disabled' });
   ensure(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Guestbook horizontal overflow');
+  await page.getByText('我的提交', { exact: true }).click();
   await page.getByRole('button', { name: '撤回', exact: true }).click();
   await page.getByRole('button', { name: '确认撤回', exact: true }).click();
   await page.getByRole('status').filter({ hasText: '已撤回' }).waitFor();
@@ -181,11 +204,17 @@ async (page) => {
   await page.getByRole('button', { name: '提交友链申请', exact: true }).click();
   await page.getByRole('status').filter({ hasText: '已提交' }).waitFor();
   ensure(await publicFeed.getByRole('link', { name: '测试友链' }).count() === 0, 'Pending link leaked');
-  submitted[1].status = 'published';
-  await publicFeed.getByRole('button', { name: '刷新', exact: true }).click();
+  const friendReview = page.getByRole('region', { name: '友链审核' });
+  await friendReview.getByRole('button', { name: '拒绝', exact: true }).click();
+  await friendReview.getByRole('status').filter({ hasText: '已拒绝' }).waitFor();
+  await friendReview.getByRole('button', { name: '未通过', exact: true }).click();
+  await friendReview.getByRole('button', { name: '恢复公开', exact: true }).click();
   const publicLink = publicFeed.getByRole('link', { name: '测试友链' });
   await publicLink.waitFor();
   ensure(await publicLink.getAttribute('href') === 'https://example.com/', 'Friend link destination mismatch');
+  await friendReview.getByRole('button', { name: '已公开', exact: true }).click();
+  await friendReview.getByRole('button', { name: '撤下', exact: true }).click();
+  await publicLink.waitFor({ state: 'hidden' });
 
   await page.goto('http://127.0.0.1:4179/todo/');
   await page.getByRole('button', { name: '退出登录', exact: true }).click();
@@ -205,5 +234,5 @@ async (page) => {
   await dialog.getByRole('button', { name: '关闭账号面板', exact: true }).click();
   await dialog.waitFor({ state: 'hidden' });
   ensure(errors.length === 0, `Page errors: ${errors.join(', ')}`);
-  return { checks: 'unconfigured, homepage account dialog, OTP, username setup and login, existing TODO CRUD, failed save, filters, reload, logout, guestbook submission and withdrawal, friend application and published link, mobile layouts', consolePageErrors: errors.length, note: 'Supabase HTTP responses are local fixtures; no real email or cloud account was used.' };
+  return { checks: 'unconfigured, homepage account dialog, OTP, username setup and login, existing TODO CRUD, failed save, filters, reload, logout, guestbook review and withdrawal, friend application rejection, publication and removal, mobile layouts', consolePageErrors: errors.length, note: 'Supabase HTTP responses are local fixtures; no real email or cloud account was used.' };
 }

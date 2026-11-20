@@ -9,6 +9,7 @@ export function createAccountApi(client, env = import.meta.env, fetcher = fetch)
   }
   return {
     username: () => rpc('get_site_username'),
+    isOwner: () => rpc('site_is_owner'),
     setUsername: requested => rpc('set_site_username', { requested }),
     async passwordLogin(username, password) {
       const resp = await fetcher(`${config.url}/functions/v1/username-login`, {

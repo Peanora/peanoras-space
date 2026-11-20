@@ -5,7 +5,7 @@ export const validUsername = value => /^[a-z0-9_]{3,24}$/.test(normalizedUsernam
 export const passwordBytes = value => new TextEncoder().encode(value).length;
 
 export function createAccountState() {
-  return { user: null, initializing: true, pendingEmail: '', resendAt: 0, busy: '', error: '', message: '', username: '', profile: 'idle' };
+  return { user: null, initializing: true, pendingEmail: '', resendAt: 0, busy: '', error: '', message: '', username: '', profile: 'idle', isOwner: false };
 }
 
 export function createAccount({ auth, api, state = createAccountState(), now = Date.now, schedule = fn => setTimeout(fn, 0) }) {
@@ -19,9 +19,13 @@ export function createAccount({ auth, api, state = createAccountState(), now = D
     state.initializing = false;
     if (!changed) return;
     const id = ++epoch;
-    Object.assign(state, { pendingEmail: '', resendAt: 0, username: '', profile: state.user ? 'loading' : 'idle' });
+    Object.assign(state, { pendingEmail: '', resendAt: 0, username: '', profile: state.user ? 'loading' : 'idle', isOwner: false });
     clearFeedback();
-    if (state.user) schedule(() => { if (current(id)) void loadProfile(); });
+    if (state.user) schedule(() => {
+      if (!current(id)) return;
+      void loadProfile();
+      void loadOwner();
+    });
   }
   function start() {
     if (disposed) return;
@@ -51,6 +55,13 @@ export function createAccount({ auth, api, state = createAccountState(), now = D
     } catch {
       if (current(id)) state.profile = 'unavailable';
     }
+  }
+  async function loadOwner() {
+    if (disposed || !state.user) return;
+    const id = epoch;
+    let isOwner = false;
+    try { isOwner = await api.isOwner(); } catch { /* Access remains disabled when the check fails. */ }
+    if (current(id)) state.isOwner = isOwner === true;
   }
   async function run(action, perform, fallback) {
     if (disposed || state.initializing || state.busy) return false;
@@ -146,6 +157,6 @@ export function createAccount({ auth, api, state = createAccountState(), now = D
     }, '退出失败，请重试。');
   }
   return { state, start, loadProfile, sendCode, verifyCode, passwordLogin, setupPassword, changeEmail, clearFeedback, signOut,
-    dispose() { disposed = true; epoch++; subscription?.unsubscribe(); state.user = null; },
+    dispose() { disposed = true; epoch++; subscription?.unsubscribe(); state.user = null; state.isOwner = false; },
   };
 }
