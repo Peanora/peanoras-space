@@ -2,7 +2,8 @@ import { computed, ref, shallowRef } from 'vue';
 import { todoConfig } from '../todo/config.js';
 import { contentDocument, isContentPreview } from './store.js';
 
-const online = shallowRef([]);
+const config = todoConfig(import.meta.env);
+const online = shallowRef(null);
 export const littleNotesStatus = ref('idle');
 let pending;
 let writes = 0;
@@ -11,24 +12,25 @@ export const littleNotes = computed(() => {
   const block = contentDocument.value.pages.little.blocks.find(block => block.type === 'notes' && !block.hidden);
   if (!block) return [];
   const originals = block.data.items;
-  if (isContentPreview.value || !online.value.length) return originals;
+  if (isContentPreview.value || !config) return originals;
+  if (!online.value) return [];
 
   const byId = new Map(online.value.map(note => [note.id, note]));
   const originalIds = new Set(originals.map(note => note.id));
   const added = online.value.filter(note => !originalIds.has(note.id));
-  return [...added, ...originals.map(note => byId.get(note.id) ?? note)];
+  return [...added, ...originals.map(note => byId.get(note.id) ?? note)].filter(note => !note.deleted);
 });
 
 export function loadLittleNotes() {
-  const config = todoConfig(import.meta.env);
   if (!config || isContentPreview.value) return;
   if (pending) return pending;
   const version = writes;
   littleNotesStatus.value = 'loading';
   pending = (async () => {
     try {
-      const response = await fetch(`${config.url}/rest/v1/rpc/list_little_notes`, {
+      const response = await fetch(`${config.url}/rest/v1/rpc/list_little_notes?include_deleted=true`, {
         headers: { apikey: config.key },
+        cache: 'no-store',
         signal: AbortSignal.timeout(12000),
       });
       if (!response.ok) throw new Error('Could not load notes');
@@ -47,15 +49,29 @@ export function loadLittleNotes() {
   return pending;
 }
 
+function updateNotes(entry) {
+  writes++;
+  const items = online.value ?? [];
+  online.value = items.some(item => item.id === entry.id)
+    ? items.map(item => item.id === entry.id ? entry : item)
+    : [entry, ...items];
+  littleNotesStatus.value = 'ready';
+}
+
 export async function saveLittleNote(client, note) {
   const { data, error } = await client.rpc('save_little_note', {
     note_id: note.id, note_text: note.text, note_source: note.source, note_rare: note.rare,
     expected_revision: note.revision ?? null,
   });
   if (error) throw error;
-  writes++;
-  const index = online.value.findIndex(item => item.id === data.id);
-  if (index === -1) online.value = [data, ...online.value];
-  else online.value = online.value.map(item => item.id === data.id ? data : item);
-  littleNotesStatus.value = 'ready';
+  updateNotes(data);
+}
+
+export async function deleteLittleNote(client, note) {
+  const { error } = await client.rpc('delete_little_note', {
+    note_id: note.id,
+    expected_revision: note.revision ?? null,
+  });
+  if (error) throw error;
+  updateNotes({ id: note.id, deleted: true });
 }

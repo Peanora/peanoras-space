@@ -23,9 +23,20 @@ async (page) => {
     const respond = (json, status = 200) => route.fulfill({ status, headers: { 'x-supabase-api-version': '2024-01-01' }, contentType: 'application/json', body: JSON.stringify(json) });
     if (url.pathname.endsWith('/list_little_notes')) {
       ensure(method === 'GET' && !request.headers().authorization, 'Public notes must load without opening an account session');
-      return respond(publishedNotes);
+      return respond(url.searchParams.get('include_deleted') === 'true' ? publishedNotes : publishedNotes.filter(note => !note.deleted));
     }
     providerRequests++;
+    if (url.pathname.endsWith('/delete_little_note')) {
+      ensure(accountOwner, 'A regular account tried to delete a note');
+      const index = publishedNotes.findIndex(note => note.id === body.note_id);
+      if ((publishedNotes[index]?.revision ?? null) !== body.expected_revision) {
+        return respond({ code: '40001', message: 'little_note_conflict' }, 409);
+      }
+      const marker = { id: body.note_id, deleted: true };
+      if (index === -1) publishedNotes.unshift(marker);
+      else publishedNotes[index] = marker;
+      return respond(true);
+    }
     if (url.pathname.endsWith('/save_little_note')) {
       ensure(accountOwner, 'A regular account tried to save a note');
       const index = publishedNotes.findIndex(note => note.id === body.note_id);
@@ -266,6 +277,23 @@ async (page) => {
   ensure(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Paper editor mobile overflow');
   await page.reload();
   await page.locator('.favorites-list').getByText('修改后的新纸条。', { exact: true }).waitFor();
+  await page.getByText('管理纸条', { exact: true }).click();
+  const uneditedPaper = paperList.getByRole('listitem').filter({ hasText: '有些片段，因为一首歌而被记住。' });
+  await uneditedPaper.getByRole('button', { name: '删除', exact: true }).click();
+  await uneditedPaper.getByRole('button', { name: '取消', exact: true }).click();
+  ensure(!publishedNotes.some(note => note.id === 'little-02'), 'Cancel unexpectedly removed a paper');
+  await uneditedPaper.getByRole('button', { name: '删除', exact: true }).click();
+  await uneditedPaper.getByRole('button', { name: '确认删除', exact: true }).click();
+  await uneditedPaper.waitFor({ state: 'detached' });
+  const savedPaper = paperList.getByRole('listitem').filter({ hasText: '修改后的新纸条。' });
+  await savedPaper.getByRole('button', { name: '删除', exact: true }).click();
+  await savedPaper.getByRole('button', { name: '确认删除', exact: true }).click();
+  await page.locator('.favorites-list').getByText('修改后的新纸条。', { exact: true }).waitFor({ state: 'hidden' });
+  await publicPaper.getByText('改过字的原纸条。', { exact: true }).waitFor();
+  await page.reload();
+  await publicPaper.getByText('改过字的原纸条。', { exact: true }).waitFor();
+  await page.getByText('管理纸条', { exact: true }).click();
+  ensure(await uneditedPaper.count() === 0 && await savedPaper.count() === 0, 'Removed papers reappeared after reload');
 
   await page.goto('http://127.0.0.1:4179/todo/');
   await page.getByRole('button', { name: '退出登录', exact: true }).click();
@@ -278,7 +306,7 @@ async (page) => {
   await page.getByRole('button', { name: '我的', exact: true }).click();
   ensure(await page.getByRole('link', { name: 'TODO 清单', exact: true }).isVisible(), 'Mobile menu missing TODO');
   await page.goto('http://127.0.0.1:4179/');
-  await page.locator('.chapter-ticket.ticket-little').getByText('修改后的新纸条。', { exact: true }).first().waitFor({ state: 'attached' });
+  await page.locator('.chapter-ticket.ticket-little').getByText('改过字的原纸条。', { exact: true }).first().waitFor({ state: 'attached' });
   await page.getByRole('button', { name: '账号登录', exact: true }).click();
   await dialog.getByLabel('用户名', { exact: true }).waitFor();
   ensure(await page.evaluate(() => document.querySelector('dialog').getBoundingClientRect().right <= innerWidth), 'Mobile login dialog overflow');
@@ -286,5 +314,5 @@ async (page) => {
   await dialog.getByRole('button', { name: '关闭账号面板', exact: true }).click();
   await dialog.waitFor({ state: 'hidden' });
   ensure(errors.length === 0, `Page errors: ${errors.join(', ')}`);
-  return { checks: 'accounts and TODO, community moderation, paper creation and editing by the owner, stable IDs, visitor favorites, homepage updates, mobile layouts', consolePageErrors: errors.length, note: 'Supabase HTTP responses are local fixtures; no real email or cloud account was used.' };
+  return { checks: 'accounts and TODO, community moderation, owner paper creation, editing and deletion, stable IDs, visitor favorites, homepage updates, mobile layouts', consolePageErrors: errors.length, note: 'Supabase HTTP responses are local fixtures; no real email or cloud account was used.' };
 }

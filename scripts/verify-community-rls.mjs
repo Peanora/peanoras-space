@@ -154,5 +154,42 @@ try {
     assert.equal(notes[0].id, 'little-01');
     assert.deepEqual(Object.keys(notes[0]).sort(), ['id', 'text', 'source', 'rare', 'revision', 'created_at'].sort());
   });
+
+  const noteDeletion = await readFile(new URL('../supabase/migrations/202611200004_delete_little_notes.sql', import.meta.url), 'utf8');
+  await db.exec(noteDeletion);
+  const deleteNote = (id, revision = null) => query(
+    'select public.delete_little_note($1,$2) as deleted', [id, revision],
+  ).then(([{ deleted }]) => deleted);
+  await as('anon', null, async () => {
+    await denied(deleteNote('little-02'));
+  });
+  await as('authenticated', alice, async () => {
+    await denied(deleteNote('little-02'));
+    await denied(db.query('update site_private.little_notes set deleted = true'));
+  });
+  await as('authenticated', owner, async () => {
+    const [{ notes }] = await query('select public.list_little_notes() as notes');
+    const existing = notes.find(note => note.id === 'little-01');
+    assert.equal(existing.text, '修改后的纸条');
+    await assert.rejects(deleteNote(existing.id), { code: '40001' });
+    assert.equal(await deleteNote(existing.id, existing.revision), true);
+    assert.equal(await deleteNote(existing.id, existing.revision), true);
+    await assert.rejects(saveNote(existing.id, 'Stale edit', '', false, existing.revision), { code: '40001' });
+    assert.equal(await deleteNote('little-02'), true);
+    await assert.rejects(saveNote('little-02', 'Stale original', '', false), { code: '40001' });
+    const added = await saveNote('note-3', 'Third note', '', false);
+    const edited = await saveNote(added.id, 'Updated third note', '', false, added.revision);
+    await assert.rejects(deleteNote(added.id, added.revision), { code: '40001' });
+    assert.equal(await deleteNote(edited.id, edited.revision), true);
+    await saveNote('note-4', 'Visible', '', false);
+  });
+  await as('anon', null, async () => {
+    const [{ notes: visible }] = await query('select public.list_little_notes() as notes');
+    assert.deepEqual(visible.map(note => note.id), ['note-4']);
+    const [{ notes: withRemoved }] = await query('select public.list_little_notes(true) as notes');
+    assert.deepEqual(withRemoved.filter(note => note.deleted).sort((a, b) => a.id.localeCompare(b.id)), [
+      { id: 'little-01', deleted: true }, { id: 'little-02', deleted: true }, { id: 'note-3', deleted: true },
+    ]);
+  });
   console.log(JSON.stringify({ result: 'passed', checks, engine: 'local PostgreSQL (PGlite)', cloud: false }));
 } finally { await db.close(); }

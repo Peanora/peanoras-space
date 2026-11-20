@@ -17,6 +17,11 @@
 .little-editor button:disabled { opacity: .6; cursor: not-allowed; }
 .little-editor-list { list-style: none; padding: 8px 0 0; margin: 8px 0 0; }
 .little-editor-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 10px; padding: 8px 0; border-top: 1px dashed var(--line); }
+.little-editor-row-actions { display: flex; gap: 6px; }
+.little-editor .little-editor-delete-trigger { color: #8e4137; }
+.little-editor-delete-confirm { grid-column: 1 / -1; padding: 8px 10px; border-radius: 7px; background: var(--background); }
+.little-editor-delete-confirm .little-editor-actions { margin-top: 6px; }
+.little-editor .little-editor-delete-submit { border-radius: 7px; background: #8e4137; color: var(--surface); }
 .little-editor-list p, .little-editor-feedback { white-space: pre-wrap; overflow-wrap: anywhere; }
 .little-editor-list small, .little-editor-feedback { color: var(--muted); }
 .little-editor-feedback { margin-top: 8px; }

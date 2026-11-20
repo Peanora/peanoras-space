@@ -5,7 +5,7 @@ import ContentText from "./ContentText.vue";
 import ArtworkImage from "../ui/ArtworkImage.vue";
 defineProps({ screen: { type: Object, required: true } });
 const noteOpen = ref(false);
-const note = computed(() => littleNotes.value.find(item => !item.rare) || { text: "", source: "" });
+const note = computed(() => littleNotes.value.find(item => !item.rare));
 </script>
 
 <template>
@@ -81,6 +81,7 @@ const note = computed(() => littleNotes.value.find(item => !item.rare) || { text
         <figcaption>{{ screen.artworkNote }} · 插画壁纸</figcaption>
       </figure>
       <button
+        v-if="note"
         class="note-sheet"
         :class="{ 'is-open': noteOpen }"
         :aria-pressed="noteOpen"

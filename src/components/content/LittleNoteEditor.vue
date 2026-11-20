@@ -1,6 +1,6 @@
 <script setup>
 import { nextTick, ref, shallowRef } from 'vue';
-import { littleNotes, littleNotesStatus, loadLittleNotes, saveLittleNote } from '../../content/littleNotes.js';
+import { deleteLittleNote, littleNotes, littleNotesStatus, loadLittleNotes, saveLittleNote } from '../../content/littleNotes.js';
 import { cleanRichText } from '../../content/richText.js';
 import { getTodoClient } from '../../todo/client.js';
 import ContentText from './ContentText.vue';
@@ -10,6 +10,7 @@ const draft = ref(null), saving = ref(false), conflict = ref(false);
 const message = ref(''), error = ref('');
 const textarea = ref(null), summary = ref(null);
 const editorTrigger = shallowRef(null);
+const deleteTarget = shallowRef(null), deleteRow = shallowRef(null), deleting = ref(false);
 
 function originalText(value) {
   const content = document.createElement('template');
@@ -20,7 +21,7 @@ function originalText(value) {
 }
 
 async function edit(note, event) {
-  if (draft.value || littleNotesStatus.value !== 'ready') return;
+  if (draft.value || deleteTarget.value || littleNotesStatus.value !== 'ready') return;
   error.value = '';
   message.value = '';
   conflict.value = false;
@@ -32,6 +33,51 @@ async function edit(note, event) {
   } : { id: `note-${crypto.randomUUID()}`, text: '', source: '', rare: false };
   await nextTick();
   textarea.value?.focus();
+}
+
+async function askDelete(note, event) {
+  if (draft.value || deleteTarget.value || littleNotesStatus.value !== 'ready') return;
+  message.value = '';
+  error.value = '';
+  deleteRow.value = event.currentTarget.closest('li');
+  deleteTarget.value = note;
+  await nextTick();
+  deleteRow.value?.querySelector('.little-editor-delete-cancel')?.focus();
+}
+
+async function cancelDelete() {
+  const row = deleteRow.value;
+  deleteTarget.value = null;
+  deleteRow.value = null;
+  error.value = '';
+  await nextTick();
+  row?.querySelector('.little-editor-delete-trigger')?.focus();
+}
+
+async function remove() {
+  if (!deleteTarget.value || deleting.value || littleNotesStatus.value !== 'ready') return;
+  deleting.value = true;
+  error.value = '';
+  try {
+    await deleteLittleNote(getTodoClient(), deleteTarget.value);
+    deleteTarget.value = null;
+    deleteRow.value = null;
+    message.value = '纸条已删除。';
+    await nextTick();
+    summary.value?.focus();
+  } catch (failure) {
+    if (failure?.message === 'little_note_conflict') {
+      deleteTarget.value = null;
+      deleteRow.value = null;
+      await loadLittleNotes();
+      error.value = '纸条已更新，请核对内容后再删除。';
+      summary.value?.focus();
+    } else {
+      error.value = '删除失败，请重试。';
+    }
+  } finally {
+    deleting.value = false;
+  }
 }
 
 async function close() {
@@ -94,15 +140,27 @@ async function save() {
           </div>
           <p v-if="error" role="alert" class="little-editor-feedback">{{ error }}</p>
         </form>
-        <button v-else type="button" class="plain-button little-editor-publish" @click="edit(null, $event)">添加纸条</button>
+        <button v-else type="button" class="plain-button little-editor-publish" :disabled="Boolean(deleteTarget)" @click="edit(null, $event)">添加纸条</button>
         <p v-if="message" role="status" class="little-editor-feedback">{{ message }}</p>
+        <p v-if="error && !draft && !deleteTarget" role="alert" class="little-editor-feedback">{{ error }}</p>
         <ul v-if="littleNotes.length" class="little-editor-list" aria-label="纸条列表">
           <li v-for="note in littleNotes" :key="note.id">
             <div>
               <ContentText tag="p" :value="note.text" :plain="Boolean(note.revision)" />
               <small v-if="note.rare">彩蛋纸条</small>
             </div>
-            <button type="button" class="plain-button" :disabled="Boolean(draft)" @click="edit(note, $event)">修改</button>
+            <div v-if="deleteTarget?.id !== note.id" class="little-editor-row-actions">
+              <button type="button" class="plain-button" :disabled="Boolean(draft || deleteTarget)" @click="edit(note, $event)">修改</button>
+              <button type="button" class="plain-button little-editor-delete-trigger" :disabled="Boolean(draft || deleteTarget)" @click="askDelete(note, $event)">删除</button>
+            </div>
+            <div v-else class="little-editor-delete-confirm">
+              <p>删除这张纸条？它会从网站移除。</p>
+              <div class="little-editor-actions">
+                <button type="button" class="plain-button little-editor-delete-cancel" :disabled="deleting" @click="cancelDelete">取消</button>
+                <button type="button" class="plain-button little-editor-delete-submit" :disabled="deleting" @click="remove">{{ deleting ? '正在删除…' : '确认删除' }}</button>
+              </div>
+              <p v-if="error" role="alert" class="little-editor-feedback">{{ error }}</p>
+            </div>
           </li>
         </ul>
       </template>
