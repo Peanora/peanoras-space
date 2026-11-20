@@ -1,14 +1,15 @@
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue';
-import { contentDocument } from '../../content/store';
+import { isContentPreview } from '../../content/store';
 import { contentImage } from '../../content/assets';
 import { safeLink } from '../../content/model';
-import { musicPlatformName, officialEmbedUrl, useMusicPlayer } from '../../composables/useMusicPlayer';
+import { musicPlatformName, useMusicPlayer } from '../../composables/useMusicPlayer';
 import { useAmbientMotion } from '../../composables/useAmbientMotion';
 
 // Material Symbols Rounded (Google) and playlist-music (Pictogrammers), Apache-2.0.
 // https://github.com/google/material-design-icons / https://github.com/Templarian/MaterialDesign
 const musicIcons = {
+  "shuffle": "M3 6h3.5l11 12H21m-3.5-3.5L21 18l-3.5 3.5M3 18h3.5l3.5-3.8m4-4.4L17.5 6H21m-3.5-3.5L21 6l-3.5 3.5",
   "repeat": "m6.85 19l.85.85q.3.3.288.7t-.288.7q-.3.3-.712.313t-.713-.288L3.7 18.7q-.15-.15-.213-.325T3.426 18t.063-.375t.212-.325l2.575-2.575q.3-.3.713-.287t.712.312q.275.3.288.7t-.288.7l-.85.85H17v-3q0-.425.288-.712T18 13t.713.288T19 14v3q0 .825-.587 1.413T17 19zm10.3-12H7v3q0 .425-.288.713T6 11t-.712-.288T5 10V7q0-.825.588-1.412T7 5h10.15l-.85-.85q-.3-.3-.288-.7t.288-.7q.3-.3.712-.312t.713.287L20.3 5.3q.15.15.213.325t.062.375t-.062.375t-.213.325l-2.575 2.575q-.3.3-.712.288T16.3 9.25q-.275-.3-.288-.7t.288-.7z",
   "repeatOne": "M11.5 10.5h-.75q-.325 0-.537-.213T10 9.75t.213-.537T10.75 9H12q.425 0 .713.288T13 10v4.25q0 .325-.213.538T12.25 15t-.537-.213t-.213-.537zM6.85 19l.85.85q.3.3.288.7t-.288.7q-.3.3-.712.313t-.713-.288L3.7 18.7q-.15-.15-.213-.325T3.426 18t.063-.375t.212-.325l2.575-2.575q.3-.3.713-.287t.712.312q.275.3.288.7t-.288.7l-.85.85H17v-3q0-.425.288-.712T18 13t.713.288T19 14v3q0 .825-.587 1.413T17 19zm10.3-12H7v3q0 .425-.288.713T6 11t-.712-.288T5 10V7q0-.825.588-1.412T7 5h10.15l-.85-.85q-.3-.3-.288-.7t.288-.7q.3-.3.712-.312t.713.287L20.3 5.3q.15.15.213.325t.062.375t-.062.375t-.213.325l-2.575 2.575q-.3.3-.712.288T16.3 9.25q-.275-.3-.288-.7t.288-.7z",
   "previous": "M5.5 17V7q0-.425.288-.712T6.5 6t.713.288T7.5 7v10q0 .425-.288.713T6.5 18t-.712-.288T5.5 17m11.45-.025l-6.2-4.15q-.225-.15-.337-.362T10.3 12t.113-.462t.337-.363l6.2-4.15q.125-.1.275-.125t.275-.025q.4 0 .7.275t.3.725v8.25q0 .45-.3.725t-.7.275q-.125 0-.275-.025t-.275-.125",
@@ -21,24 +22,23 @@ const musicIcons = {
 };
 
 const {
-  expanded, activeSong, selectedSong, embedUrl, revision, loadSong, chooseSong, stop, retry,
-  nativeSource, playing, currentTime, duration, volume, nativeStatus, muted, repeatOne, nativeAudioUrl,
-  setLocalAudioCatalog, attachAudio, releaseAudio, pause, seek, setVolume, toggleMute, toggleRepeat,
+  expanded, activeSong, selectedSong, albums, songs, embedUrl, revision, loadSong, chooseSong, stepSong, stop, retry,
+  nativeSource, playing, currentTime, duration, volume, nativeStatus, muted, repeatMode, nativeAudioUrl,
+  setLocalAudioCatalog, attachAudio, releaseAudio, preloadSongs, pause, seek, setVolume, toggleMute, toggleRepeat,
 } = useMusicPlayer();
-const albums = computed(() => contentDocument.value.pages.music.blocks
-  .filter(block => block.type === 'songs' && !block.hidden)
-  .map(block => ({ id: block.id, label: block.label, songs: block.data.items.filter(song => officialEmbedUrl(song) || nativeAudioUrl(song)) }))
-  .filter(album => album.songs.length));
-const songs = computed(() => albums.value.flatMap(album => album.songs));
 const selected = computed(() => activeSong.value || selectedSong.value || songs.value.find(song => nativeAudioUrl(song)) || songs.value[0]);
 const hasNativeAudio = computed(() => Boolean(nativeAudioUrl(selected.value)));
 const platform = computed(() => musicPlatformName(selected.value));
 const officialUrl = computed(() => safeLink(selected.value?.officialUrl));
-const playlistOpen = ref(false), heading = ref(null), audioElement = ref(null), frameStatus = ref('');
+const playlistOpen = ref(false), heading = ref(null), audioHost = ref(null), frameStatus = ref('');
 const { still } = useAmbientMotion();
 const nativePlaying = computed(() => Boolean(nativeSource.value && playing.value));
 const playbackLabel = computed(() => hasNativeAudio.value ? nativePlaying.value ? '暂停播放' : '播放音乐' : embedUrl.value ? '停止播放' : '加载官方播放器');
-const repeatLabel = computed(() => repeatOne.value ? '关闭单曲循环' : '开启单曲循环');
+const repeatLabel = computed(() => ({
+  list: '列表循环，点击切换单曲循环',
+  one: '单曲循环，点击切换随机播放',
+  shuffle: '随机播放，点击切换列表循环',
+})[repeatMode.value]);
 const progressFill = computed(() => `${duration.value > 0 ? Math.min(100, Math.max(0, currentTime.value / duration.value * 100)) : 0}%`);
 let frameTimer;
 function formatTime(seconds) {
@@ -49,11 +49,6 @@ function play() {
   if (hasNativeAudio.value) { if (nativePlaying.value) pause(); else loadSong(selected.value); }
   else if (embedUrl.value) stop();
   else loadSong(selected.value);
-}
-function step(direction) {
-  if (!songs.value.length) return;
-  const current = songs.value.findIndex(song => song.id === selected.value?.id);
-  chooseSong(songs.value[(current + direction + songs.value.length) % songs.value.length]);
 }
 function collapse() {
   expanded.value = false;
@@ -85,8 +80,13 @@ watch(expanded, async value => {
 function onEscape(event) {
   if (event.key === 'Escape' && expanded.value) { event.stopPropagation(); collapse(); }
 }
+function preloadPlaylist() {
+  if (audioHost.value && !isContentPreview.value) preloadSongs();
+}
 onMounted(async () => {
-  attachAudio(audioElement.value);
+  const element = document.createElement('audio');
+  audioHost.value.append(element);
+  attachAudio(element);
   // These files live outside public/ and only the loopback Vite server serves them.
   if (import.meta.env.DEV) {
     try {
@@ -94,12 +94,19 @@ onMounted(async () => {
       if (response.ok && response.headers.get('content-type')?.includes('application/json')) setLocalAudioCatalog(await response.json());
     } catch { /* Missing local music keeps the official player available. */ }
   }
+  if (!audioHost.value) return;
+  if (document.readyState === 'complete') preloadPlaylist();
+  else window.addEventListener('load', preloadPlaylist, { once: true });
 });
-onUnmounted(() => { clearTimeout(frameTimer); releaseAudio(); });
+onUnmounted(() => {
+  window.removeEventListener('load', preloadPlaylist);
+  clearTimeout(frameTimer);
+  releaseAudio();
+});
 </script>
 
 <template>
-  <audio ref="audioElement" class="music-audio" preload="none"></audio>
+  <div ref="audioHost" class="music-audio" hidden></div>
   <button v-if="expanded" class="music-mobile-backdrop" aria-label="收起音乐播放器" @click="collapse"></button>
   <section v-if="selected" id="music-panel" class="space-panel sidebar-widget sidebar-music music-widget" :class="{ 'is-expanded': expanded, 'has-native-audio': hasNativeAudio, 'is-still': still }" aria-labelledby="music-panel-heading" @keydown="onEscape">
     <div class="music-panel-top">
@@ -125,10 +132,10 @@ onUnmounted(() => { clearTimeout(frameTimer); releaseAudio(); });
     </div>
     <label class="music-progress"><span class="sr-only">播放进度</span><input class="music-range" type="range" min="0" :max="duration || 1" step="0.1" :value="currentTime" :style="{ '--range-fill': progressFill }" :disabled="!hasNativeAudio || !duration" aria-label="播放进度" :aria-valuetext="`${formatTime(currentTime)} / ${formatTime(duration)}`" @input="seek($event.target.value)" /></label>
     <div class="music-controls">
-      <button class="music-control music-repeat" :class="{ 'is-active': repeatOne }" :aria-label="repeatLabel" :title="repeatLabel" :aria-pressed="repeatOne" :disabled="!hasNativeAudio" @click="toggleRepeat"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="repeatOne ? musicIcons.repeatOne : musicIcons.repeat" /></svg></button>
-      <button class="music-control music-skip" aria-label="上一首" title="上一首" @click="step(-1)"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="musicIcons.previous" /></svg></button>
+      <button class="music-control music-repeat" :aria-label="repeatLabel" :title="repeatLabel" :disabled="!hasNativeAudio" @click="toggleRepeat"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path v-if="repeatMode === 'shuffle'" class="music-shuffle-icon" :d="musicIcons.shuffle" fill="none" /><path v-else :d="repeatMode === 'one' ? musicIcons.repeatOne : musicIcons.repeat" /></svg></button>
+      <button class="music-control music-skip" aria-label="上一首" title="上一首" @click="stepSong(selected, -1)"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="musicIcons.previous" /></svg></button>
       <button class="music-play-button" :class="{ 'is-playing': nativePlaying }" :aria-label="playbackLabel" :title="playbackLabel" @click="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path v-if="nativePlaying" :d="musicIcons.pause" /><path v-else-if="!hasNativeAudio && embedUrl" d="M6 6h12v12H6Z" /><path v-else :d="musicIcons.play" /></svg></button>
-      <button class="music-control music-skip" aria-label="下一首" title="下一首" @click="step(1)"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="musicIcons.next" /></svg></button>
+      <button class="music-control music-skip" aria-label="下一首" title="下一首" @click="stepSong(selected, 1)"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="musicIcons.next" /></svg></button>
       <button class="music-control" aria-label="选择歌曲" title="歌单" aria-controls="music-playlist" :aria-expanded="playlistOpen" @click="playlistOpen = !playlistOpen"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path :d="musicIcons.playlist" /></svg></button>
     </div>
     <div v-show="playlistOpen" id="music-playlist" class="music-playlist">

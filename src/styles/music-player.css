@@ -3,6 +3,7 @@
 .sidebar-widgets .music-widget .space-widget-title { line-height: 27px; }
 .sidebar-widgets .music-widget .space-widget-title::before { top: 5.5px; }
 .sidebar-widgets .music-widget svg path { stroke: none; }
+.sidebar-widgets .music-widget .music-shuffle-icon { stroke: currentColor; stroke-width: 2.2; }
 .music-panel-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .music-panel-top .music-panel-close { display: none; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 8px; color: var(--muted); background: transparent; font: inherit; font-size: 24px; }
 .music-track { display: flex; align-items: center; gap: 8px; margin: 8px 4px; }
@@ -40,8 +41,7 @@
 .music-control.music-skip { width: 46px; height: 46px; }
 .music-control.music-skip > svg { width: 30px; height: 30px; }
 .music-control:hover, .music-control[aria-expanded="true"] { background: var(--accent-soft); color: var(--accent); }
-.music-repeat { color: color-mix(in srgb, var(--muted) 35%, var(--surface)); }
-.music-repeat.is-active { color: var(--accent); }
+.music-repeat { color: var(--accent); }
 .music-control:disabled, .music-mute-button:disabled { color: var(--line); cursor: default; background: transparent; }
 .music-play-button { width: 48px; height: 48px; border-radius: 50%; color: var(--accent); background: var(--accent-soft); }
 .music-play-button > svg { width: 30px; height: 30px; }

@@ -151,9 +151,9 @@ test('native playback waits for explicit play and media events, survives shared 
   player.pause();
   assert.equal(player.playing.value, false);
   const calls = element.playCalls;
-  element.dispatchEvent(new Event('ended'));
-  assert.equal(element.playCalls, calls, 'ended never advances or restarts a track');
   player.stop();
+  element.dispatchEvent(new Event('ended'));
+  assert.equal(element.playCalls, calls, 'ended after stop cannot start playback');
   assert.equal(element.getAttribute('src'), null);
   assert.equal(player.selectedSong.value, song);
   assert.equal(player.currentTime.value, 0);
@@ -206,10 +206,10 @@ test('single-track repeat requires explicit opt-in and never starts an unloaded 
   player.stop();
   setLocalAudioCatalog({ tracks: { 'repeat-first': { src: '/.local-audio/repeat-first.wav' }, 'repeat-second': { src: '/.local-audio/repeat-second.wav' } } });
   player.attachAudio(element);
-  assert.equal(player.repeatOne.value, false, 'repeat is off by default');
+  assert.equal(player.repeatMode.value, 'list', 'playlist repeat is on by default');
   assert.equal(element.loop, false);
   player.toggleRepeat();
-  assert.equal(player.repeatOne.value, true);
+  assert.equal(player.repeatMode.value, 'one');
   assert.equal(element.loop, false, 'a repeat preference cannot load or start a track');
   assert.equal(element.playCalls, 0);
   assert.equal(element.getAttribute('src'), null);
@@ -218,22 +218,76 @@ test('single-track repeat requires explicit opt-in and never starts an unloaded 
   player.chooseSong(second);
   assert.equal(player.activeSong.value, second, 'manual next/selection still changes tracks in single repeat mode');
   assert.equal(element.loop, true);
-  player.toggleRepeat();
-  assert.equal(element.loop, false);
   const calls = element.playCalls;
   element.dispatchEvent(new Event('ended'));
-  assert.equal(element.playCalls, calls, 'repeat-off never auto-restarts or advances');
+  assert.equal(element.playCalls, calls, 'single-track repeat leaves looping to the native player');
   assert.equal(player.activeSong.value, second);
-  player.toggleRepeat();
   player.stop();
   assert.equal(element.loop, false, 'stop releases media looping as well as the source');
   assert.equal(element.getAttribute('src'), null);
   assert.equal(player.selectedSong.value, second);
-  player.setRepeatOne(false);
+  player.toggleRepeat();
+  player.toggleRepeat();
+  assert.equal(player.repeatMode.value, 'list');
   player.releaseAudio();
   setLocalAudioCatalog({ tracks: {} });
   player.selectedSong.value = null;
   player.expanded.value = false;
+});
+
+test('playlist repeat advances in playlist order and wraps without reopening the player', () => {
+  const player = useMusicPlayer();
+  const element = new TestAudio();
+  const [first, second] = player.songs.value;
+  const last = player.songs.value.at(-1);
+  player.attachAudio(element);
+  assert.equal(player.repeatMode.value, 'list');
+  assert.equal(element.getAttribute('src'), null);
+  assert.equal(element.playCalls, 0);
+
+  player.loadSong(last);
+  player.expanded.value = false;
+  element.dispatchEvent(new Event('ended'));
+  assert.equal(player.activeSong.value, first);
+  assert.equal(element.getAttribute('src'), nativeAudioUrl(first));
+  assert.equal(player.expanded.value, false);
+  assert.equal(element.loop, false);
+  element.dispatchEvent(new Event('ended'));
+  assert.equal(player.activeSong.value, second);
+  assert.equal(element.playCalls, 3);
+
+  player.releaseAudio();
+  player.selectedSong.value = null;
+});
+
+test('shuffle picks a different track on ended and next, and cycles back to playlist repeat', context => {
+  context.mock.method(Math, 'random', () => 0);
+  const player = useMusicPlayer();
+  const element = new TestAudio();
+  const [first, second] = player.songs.value;
+  const third = player.songs.value[2];
+  player.attachAudio(element);
+  player.toggleRepeat();
+  player.toggleRepeat();
+  try {
+    assert.equal(player.repeatMode.value, 'shuffle');
+    assert.equal(element.playCalls, 0);
+    player.loadSong(second);
+    player.expanded.value = false;
+    element.dispatchEvent(new Event('ended'));
+    assert.equal(player.activeSong.value, first);
+    assert.notEqual(player.activeSong.value, third, 'shuffle does not just follow playlist order');
+    assert.equal(player.expanded.value, false);
+    assert.equal(element.loop, false);
+    player.stepSong(first, 1);
+    assert.equal(player.activeSong.value, second, 'shuffle cannot immediately repeat the current track');
+  } finally {
+    player.toggleRepeat();
+    player.releaseAudio();
+    player.selectedSong.value = null;
+    player.expanded.value = false;
+  }
+  assert.equal(player.repeatMode.value, 'list');
 });
 
 test('failed native play requests do not claim playback and an old rejection cannot override a newly selected track', async () => {
