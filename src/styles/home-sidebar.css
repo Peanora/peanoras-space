@@ -7,18 +7,6 @@
 .space-sidebar-home.sidebar-widgets .music-widget { margin-bottom: 2px; }
 .space-sidebar-home .sidebar-widget-group { position: static; }
 .space-sidebar-home.sidebar-widgets.space-sidebar-right .sidebar-calendar { display: block; }
-@media (min-width: 1440px) {
-  .space-sidebar-home.sidebar-widgets.space-sidebar-right {
-    position: sticky;
-    top: 88px;
-    max-height: calc(100dvh - 104px);
-    overflow-x: hidden;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
-    scrollbar-color: var(--apricot) transparent;
-  }
-}
 @media (width < 1440px) {
   .space-sidebar-home.sidebar-widgets.space-sidebar-right {
     display: grid;
@@ -31,11 +19,6 @@
 }
 @media (1024px <= width < 1440px) {
   .space-sidebar-home.sidebar-widgets.space-sidebar-right { grid-column: 2; }
-}
-@media (min-width: 1024px) {
-  .space-sidebar-home.sidebar-widgets.space-sidebar-left { position: sticky; top: 88px; max-height: calc(100dvh - 104px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--apricot) transparent; }
-  .space-sidebar-home::-webkit-scrollbar { width: 4px; }
-  .space-sidebar-home::-webkit-scrollbar-thumb { border-radius: 4px; background: var(--apricot); }
 }
 @media (max-width: 1023px) {
   /* Keep the player mounted. A transformed or display:none ancestor would
