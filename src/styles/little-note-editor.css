@@ -1,0 +1,22 @@
+.little-editor { margin: 0 0 22px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.little-editor summary { min-height: 44px; padding: 10px 16px; cursor: pointer; color: var(--accent); font-weight: 800; }
+.little-editor[open] summary { border-bottom: 1px solid var(--line); }
+.little-editor-content { padding: 14px 16px; }
+.little-editor-form { display: grid; gap: 8px; }
+.little-editor-form > label { font-weight: 700; }
+.little-editor-form :is(textarea, input:not([type="checkbox"])) {
+  min-width: 0; width: 100%; min-height: 44px; padding: 8px 10px; border: 1px solid var(--line);
+  border-radius: 7px; background: var(--background); color: var(--text); font: inherit;
+}
+.little-editor-form textarea { resize: vertical; }
+.little-editor-rare, .little-editor-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.little-editor-rare { min-height: 44px; }
+.little-editor-rare input { accent-color: var(--accent); }
+.little-editor .plain-button { min-height: 44px; padding: 4px 10px; }
+.little-editor .little-editor-publish { background: var(--accent); border-radius: 7px; color: var(--surface); }
+.little-editor button:disabled { opacity: .6; cursor: not-allowed; }
+.little-editor-list { list-style: none; padding: 8px 0 0; margin: 8px 0 0; }
+.little-editor-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 10px; padding: 8px 0; border-top: 1px dashed var(--line); }
+.little-editor-list p, .little-editor-feedback { white-space: pre-wrap; overflow-wrap: anywhere; }
+.little-editor-list small, .little-editor-feedback { color: var(--muted); }
+.little-editor-feedback { margin-top: 8px; }

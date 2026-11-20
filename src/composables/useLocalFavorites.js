@@ -9,7 +9,7 @@ export function useLocalFavorites(validIds, { persist = true } = {}) {
     const stored = persist ? JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]") : [];
     if (!Array.isArray(stored)) throw new Error("Invalid favorites");
     favorites.value = [
-      ...new Set(stored.filter((id) => allowed().includes(id))),
+      ...new Set(stored.filter((id) => typeof id === 'string')),
     ];
   } catch {
     storageNotice.value = "收藏记录暂时无法读取，本次仍可以收藏。";

@@ -1,11 +1,12 @@
 <script setup>
-import { computed, provide } from 'vue';
+import { computed, onMounted, provide } from 'vue';
 import { useRoute } from 'vue-router';
 import { site } from '../../data/site';
 import { appearance } from '../../data/appearance';
 import { contentDocument, editingContent } from '../../content/store';
 import { contentImage } from '../../content/assets';
 import { pageItems } from '../../content/pages';
+import { littleNotes, loadLittleNotes } from '../../content/littleNotes.js';
 import { unityEntries } from '../../content/unityNotes';
 import { safeLink } from '../../content/model';
 import { useMusicPlayer } from '../../composables/useMusicPlayer';
@@ -14,7 +15,7 @@ import SpaceCalendar from './SpaceCalendar.vue';
 import MusicPlayer from '../ui/MusicPlayer.vue';
 import '../../styles/home-sidebar.css';
 
-defineProps({ side: { type: String, default: 'left' }, compact: Boolean });
+const props = defineProps({ side: { type: String, default: 'left' }, compact: Boolean });
 provide('content-page', 'home');
 const route = useRoute();
 const cover = computed(() => contentDocument.value.pages.home.blocks.find(block => block.type === 'homeCover')?.data);
@@ -22,7 +23,8 @@ const profile = computed(() => contentDocument.value.pages.world.blocks.find(blo
 const notes = computed(() => unityEntries(contentDocument.value));
 const songs = computed(() => pageItems(contentDocument.value, 'music', 'songs').filter(song => !song.isPlaceholder));
 const albums = computed(() => contentDocument.value.pages.music.blocks.filter(block => !block.hidden && block.type === 'songs' && block.data.items.some(song => !song.isPlaceholder)));
-const littleNotes = computed(() => pageItems(contentDocument.value, 'little', 'notes').filter(note => !note.rare).slice(0, 2));
+const notePreviews = computed(() => littleNotes.value.filter(note => !note.rare).slice(0, 2));
+onMounted(() => { if (props.side === 'right') void loadLittleNotes(); });
 const categories = computed(() => {
   const counts = new Map();
   for (const note of notes.value) if (note.category) counts.set(note.category, (counts.get(note.category) || 0) + 1);
@@ -89,12 +91,12 @@ const icons = {
     </template>
 
     <template v-else>
-      <section v-if="littleNotes.length" class="space-panel firefly-widget firefly-moments">
+      <section v-if="notePreviews.length" class="space-panel firefly-widget firefly-moments">
         <h2 class="space-widget-title">小角落</h2>
         <div class="firefly-moment-list">
-          <article v-for="note in littleNotes" :key="note.id" class="firefly-moment">
+          <article v-for="note in notePreviews" :key="note.id" class="firefly-moment">
             <p v-if="note.source" class="firefly-moment-source"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.note" /></svg>{{ note.source }}</p>
-            <ContentText tag="p" class="firefly-moment-text" :value="note.text" />
+            <ContentText tag="p" class="firefly-moment-text" :value="note.text" :plain="Boolean(note.revision)" />
           </article>
         </div>
         <RouterLink to="/little-things" class="space-widget-more"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.note" /></svg>更多纸条 <span aria-hidden="true">›</span></RouterLink>

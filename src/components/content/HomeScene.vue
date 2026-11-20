@@ -1,12 +1,11 @@
 <script setup>
 import { ref, computed } from "vue";
-import { contentDocument } from "../../content/store";
-import { pageItems } from "../../content/selectors";
+import { littleNotes } from "../../content/littleNotes.js";
 import ContentText from "./ContentText.vue";
 import ArtworkImage from "../ui/ArtworkImage.vue";
 defineProps({ screen: { type: Object, required: true } });
 const noteOpen = ref(false);
-const note = computed(() => pageItems(contentDocument.value, "little", "notes")[0] || { text: "", source: "" });
+const note = computed(() => littleNotes.value.find(item => !item.rare) || { text: "", source: "" });
 </script>
 
 <template>
@@ -91,8 +90,8 @@ const note = computed(() => pageItems(contentDocument.value, "little", "notes")[
         <span class="note-number">A LITTLE NOTE / 01</span>
         <Transition name="note" mode="out-in">
           <span v-if="noteOpen" key="open" class="note-content"
-            ><ContentText tag="span" class="note-quote" :value="note.text" />
-            <ContentText tag="span" class="note-source" :value="note.source" /></span
+            ><ContentText tag="span" class="note-quote" :value="note.text" :plain="Boolean(note.revision)" />
+            <ContentText tag="span" class="note-source" :value="note.source" :plain="Boolean(note.revision)" /></span
           >
           <span v-else key="closed" class="note-content"
             ><span class="note-doodle" aria-hidden="true">✳</span

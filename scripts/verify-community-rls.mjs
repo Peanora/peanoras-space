@@ -33,6 +33,8 @@ try {
   await db.exec(migration);
   const moderation = await readFile(new URL('../supabase/migrations/202611200002_site_owner_moderation.sql', import.meta.url), 'utf8');
   await db.exec(moderation);
+  const littleNotes = await readFile(new URL('../supabase/migrations/202611200003_little_notes.sql', import.meta.url), 'utf8');
+  await db.exec(littleNotes);
   await db.query("insert into auth.users values ($1, 'owner@test.invalid', now(), '')", [owner]);
   await db.query('insert into site_private.owner(user_id) values ($1)', [owner]);
 
@@ -118,6 +120,39 @@ try {
   await as('authenticated', owner, async () => {
     assert.deepEqual(await query("select public.review_site_entry('message',$1,'published','rejected') as result", [messageId]), [{ result: false }]);
     assert.deepEqual(await query("select * from public.site_moderation_queue('message','withdrawn')"), []);
+  });
+  const saveNote = (id, text, source, rare, revision = null) => query(
+    'select public.save_little_note($1,$2,$3,$4,$5) as note', [id, text, source, rare, revision],
+  ).then(([{ note }]) => note);
+  await as('anon', null, async () => {
+    assert.deepEqual(await query('select public.list_little_notes() as notes'), [{ notes: [] }]);
+    await denied(saveNote('little-01', 'Unauthorised change', '', false));
+    await denied(db.query('select * from site_private.little_notes'));
+  });
+  await as('authenticated', alice, async () => {
+    await denied(saveNote('little-01', 'Unauthorised change', '', false));
+    await denied(db.query('update site_private.little_notes set rare = true'));
+  });
+  await as('authenticated', owner, async () => {
+    const original = await saveNote('little-01', ' 初版 ', '', false);
+    assert.equal(original.id, 'little-01');
+    assert.equal(original.text, '初版');
+    await assert.rejects(saveNote(original.id, 'Duplicate', '', false), { code: '40001' });
+    const updated = await saveNote(original.id, '修改后的纸条', '来源', true, original.revision);
+    assert.equal(updated.id, original.id);
+    assert.equal(updated.created_at, original.created_at);
+    assert.equal(updated.rare, true);
+    assert.notEqual(updated.revision, original.revision);
+    await assert.rejects(saveNote(original.id, 'Old edit', '', false, original.revision), { code: '40001' });
+    await assert.rejects(saveNote('blank', '\t\n', '', false), { code: '23514' });
+    await assert.rejects(saveNote('long', '字'.repeat(601), '', false), { code: '23514' });
+  });
+  await as('anon', null, async () => {
+    const [{ notes }] = await query('select public.list_little_notes() as notes');
+    assert.equal(notes.length, 1);
+    assert.equal(notes[0].text, '修改后的纸条');
+    assert.equal(notes[0].id, 'little-01');
+    assert.deepEqual(Object.keys(notes[0]).sort(), ['id', 'text', 'source', 'rare', 'revision', 'created_at'].sort());
   });
   console.log(JSON.stringify({ result: 'passed', checks, engine: 'local PostgreSQL (PGlite)', cloud: false }));
 } finally { await db.close(); }

@@ -27,7 +27,7 @@ function sync() {
   if (element.value[key] !== html && (document.activeElement !== element.value || !document.hasFocus())) element.value[key] = html;
 }
 onMounted(sync);
-watch(() => props.value, sync);
+watch([() => props.value, () => props.plain], sync);
 </script>
 <template>
   <component :is="tag" ref="element" :contenteditable="isDev && editingContent && field ? 'true' : undefined"

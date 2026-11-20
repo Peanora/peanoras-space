@@ -109,6 +109,7 @@ html::-webkit-scrollbar { width: 0; }
 .app-main .little-paper { padding: 0; border: 0; background: none; box-shadow: none; }
 .app-main .quote-area { min-height: 180px; }
 .app-main .quote-area blockquote { font-size: clamp(24px, 2.4vw, 32px); }
+.has-online-note blockquote, .favorites-list p { white-space: pre-wrap; overflow-wrap: anywhere; }
 .app-main .favorites-section { padding: 28px 0 0; background: none; border-top: 1px solid var(--line); }
 .app-main .favorites-section .display { font-size: 30px; }
 .app-main .plain-button { border-radius: 9px; background: var(--accent-soft); color: var(--accent); border-color: transparent; }

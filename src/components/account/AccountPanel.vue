@@ -111,6 +111,7 @@ async function createPassword() {
       <div class="account-actions account-signed-in">
         <RouterLink to="/todo" @click="$emit('close')">打开我的清单</RouterLink>
         <template v-if="state.isOwner">
+          <RouterLink to="/little-things" @click="$emit('close')">管理小角落</RouterLink>
           <RouterLink to="/friends" @click="$emit('close')">友链审核</RouterLink>
           <RouterLink to="/guestbook" @click="$emit('close')">留言审核</RouterLink>
         </template>

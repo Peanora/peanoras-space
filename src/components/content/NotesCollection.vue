@@ -6,8 +6,9 @@ const props = defineProps({ data: Object, blockId: String, readonly: Boolean });
 const littleThings = computed(() => props.data.items);
 import { useLocalFavorites } from "../../composables/useLocalFavorites";
 
-const currentId = ref(littleThings.value[0]?.id);
-const current = computed(() => littleThings.value.find((item) => item.id === currentId.value) || littleThings.value[0]);
+const currentId = ref();
+const current = computed(() => littleThings.value.find(item => item.id === currentId.value)
+  || littleThings.value.find(item => !item.rare) || littleThings.value[0]);
 const currentIndex = computed(() => littleThings.value.indexOf(current.value));
 const announcement = ref("");
 const noteOpen = ref(false);
@@ -46,12 +47,12 @@ function removeSaved(id) {
   <div>
     <section v-if="current" class="little-paper" aria-label="随机文字">
       <ContentText tag="span" class="eyebrow" :value="data.eyebrow" :block-id="blockId" :field="readonly ? undefined : 'eyebrow'" />
-      <div class="quote-area" aria-live="polite" aria-atomic="true">
+      <div class="quote-area" :class="{ 'has-online-note': current.revision }" aria-live="polite" aria-atomic="true">
         <Transition name="quote" mode="out-in"
-          ><ContentText tag="blockquote" :key="current.id" :value="current.text" :block-id="blockId" :field="readonly ? undefined : `items.${currentIndex}.text`" /></Transition
+          ><ContentText tag="blockquote" :key="current.id" :value="current.text" :plain="Boolean(current.revision)" :block-id="blockId" :field="readonly ? undefined : `items.${currentIndex}.text`" /></Transition
         >
       </div>
-      <ContentText tag="span" class="quote-source" :value="current.source" :block-id="blockId" :field="readonly ? undefined : `items.${currentIndex}.source`" />
+      <ContentText tag="span" class="quote-source" :value="current.source" :plain="Boolean(current.revision)" :block-id="blockId" :field="readonly ? undefined : `items.${currentIndex}.source`" />
       <div class="little-actions">
         <button class="plain-button" @click="nextText">
           {{ data.nextLabel }} <span aria-hidden="true">↻</span></button
@@ -77,7 +78,7 @@ function removeSaved(id) {
       <ContentText tag="p" class="small muted" :value="data.favoritesHint" :block-id="blockId" :field="readonly ? undefined : 'favoritesHint'" />
       <ul v-if="saved.length" class="favorites-list">
         <li v-for="item in saved" :key="item.id">
-          <ContentText tag="p" :value="item.text" :block-id="blockId" :field="readonly ? undefined : `items.${littleThings.indexOf(item)}.text`" />
+          <ContentText tag="p" :value="item.text" :plain="Boolean(item.revision)" :block-id="blockId" :field="readonly ? undefined : `items.${littleThings.indexOf(item)}.text`" />
           <button
             class="remove-favorite"
             :aria-label="`移除收藏：${item.text}`"

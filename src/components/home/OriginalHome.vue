@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, onUnmounted, provide, ref, watch } from 
 import { useRoute } from 'vue-router';
 import { contentDocument, editingContent, publishEditorEvent, selectedContentBlock } from '../../content/store';
 import { homeScreensFor, pageItems } from '../../content/selectors';
+import { littleNotes, loadLittleNotes } from '../../content/littleNotes.js';
 import { contentImage } from '../../content/assets';
 import { unityEntries } from '../../content/unityNotes';
 import { safeLink } from '../../content/model';
@@ -36,11 +37,11 @@ const samples = computed(() => {
   const document = contentDocument.value;
   const note = unityEntries(document).at(-1);
   const song = pageItems(document, 'music', 'songs').find(item => !item.isPlaceholder);
-  const slip = pageItems(document, 'little', 'notes').find(item => !item.rare);
+  const slip = littleNotes.value.find(item => !item.rare);
   return {
     world: note && { label: 'Unity 学习笔记', text: note.title, path: `/unity-notes/${note.id}` },
     music: song && { label: song.artist, text: song.title, path: '/music#songs' },
-    little: slip && { label: slip.source, text: slip.text, path: '/little-things' },
+    little: slip && { label: slip.source, text: slip.text, plain: Boolean(slip.revision), path: '/little-things' },
   };
 });
 const {
@@ -76,6 +77,7 @@ watch(() => route.hash, hash => reveal(hash.slice(1)), { immediate: true });
 watch(selectedContentBlock, id => { if (editingContent.value) reveal(id); });
 watch(current, index => { if (editingContent.value && screens.value[index]) select(screens.value[index].id); });
 onMounted(() => {
+  void loadLittleNotes();
   window.addEventListener('peanora:home-anchor', homeAnchor);
   if (import.meta.env.DEV) window.addEventListener('peanora:select-home', editorSelect);
   if (editingContent.value) reveal(selectedContentBlock.value);

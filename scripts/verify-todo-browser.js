@@ -7,6 +7,8 @@ async (page) => {
   let rows = [], version = 0, providerRequests = 0, accountUsername = '', accountPassword = '';
   let accountOwner = false, ownerChecks = 0;
   const submitted = [];
+  const publishedNotes = [];
+  let noteWrites = 0;
   const user = () => ({ id: activeEmail.includes('-b@') ? 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb' : 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', email: activeEmail, aud: 'authenticated', role: 'authenticated', app_metadata: { provider: 'email', providers: ['email'] }, user_metadata: {}, created_at: '2026-11-12T00:00:00Z' });
   const authSession = () => {
     const exp = Math.floor(Date.now() / 1000) + 3600;
@@ -15,11 +17,26 @@ async (page) => {
   };
   await page.unroute(`${fixture}/**`);
   await page.route(`${fixture}/**`, async route => {
-    providerRequests++;
     const request = route.request(), url = new URL(request.url());
     const method = request.method();
     const body = request.postDataJSON();
     const respond = (json, status = 200) => route.fulfill({ status, headers: { 'x-supabase-api-version': '2024-01-01' }, contentType: 'application/json', body: JSON.stringify(json) });
+    if (url.pathname.endsWith('/list_little_notes')) {
+      ensure(method === 'GET' && !request.headers().authorization, 'Public notes must load without opening an account session');
+      return respond(publishedNotes);
+    }
+    providerRequests++;
+    if (url.pathname.endsWith('/save_little_note')) {
+      ensure(accountOwner, 'A regular account tried to save a note');
+      const index = publishedNotes.findIndex(note => note.id === body.note_id);
+      if ((publishedNotes[index]?.revision ?? null) !== body.expected_revision) {
+        return respond({ code: '40001', message: 'little_note_conflict' }, 409);
+      }
+      const note = { id: body.note_id, text: body.note_text, source: body.note_source, rare: body.note_rare, revision: `note-version-${++noteWrites}` };
+      if (index === -1) publishedNotes.unshift(note);
+      else publishedNotes[index] = note;
+      return respond(note);
+    }
     if (url.pathname.endsWith('/otp')) {
       if (failSend) return respond({ error_code: 'over_email_send_rate_limit', code: 'over_email_send_rate_limit', msg: 'Too many requests' }, 429);
       activeEmail = body.email;
@@ -186,8 +203,13 @@ async (page) => {
   await page.getByText('待审核', { exact: true }).waitFor();
   ensure(ownerChecks > previousOwnerChecks, 'Owner status was not checked');
   ensure(await page.getByRole('heading', { name: '留言审核' }).count() === 0, 'Regular account sees review panel');
+  await page.goto('http://127.0.0.1:4179/little-things/');
+  await page.getByRole('heading', { name: 'Little Things', exact: true }).waitFor();
+  const publicPaper = page.getByRole('region', { name: '随机文字' });
+  await publicPaper.getByText('把喜欢的东西，慢慢收集起来。', { exact: true }).waitFor();
+  ensure(await page.getByText('管理纸条', { exact: true }).count() === 0, 'Regular account sees paper editor');
   accountOwner = true;
-  await page.reload();
+  await page.goto('http://127.0.0.1:4179/guestbook/');
   const messageReview = page.getByRole('region', { name: '留言审核' });
   await messageReview.getByText('这是一条本地验证留言。', { exact: true }).waitFor();
   await messageReview.getByRole('button', { name: '通过并公开' }).click();
@@ -218,6 +240,33 @@ async (page) => {
   await friendReview.getByRole('button', { name: '撤下', exact: true }).click();
   await publicLink.waitFor({ state: 'hidden' });
 
+  await page.goto('http://127.0.0.1:4179/little-things/');
+  await page.getByText('管理纸条', { exact: true }).click();
+  const paperList = page.getByRole('list', { name: '纸条列表' });
+  const originalPaper = paperList.getByRole('listitem').filter({ hasText: '把喜欢的东西，慢慢收集起来。' });
+  await originalPaper.getByRole('button', { name: '修改' }).click();
+  ensure(await page.getByRole('textbox', { name: '纸条正文' }).inputValue() === '把喜欢的东西，慢慢收集起来。', 'Original paper did not open for editing');
+  await page.getByRole('textbox', { name: '纸条正文' }).fill('改过字的原纸条。');
+  await page.getByRole('button', { name: '保存到网站' }).click();
+  await publicPaper.getByText('改过字的原纸条。', { exact: true }).waitFor();
+  ensure(publishedNotes[0].id === 'little-01', 'Changing an original paper assigned a new ID');
+  await page.getByRole('button', { name: '添加纸条' }).click();
+  await page.getByRole('textbox', { name: '纸条正文' }).fill('新纸条 <b>原样显示</b>');
+  await page.getByRole('textbox', { name: '来源（可选）' }).fill('本地测试');
+  await page.getByRole('button', { name: '保存到网站' }).click();
+  await publicPaper.getByText('新纸条 <b>原样显示</b>', { exact: true }).waitFor();
+  await publicPaper.getByRole('button', { name: '收藏这句' }).click();
+  const newPaper = paperList.getByRole('listitem').filter({ hasText: '新纸条 <b>原样显示</b>' });
+  await newPaper.getByRole('button', { name: '修改' }).click();
+  await page.getByRole('textbox', { name: '纸条正文' }).fill('修改后的新纸条。');
+  await page.getByRole('button', { name: '保存到网站' }).click();
+  await page.locator('.favorites-list').getByText('修改后的新纸条。', { exact: true }).waitFor();
+  ensure(publishedNotes.length === 2, 'Updates must not create duplicate notes');
+  await page.screenshot({ path: 'output/playwright/little-notes-owner-mobile.png', animations: 'disabled' });
+  ensure(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Paper editor mobile overflow');
+  await page.reload();
+  await page.locator('.favorites-list').getByText('修改后的新纸条。', { exact: true }).waitFor();
+
   await page.goto('http://127.0.0.1:4179/todo/');
   await page.getByRole('button', { name: '退出登录', exact: true }).click();
   await page.getByLabel('邮箱地址', { exact: true }).waitFor();
@@ -229,6 +278,7 @@ async (page) => {
   await page.getByRole('button', { name: '我的', exact: true }).click();
   ensure(await page.getByRole('link', { name: 'TODO 清单', exact: true }).isVisible(), 'Mobile menu missing TODO');
   await page.goto('http://127.0.0.1:4179/');
+  await page.locator('.chapter-ticket.ticket-little').getByText('修改后的新纸条。', { exact: true }).first().waitFor({ state: 'attached' });
   await page.getByRole('button', { name: '账号登录', exact: true }).click();
   await dialog.getByLabel('用户名', { exact: true }).waitFor();
   ensure(await page.evaluate(() => document.querySelector('dialog').getBoundingClientRect().right <= innerWidth), 'Mobile login dialog overflow');
@@ -236,5 +286,5 @@ async (page) => {
   await dialog.getByRole('button', { name: '关闭账号面板', exact: true }).click();
   await dialog.waitFor({ state: 'hidden' });
   ensure(errors.length === 0, `Page errors: ${errors.join(', ')}`);
-  return { checks: 'unconfigured, homepage account dialog, OTP, username setup and login, existing TODO CRUD, failed save, filters, reload, logout, guestbook review and withdrawal, friend application rejection, publication and removal, mobile layouts', consolePageErrors: errors.length, note: 'Supabase HTTP responses are local fixtures; no real email or cloud account was used.' };
+  return { checks: 'accounts and TODO, community moderation, paper creation and editing by the owner, stable IDs, visitor favorites, homepage updates, mobile layouts', consolePageErrors: errors.length, note: 'Supabase HTTP responses are local fixtures; no real email or cloud account was used.' };
 }
