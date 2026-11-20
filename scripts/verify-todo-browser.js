@@ -146,7 +146,9 @@ async (page) => {
   await page.getByRole('checkbox', { name: '标为待完成：修改后的验收待办', exact: true }).waitFor();
   await page.getByRole('button', { name: '账号设置', exact: true }).click();
   await dialog.getByLabel('设置用户名', { exact: true }).fill('Browser_Account');
-  const fixturePassword = 'Browser-only fixture password';
+  const fixturePassword = 'Vz8g+Q';
+  ensure(await dialog.getByLabel('新密码', { exact: true }).getAttribute('minlength') === '6', 'New password minimum is not six characters');
+  ensure(await dialog.getByLabel('确认新密码', { exact: true }).getAttribute('minlength') === '6', 'Password confirmation minimum differs');
   await dialog.getByLabel('新密码', { exact: true }).fill(fixturePassword);
   await dialog.getByLabel('确认新密码', { exact: true }).fill(fixturePassword);
   await dialog.getByRole('button', { name: '保存登录密码', exact: true }).click();

@@ -2,6 +2,7 @@ import { todoError } from '../todo/controller.js';
 
 export const normalizedUsername = value => String(value ?? '').trim().toLowerCase();
 export const validUsername = value => /^[a-z0-9_]{3,24}$/.test(normalizedUsername(value));
+export const MIN_PASSWORD_LENGTH = 6;
 export const passwordBytes = value => new TextEncoder().encode(value).length;
 
 export function createAccountState() {
@@ -124,7 +125,9 @@ export function createAccount({ auth, api, state = createAccountState(), now = D
     return run('set-password', async id => {
       const username = state.username || normalizedUsername(value);
       if (!validUsername(username)) return reject('用户名需为 3–24 位字母、数字或下划线。');
-      if (Array.from(password).length < 10 || passwordBytes(password) > 72) return reject('密码至少需要 10 个字符，且最多 72 字节。');
+      if (Array.from(password).length < MIN_PASSWORD_LENGTH || passwordBytes(password) > 72) {
+        return reject(`密码至少需要 ${MIN_PASSWORD_LENGTH} 个字符，且最多 72 字节。`);
+      }
       if (password !== confirmation) return reject('两次输入的密码不一致。');
       const { error } = await auth.updateUser({ password });
       if (error?.code === 'reauthentication_needed' || error?.code === 'reauthentication_not_valid') return reject('请先退出，再用邮箱验证码登录后设置密码。');

@@ -82,9 +82,11 @@ test('failed sends never advance to code entry; failed verification preserves em
 test('username and password attach to the verified account and use its existing session ID', async () => {
   const h = harness();
   await h.account.start(); await h.account.loadProfile();
+  assert.equal(await h.account.setupPassword('Alice_1', 'aB2!k', 'aB2!k'), false);
+  assert.match(h.account.state.error, /至少需要 6 个字符/);
   assert.equal(await h.account.setupPassword('Alice_1', 'strong passphrase', 'different'), false);
   assert.equal(h.calls.length, 0);
-  const password = 'strong passphrase';
+  const password = 'aB2!k7';
   assert.equal(await h.account.setupPassword(' Alice_1 ', password, password), true);
   assert.deepEqual(h.calls.slice(-2), [['updateUser', { password }], ['setUsername', 'alice_1']]);
   assert.equal(h.account.state.user.id, 'a');

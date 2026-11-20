@@ -1,5 +1,6 @@
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref, useId, watch } from 'vue';
+import { MIN_PASSWORD_LENGTH } from '../../account/session.js';
 import { useSiteAccount } from '../../composables/useSiteAccount.js';
 import '../../styles/account.css';
 
@@ -99,9 +100,10 @@ async function createPassword() {
             <small>3–24 位字母、数字或下划线，设置后固定。</small>
           </template>
           <label :for="`${id}-new-password`">新密码</label>
-          <input :id="`${id}-new-password`" v-model="password" type="password" autocomplete="new-password" minlength="10" maxlength="72" required :disabled="!!state.busy" />
+          <input :id="`${id}-new-password`" v-model="password" type="password" autocomplete="new-password" :minlength="MIN_PASSWORD_LENGTH" maxlength="72" required :disabled="!!state.busy" />
+          <small>至少 {{ MIN_PASSWORD_LENGTH }} 个字符。</small>
           <label :for="`${id}-confirm`">确认新密码</label>
-          <input :id="`${id}-confirm`" v-model="confirmation" type="password" autocomplete="new-password" minlength="10" maxlength="72" required :disabled="!!state.busy" />
+          <input :id="`${id}-confirm`" v-model="confirmation" type="password" autocomplete="new-password" :minlength="MIN_PASSWORD_LENGTH" maxlength="72" required :disabled="!!state.busy" />
           <button class="account-primary" :disabled="!!state.busy">{{ state.busy ? '正在保存…' : '保存登录密码' }}</button>
         </form>
         <button v-else type="button" class="account-secondary" :disabled="!!state.busy" @click="editing = true; controller.clearFeedback()">更改密码</button>
