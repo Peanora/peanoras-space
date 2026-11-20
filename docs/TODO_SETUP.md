@@ -1,6 +1,6 @@
 # TODO 清单：接入与验收
 
-更新：2026-11-12。
+更新：2026-11-20。
 
 ## 当前范围
 
@@ -22,11 +22,14 @@
 
 现有 GitHub Pages / `peanora.cn` 保持，无需新增网站托管。
 
-## 2. 配置邮箱验证码
+## 2. 接入发信服务并配置邮箱验证码
 
-1. Authentication → Sign In / Providers：启用 Email、允许新用户注册，不启用匿名登录。
-2. URL Configuration：Site URL 设为 `https://peanora.cn`。本实现原地输入验证码，不依赖邮件链接跳转。
-3. Email Templates：将 **Magic Link** 和 **Confirm signup** 两个模板都改为显示 `{{ .Token }}`，保证首次注册和再次登录均可使用数字验证码。正文示例：
+Supabase 控制台要求先保存自定义 SMTP 才能编辑邮件标题和正文。内置发信也只支持项目团队的预授权地址。
+
+1. 登录 Resend 免费版，在 [Domains](https://resend.com/domains) 添加发信子域名，例如 `auth.peanora.cn`。在 `peanora.cn` 的 DNSPod 解析里添加 Resend 列出的记录，回 Resend 验证域名。
+2. 创建一个用于发信的 Resend API key。在 Supabase 邮件页点 **Set up SMTP**，启用自定义 SMTP。若使用上面的子域名，发件地址填 `no-reply@auth.peanora.cn`，发件人名称填 `Peanora's Space`。Host 填 `smtp.resend.com`，Port 填 `465`，Username 填 `resend`。Password 填 Resend API key 并保存。这个键只填在 Supabase 控制台。
+3. Authentication → Sign In / Providers 下启用 Email 并允许新用户注册。URL Configuration 下将 Site URL 设为 `https://peanora.cn`。用户在待办页输入验证码即可登录。
+4. 回到 Email Templates，在 **Magic Link** 和 **Confirm signup** 中切到 **Source**，把正文改为显示 `{{ .Token }}`，分别保存。可以使用下面的正文。
 
    ```html
    <h2>登录 Peanora's Space</h2>
@@ -34,11 +37,9 @@
    <p>请回到 TODO 清单页面输入。若不是你本人操作，请忽略此邮件。</p>
    ```
 
-4. 建议验证码有效期 10 分钟、发送间隔至少 60 秒。页面兼容 6–10 位数字，不硬编码服务端有效期。
-5. 配置自定义 SMTP：填发件地址、Host、Port、Username、Password，按邮件服务要求验证发信域名。SMTP 密码仅填在 Supabase 控制台。
-6. **内置邮件服务仅给项目团队预授权地址发信，不适合公开注册；公开使用前必须配置自定义 SMTP。**实际限流由 Supabase 执行，页面倒计时不是服务端限流。若启用防滥用挑战，需要先补接挑战组件。
+5. 建议验证码有效期 10 分钟、发送间隔至少 60 秒。页面兼容 6–10 位数字。实际限流由 Supabase 执行。若启用防滥用挑战，需要先补接挑战组件。
 
-依据：[邮箱 OTP](https://supabase.com/docs/guides/auth/auth-email-passwordless)、[SMTP 限制](https://supabase.com/docs/guides/auth/auth-smtp)、[邮件模板](https://supabase.com/docs/guides/auth/auth-email-templates)。
+参考 [Resend 接入 Supabase](https://resend.com/docs/send-with-supabase-smtp)、[邮箱验证码](https://supabase.com/docs/guides/auth/auth-email-passwordless) 和 [Supabase 发信说明](https://supabase.com/docs/guides/auth/auth-smtp)。
 
 ## 3. 本地连接
 
@@ -55,7 +56,7 @@ VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_你的公开键
 
 在 GitHub 仓库 Settings → Secrets and variables → Actions → **Variables** 添加上述两个同名 Repository variables。公开值可在浏览器查看，数据隔离依靠 RLS 与用户身份。
 
-工作流已读取这两个变量。配置后必须重新构建，变量修改不会改变已发布网页。本轮未推送或部署；后续按站主指令沿用现有 Actions。
+工作流读取这两个变量。配置后必须重新构建，变量修改不会改变已发布网页。2026-11-20 站主授权本轮推送 `main` 并沿用现有 Actions 发布。
 
 ## 5. 权限与真实验收
 
