@@ -148,6 +148,7 @@ onUnmounted(() => {
       <div class="pager-tools">
         <span class="pager-help"><span class="desktop-help">滚轮翻页</span><span class="touch-help">上滑翻页</span></span>
         <button v-if="!editingContent" type="button" class="pager-articles" @click="emit('show-articles')">浏览文章 <span aria-hidden="true">↓</span></button>
+        <a v-if="!editingContent" class="pager-extras" href="#home-extras">小角落与日历</a>
         <a v-if="social" :href="social.url" target="_blank" rel="noopener noreferrer" class="pager-social">{{ social.label }} ↗</a>
       </div>
       <div class="pager-controls">

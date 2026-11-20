@@ -120,9 +120,11 @@
 .original-home .note-leave-to { opacity: 0; transform: translateY(-5px); }
 .original-home .original-pager-footer { position: relative; z-index: 1; flex-shrink: 0; padding: 4px 16px 8px; }
 .original-home .pager-tools { display: flex; align-items: center; gap: 16px; min-height: 32px; margin-bottom: 4px; color: var(--muted); }
-.original-home .pager-help, .original-home .pager-social, .original-home .pager-articles { font-size: 12px; line-height: 1.6; }
+.original-home .pager-help, .original-home .pager-social, .original-home .pager-articles, .original-home .pager-extras { font-size: 12px; line-height: 1.6; }
 .original-home .pager-articles { min-height: 32px; padding: 4px 12px; border: 0; border-radius: 18px; background: var(--accent-soft); color: var(--accent); }
 .original-home .pager-articles:hover { background: var(--apricot); }
+.original-home .pager-extras { display: inline-flex; align-items: center; min-height: 32px; color: var(--accent); white-space: nowrap; }
+.original-home .pager-extras:hover { text-decoration: underline; text-underline-offset: 4px; }
 .original-home .pager-social { display: flex; align-items: center; min-height: 32px; margin-left: auto; }
 .original-home .touch-help { display: none; }
 .original-home .pager-controls { display: flex; align-items: center; gap: 10px; padding-top: 4px; border-top: 1px solid var(--line); }
@@ -209,6 +211,8 @@
   .original-home .screen-count { width: 36px; font-size: 10px; }
   .original-home .pager-help { font-size: 10px; }
   .original-home .pager-social { font-size: 11px; }
+  .original-home .pager-tools { gap: 8px; }
+  .original-home .pager-articles { padding-inline: 8px; }
 }
 @container original-home (max-width: 380px) {
   .original-home .original-screen-layout { padding-inline: 14px; }
@@ -218,5 +222,6 @@
   .original-home .screen-entry { gap: 16px; font-size: 13px; }
 }
 @media (max-width: 767px) { .original-home { scroll-margin-top: 78px; } .original-home .desktop-help { display: none; } .original-home .touch-help { display: inline; } }
+@media (min-width: 1440px) { .original-home .pager-extras { display: none; } }
 @media (max-height: 750px) and (min-width: 768px) { .original-home .home-title { font-size: 58px; } .original-home .cover-layout { row-gap: 12px; padding-block: 16px; } .original-home .ticket-stage, .original-home .ticket-music .ticket-stage, .original-home .ticket-little .ticket-stage { height: 90px; min-height: 90px; } .original-home .ticket-caption { padding-block: 7px; } .original-home .ticket-note { padding-block: 4px; } }
 @media (prefers-reduced-motion: reduce) { .original-home *, .original-home *::before, .original-home *::after { animation: none !important; transition: none !important; } }

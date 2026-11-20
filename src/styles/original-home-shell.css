@@ -1,4 +1,4 @@
-/* Latest shell: current navigation and sidebar around the original four screens. */
+/* Home navigation and sidebars around the original four screens. */
 .app-frame.is-home .original-home-layout { grid-template-columns: 280px minmax(0, 1fr); align-items: start; margin-top: 88px; }
 .original-home-layout #main-content { scroll-margin-top: 88px; }
 .app-frame.is-home .site-backdrop img { opacity: .15; }
@@ -13,4 +13,10 @@
 @media (max-width: 767px) {
   .app-frame.is-home .original-home-layout { --original-home-height: calc(100dvh - 90px); margin-top: 76px; padding-inline: 7px; }
   .home-sidebar-backdrop { top: 63px; }
+}
+@media (min-width: 1440px) {
+  .app-frame.is-home .original-home-layout.has-home-extras {
+    width: 94vw;
+    grid-template-columns: 280px minmax(0, 1fr) clamp(230px, 16vw, 260px);
+  }
 }

@@ -6,8 +6,7 @@ import { unityEntries } from '../content/unityNotes';
 
 const articleFeed = ref(null);
 const articles = computed(() => unityEntries(contentDocument.value)
-  .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
-  .slice(0, 6));
+  .sort((a, b) => (b.date || '').localeCompare(a.date || '')));
 
 function showArticles(shouldScroll = true) {
   if (shouldScroll) {

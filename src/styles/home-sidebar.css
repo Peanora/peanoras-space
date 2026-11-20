@@ -6,6 +6,32 @@
 .space-sidebar-home.sidebar-widgets .sidebar-announcement .space-widget-more { margin-top: 14px; }
 .space-sidebar-home.sidebar-widgets .music-widget { margin-bottom: 2px; }
 .space-sidebar-home .sidebar-widget-group { position: static; }
+.space-sidebar-home.sidebar-widgets.space-sidebar-right .sidebar-calendar { display: block; }
+@media (min-width: 1440px) {
+  .space-sidebar-home.sidebar-widgets.space-sidebar-right {
+    position: sticky;
+    top: 88px;
+    max-height: calc(100dvh - 104px);
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--apricot) transparent;
+  }
+}
+@media (width < 1440px) {
+  .space-sidebar-home.sidebar-widgets.space-sidebar-right {
+    display: grid;
+    align-items: start;
+    scroll-margin-top: 88px;
+  }
+}
+@media (768px <= width < 1440px) {
+  .space-sidebar-home.sidebar-widgets.space-sidebar-right { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (1024px <= width < 1440px) {
+  .space-sidebar-home.sidebar-widgets.space-sidebar-right { grid-column: 2; }
+}
 @media (min-width: 1024px) {
   .space-sidebar-home.sidebar-widgets.space-sidebar-left { position: sticky; top: 88px; max-height: calc(100dvh - 104px); overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: var(--apricot) transparent; }
   .space-sidebar-home::-webkit-scrollbar { width: 4px; }
@@ -27,5 +53,6 @@
   .space-sidebar-home.sidebar-widgets.space-sidebar-left { top: 75px; max-height: calc(100dvh - 90px); }
   .space-sidebar-home.sidebar-widgets.space-sidebar-left .sidebar-music.music-widget.is-expanded { top: 75px; max-height: calc(100dvh - 95px); }
   .space-sidebar-home.sidebar-widgets .music-mobile-backdrop { top: 63px; }
+  .space-sidebar-home.sidebar-widgets.space-sidebar-right .sidebar-calendar-month button { width: 44px; height: 44px; }
 }
 @media (prefers-reduced-motion: reduce) { .space-sidebar-home.sidebar-widgets.space-sidebar-left { transition: none; } }

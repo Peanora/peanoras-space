@@ -7,6 +7,7 @@ import SiteBackdrop from "./components/layout/SiteBackdrop.vue";
 import SiteBanner from "./components/layout/SiteBanner.vue";
 import SpaceSidebar from "./components/layout/SpaceSidebar.vue";
 import { useAccountDialog } from './composables/useAccountDialog.js';
+import { editingContent } from './content/store.js';
 import './styles/original-home-shell.css';
 
 const route = useRoute();
@@ -14,6 +15,7 @@ const { open: accountOpen, close: closeAccount } = useAccountDialog();
 const AccountDialog = defineAsyncComponent(() => import('./components/account/AccountDialog.vue'));
 const isHome = computed(() => route.path === "/");
 const isReading = computed(() => /^\/unity-notes\/[^/]+\/?$/.test(route.path));
+const showHomeExtras = computed(() => isHome.value && !editingContent.value);
 const homeSidebarOpen = ref(false);
 async function toggleHomeSidebar() {
   if (!isHome.value) return;
@@ -73,7 +75,7 @@ watch(
     >
     <SiteHeader :home-sidebar-open="homeSidebarOpen" />
     <SiteBanner v-if="!isHome" />
-    <div class="space-layout" :class="{ 'original-home-layout': isHome }">
+    <div class="space-layout" :class="{ 'original-home-layout': isHome, 'has-home-extras': showHomeExtras }">
       <button v-if="isHome && homeSidebarOpen" class="home-sidebar-backdrop" aria-label="收起个人侧栏" @click="closeHomeSidebar(true)"></button>
       <SpaceSidebar :id="isHome ? 'home-sidebar' : undefined" :compact="isHome" :class="{ 'is-open': homeSidebarOpen }" />
       <main id="main-content" class="app-main" tabindex="-1" :inert="isHome && homeSidebarOpen">
@@ -83,7 +85,15 @@ watch(
           </Transition>
         </RouterView>
       </main>
-      <SpaceSidebar v-if="!isHome && !isReading" side="right" />
+      <SpaceSidebar
+        v-if="showHomeExtras || (!isHome && !isReading)"
+        :key="showHomeExtras ? 'home-extras' : 'page-extras'"
+        :id="showHomeExtras ? 'home-extras' : undefined"
+        :tabindex="showHomeExtras ? -1 : undefined"
+        :compact="showHomeExtras"
+        :inert="showHomeExtras && homeSidebarOpen"
+        side="right"
+      />
     </div>
     <SiteFooter v-if="!isHome" />
     <AccountDialog v-if="accountOpen" @close="closeAccount" />

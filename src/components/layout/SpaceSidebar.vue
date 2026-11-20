@@ -6,7 +6,7 @@ import { appearance } from '../../data/appearance';
 import { contentDocument, editingContent } from '../../content/store';
 import { contentImage } from '../../content/assets';
 import { pageItems } from '../../content/pages';
-import { littleNotes, loadLittleNotes } from '../../content/littleNotes.js';
+import { littleNotes, littleNotesStatus, loadLittleNotes } from '../../content/littleNotes.js';
 import { unityEntries } from '../../content/unityNotes';
 import { safeLink } from '../../content/model';
 import { useMusicPlayer } from '../../composables/useMusicPlayer';
@@ -16,6 +16,10 @@ import MusicPlayer from '../ui/MusicPlayer.vue';
 import '../../styles/home-sidebar.css';
 
 const props = defineProps({ side: { type: String, default: 'left' }, compact: Boolean });
+const sidebarLabel = computed(() => {
+  if (props.side === 'right') return props.compact ? '小角落、内容统计、正在学习与日历' : '小角落与内容统计';
+  return props.compact ? 'Peanora、公告、音乐、分类与标签' : '关于 Peanora 与笔记分类';
+});
 provide('content-page', 'home');
 const route = useRoute();
 const cover = computed(() => contentDocument.value.pages.home.blocks.find(block => block.type === 'homeCover')?.data);
@@ -24,7 +28,12 @@ const notes = computed(() => unityEntries(contentDocument.value));
 const songs = computed(() => pageItems(contentDocument.value, 'music', 'songs').filter(song => !song.isPlaceholder));
 const albums = computed(() => contentDocument.value.pages.music.blocks.filter(block => !block.hidden && block.type === 'songs' && block.data.items.some(song => !song.isPlaceholder)));
 const notePreviews = computed(() => littleNotes.value.filter(note => !note.rare).slice(0, 2));
-onMounted(() => { if (props.side === 'right') void loadLittleNotes(); });
+const notePreviewMessage = computed(() => {
+  if (littleNotesStatus.value === 'loading') return '正在读取纸条…';
+  if (littleNotesStatus.value === 'error') return '暂时无法读取纸条。';
+  return '暂无纸条预览。';
+});
+onMounted(() => { if (props.side === 'right' && !props.compact) void loadLittleNotes(); });
 const categories = computed(() => {
   const counts = new Map();
   for (const note of notes.value) if (note.category) counts.set(note.category, (counts.get(note.category) || 0) + 1);
@@ -47,7 +56,7 @@ const icons = {
 </script>
 
 <template>
-  <aside class="space-sidebar sidebar-widgets" :class="[`space-sidebar-${side}`, { 'space-sidebar-home': compact && side === 'left' }]" :aria-label="side === 'left' ? compact ? 'Peanora、公告、音乐、分类与标签' : '关于 Peanora 与笔记分类' : '小角落与内容统计'">
+  <aside class="space-sidebar sidebar-widgets" :class="[`space-sidebar-${side}`, { 'space-sidebar-home': compact }]" :aria-label="sidebarLabel">
     <template v-if="side === 'left'">
       <section class="space-panel space-profile sidebar-profile">
         <RouterLink to="/world" class="space-avatar-link" aria-label="认识 Peanora">
@@ -91,14 +100,15 @@ const icons = {
     </template>
 
     <template v-else>
-      <section v-if="notePreviews.length" class="space-panel sidebar-widget sidebar-moments">
+      <section v-if="compact || notePreviews.length" class="space-panel sidebar-widget sidebar-moments">
         <h2 class="space-widget-title">小角落</h2>
-        <div class="sidebar-moment-list">
+        <div v-if="notePreviews.length" class="sidebar-moment-list">
           <article v-for="note in notePreviews" :key="note.id" class="sidebar-moment">
             <p v-if="note.source" class="sidebar-moment-source"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.note" /></svg>{{ note.source }}</p>
             <ContentText tag="p" class="sidebar-moment-text" :value="note.text" :plain="Boolean(note.revision)" />
           </article>
         </div>
+        <p v-else class="sidebar-moment-list sidebar-moment-text" role="status">{{ notePreviewMessage }}</p>
         <RouterLink to="/little-things" class="space-widget-more"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path :d="icons.note" /></svg>更多纸条 <span aria-hidden="true">›</span></RouterLink>
       </section>
 
